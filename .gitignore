@@ -8,4 +8,5 @@ imgui_widgets.o
 imgui.o
 windows.o
 mdl.o
+theme.o
 QuakePrism
