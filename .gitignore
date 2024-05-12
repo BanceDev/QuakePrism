@@ -9,4 +9,6 @@ imgui.o
 windows.o
 mdl.o
 theme.o
+.vscode
+.cache
 QuakePrism
