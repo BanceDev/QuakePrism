@@ -1,139 +1,42 @@
-// SDL2_OpenGL.cpp : Defines the entry point for the console application.
-// MDL loader http://tfc.duke.free.fr/coding/mdl-specs-en.html ported to SDL2 by
-// Memorix101
+// Dear ImGui: standalone example application for SDL2 + OpenGL
+// (SDL is a cross-platform general purpose library for handling windows,
+// inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)
 
-#include "main.h"
+// Learn about Dear ImGui:
+// - FAQ                  https://dearimgui.com/faq
+// - Getting Started      https://dearimgui.com/getting-started
+// - Documentation        https://dearimgui.com/docs (same as your local docs/
+// folder).
+// - Introduction, links and more at the top of imgui.cpp
+
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
 #include "mdl.h"
-#include <SDL_opengl.h>
-#include <iostream>
+#include <SDL2/SDL.h>
 #include <stdio.h>
+#include <iostream>
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+#include <SDL_opengles2.h>
+#else
+#include <SDL_opengl.h>
+#endif
 
-bool init() {
-  // Initialization flag
-  bool success = true;
+// This example can also compile and run with Emscripten! See
+// 'Makefile.emscripten' for details.
+#ifdef __EMSCRIPTEN__
+#include "../libs/emscripten/emscripten_mainloop_stub.h"
+#endif
 
-  // Initialize SDL
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
-    success = false;
-  } else {
-    // Request an OpenGL 3.1 context (should be core)
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                        SDL_GL_CONTEXT_PROFILE_CORE);
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 
-    // Create window
-    gWindow = SDL_CreateWindow(
-        "QuakePrism", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        SCREEN_WIDTH, SCREEN_HEIGHT,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    if (gWindow == NULL) {
-      printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
-      success = false;
-    } else {
-
-      // Get window surface
-      gScreenSurface = SDL_GetWindowSurface(gWindow);
-
-      // Create context
-      gContext = SDL_GL_CreateContext(gWindow);
-      if (gContext == NULL) {
-        printf("OpenGL context could not be created! SDL Error: %s\n",
-               SDL_GetError());
-        success = false;
-      } else {
-        // Use Vsync
-        if (SDL_GL_SetSwapInterval(1) < 0) {
-          printf("Warning: Unable to set VSync! SDL Error: %s\n",
-                 SDL_GetError());
-        }
-
-        // Initialize OpenGL
-        if (!initGL()) {
-          printf("Unable to initialize OpenGL!\n");
-          success = false;
-        }
-      }
-      // Setup Dear ImGui context
-      IMGUI_CHECKVERSION();
-      ImGui::CreateContext();
-
-      // Setup Dear ImGui style
-      ImGui::StyleColorsDark();
-      // ImGui::StyleColorsLight();
-
-      // Setup Platform/Renderer backends
-      ImGui_ImplSDL2_InitForOpenGL(gWindow, gContext);
-      ImGui_ImplOpenGL3_Init("#version 130");
-
-      glewInit();
-    }
-  }
-
-  return success;
-}
-
-bool initGL() {
-  bool success = true;
-
-  GLenum error = GL_NO_ERROR;
-
-  // Initialize Projection Matrix
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  // Check for error
-  error = glGetError();
-  if (error != GL_NO_ERROR) {
-    printf("Error initializing OpenGL! %s\n", gluErrorString(error));
-    success = false;
-  }
-
-  // Initialize Modelview Matrix
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  // Check for error
-  error = glGetError();
-  if (error != GL_NO_ERROR) {
-    printf("Error initializing OpenGL! %s\n", gluErrorString(error));
-    success = false;
-  }
-
-  // Initialize clear color
-  glClearColor(0.f, 0.f, 0.f, 1.f);
-
-  // Check for error
-  error = glGetError();
-  if (error != GL_NO_ERROR) {
-    printf("Error initializing OpenGL! %s\n", gluErrorString(error));
-    success = false;
-  }
-
-  return success;
-}
-
-void close() {
-  ImGui_ImplOpenGL3_Shutdown();
-  ImGui_ImplSDL2_Shutdown();
-  ImGui::DestroyContext();
-
-  glDeleteFramebuffers(1, &FBO);
-  glDeleteTextures(1, &texture_id);
-  glDeleteRenderbuffers(1, &RBO);
-  // Destroy window
-  SDL_GL_DeleteContext(gContext);
-  SDL_DestroyWindow(gWindow);
-  gWindow = NULL;
-
-  // Quit SDL subsystems
-  SDL_Quit();
-}
+// global defined indices for OpenGL
+GLuint VAO; // vertex array object
+GLuint VBO; // vertex buffer object
+GLuint FBO; // frame buffer object
+GLuint RBO; // rendering buffer object
+GLuint texture_id; // the texture id we'll need later to create a texture 
 
 void create_framebuffer() {
   glGenFramebuffers(1, &FBO);
@@ -185,121 +88,217 @@ void rescale_framebuffer(float width, float height) {
                             GL_RENDERBUFFER, RBO);
 }
 
-int main(int argc, char *args[]) {
-  // Start up SDL and create window
-  if (!init()) {
-    printf("Failed to initialize!\n");
-  } else {
-    ImGuiIO &io = ImGui::GetIO();
-    (void)io;
-    io.ConfigFlags |=
-        ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |=
-        ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
-    // Main loop flag
-    bool quit = false;
-
-    // Event handler
-    SDL_Event event;
-
-    // Enable text input
-    SDL_StartTextInput();
-
-    // While application is running
-    ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-    create_framebuffer();
-
-    while (!quit) {
-      // Handle events on queue
-      while (SDL_PollEvent(&event) != 0) {
-        ImGui_ImplSDL2_ProcessEvent(&event);
-        if (event.type == SDL_QUIT)
-          quit = true;
-        if (event.type == SDL_WINDOWEVENT &&
-            event.window.event == SDL_WINDOWEVENT_CLOSE &&
-            event.window.windowID == SDL_GetWindowID(gWindow))
-          quit = true;
-      }
-
-      // Start the Dear ImGui frame
-      ImGui_ImplOpenGL3_NewFrame();
-      ImGui_ImplSDL2_NewFrame();
-      glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-      glClear(GL_COLOR_BUFFER_BIT);
-      ImGui::NewFrame();
-
-      ImGui::ShowDemoWindow();
-
-      // 1. Show the big demo window (Most of the sample code is in
-      // ImGui::ShowDemoWindow()! You can browse its code to learn more about
-      // Dear ImGui!).
-      ImGui::Begin("My Scene");
-
-      // we access the ImGui window size
-      const float window_width = ImGui::GetContentRegionAvail().x;
-      const float window_height = ImGui::GetContentRegionAvail().y;
-
-      // we rescale the framebuffer to the actual window size here and reset the
-      // glViewport
-      rescale_framebuffer(window_width, window_height);
-      glViewport(0, 0, window_width, window_height);
-
-      // we get the screen position of the window
-      ImVec2 pos = ImGui::GetCursorScreenPos();
-
-      // and here we can add our created texture as image to ImGui
-      // unfortunately we need to use the cast to void* or I didn't find another
-      // way tbh
-      /*ImGui::GetWindowDrawList()->AddImage(
-          (ImTextureID)texture_id, ImVec2(pos.x, pos.y),
-          ImVec2(pos.x + window_width, pos.y + window_height), ImVec2(0, 1),
-          ImVec2(1, 0));*/
-      ImGui::Image(
-			(ImTextureID)texture_id, 
-			ImGui::GetContentRegionAvail(), 
-			ImVec2(0, 1), 
-			ImVec2(1, 0));
-
-      ImGui::End();
-      ImGui::Render();
-      
-      
-      
-      // now we can bind our framebuffer
-      bind_framebuffer();
-
-      // Render model
-      MDL::cleanup();
-      MDL::reshape(SCREEN_WIDTH, SCREEN_HEIGHT);
-      MDL::render();
-
-      // and unbind it again
-      unbind_framebuffer();
-      
-
-      
-      glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-      glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
-                   clear_color.z * clear_color.w, clear_color.w);
-      glClear(GL_COLOR_BUFFER_BIT);
-      MDL::cleanup();
-      MDL::reshape(SCREEN_WIDTH, SCREEN_HEIGHT);
-      MDL::render();
-      ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-      
-      
-
-      // Update screen
-      SDL_GL_SwapWindow(gWindow);
-    }
-
-    // Disable text input
-    SDL_StopTextInput();
+// Main code
+int main(int, char **) {
+  // Setup SDL
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) !=
+      0) {
+    printf("Error: %s\n", SDL_GetError());
+    return -1;
   }
 
-  // Free resources and close SDL
-  close();
+  // Decide GL+GLSL versions
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+  // GL ES 2.0 + GLSL 100
+  const char *glsl_version = "#version 100";
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#elif defined(__APPLE__)
+  // GL 3.2 Core + GLSL 150
+  const char *glsl_version = "#version 150";
+  SDL_GL_SetAttribute(
+      SDL_GL_CONTEXT_FLAGS,
+      SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+#else
+  // GL 3.0 + GLSL 130
+  const char *glsl_version = "#version 130";
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#endif
+
+  // From 2.0.18: Enable native IME.
+#ifdef SDL_HINT_IME_SHOW_UI
+  SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
+#endif
+
+  // Create window with graphics context
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+  SDL_WindowFlags window_flags =
+      (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
+                        SDL_WINDOW_ALLOW_HIGHDPI);
+  SDL_Window *window = SDL_CreateWindow(
+      "Dear ImGui SDL2+OpenGL3 example", SDL_WINDOWPOS_CENTERED,
+      SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+  if (window == nullptr) {
+    printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
+    return -1;
+  }
+
+  SDL_GLContext gl_context = SDL_GL_CreateContext(window);
+  SDL_GL_MakeCurrent(window, gl_context);
+  SDL_GL_SetSwapInterval(1); // Enable vsync
+
+  // Setup Dear ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO &io = ImGui::GetIO();
+  (void)io;
+  io.ConfigFlags |=
+      ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+  io.ConfigFlags |=
+      ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
+
+  // Setup Dear ImGui style
+  ImGui::StyleColorsDark();
+  // ImGui::StyleColorsLight();
+
+  // Setup Platform/Renderer backends
+  ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+  ImGui_ImplOpenGL3_Init(glsl_version);
+
+  // Initialize the framebuffer for the model viewer
+  glewInit();
+
+  // Load Fonts
+  // - If no fonts are loaded, dear imgui will use the default font. You can
+  // also load multiple fonts and use ImGui::PushFont()/PopFont() to select
+  // them.
+  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you
+  // need to select the font among multiple.
+  // - If the file cannot be loaded, the function will return a nullptr. Please
+  // handle those errors in your application (e.g. use an assertion, or display
+  // an error and quit).
+  // - The fonts will be rasterized at a given size (w/ oversampling) and stored
+  // into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which
+  // ImGui_ImplXXXX_NewFrame below will call.
+  // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype
+  // for higher quality font rendering.
+  // - Read 'docs/FONTS.md' for more instructions and details.
+  // - Remember that in C/C++ if you want to include a backslash \ in a string
+  // literal you need to write a double backslash \\ !
+  // - Our Emscripten build process allows embedding fonts to be accessible at
+  // runtime from the "fonts/" folder. See Makefile.emscripten for details.
+  // io.Fonts->AddFontDefault();
+  // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
+  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+  // io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+  // ImFont* font =
+  // io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f,
+  // nullptr, io.Fonts->GetGlyphRangesJapanese()); IM_ASSERT(font != nullptr);
+
+  // Our state
+  bool show_demo_window = true;
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+  // create the framebuffer right before the main loop
+  create_framebuffer();
+
+  // Main loop
+  bool done = false;
+#ifdef __EMSCRIPTEN__
+  // For an Emscripten build we are disabling file-system access, so let's not
+  // attempt to do a fopen() of the imgui.ini file. You may manually call
+  // LoadIniSettingsFromMemory() to load settings from your own storage.
+  io.IniFilename = nullptr;
+  EMSCRIPTEN_MAINLOOP_BEGIN
+#else
+  while (!done)
+#endif
+  {
+    // Poll and handle events (inputs, window resize, etc.)
+    // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to
+    // tell if dear imgui wants to use your inputs.
+    // - When io.WantCaptureMouse is true, do not dispatch mouse input data to
+    // your main application, or clear/overwrite your copy of the mouse data.
+    // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input
+    // data to your main application, or clear/overwrite your copy of the
+    // keyboard data. Generally you may always pass all inputs to dear imgui,
+    // and hide them from your application based on those two flags.
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+      ImGui_ImplSDL2_ProcessEvent(&event);
+      if (event.type == SDL_QUIT)
+        done = true;
+      if (event.type == SDL_WINDOWEVENT &&
+          event.window.event == SDL_WINDOWEVENT_CLOSE &&
+          event.window.windowID == SDL_GetWindowID(window))
+        done = true;
+    }
+
+    // Start the Dear ImGui frame
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+
+    // 1. Show the big demo window (Most of the sample code is in
+    // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
+    // ImGui!).
+    if (show_demo_window)
+      ImGui::ShowDemoWindow(&show_demo_window);
+
+    ImGui::Begin("My Scene");
+
+    // we access the ImGui window size
+    const float window_width = ImGui::GetContentRegionAvail().x;
+    const float window_height = ImGui::GetContentRegionAvail().y;
+
+    // we rescale the framebuffer to the actual window size here and reset the
+    // glViewport
+    rescale_framebuffer(window_width, window_height);
+    glViewport(0, 0, window_width, window_height);
+
+    ImGui::Image((ImTextureID)texture_id,
+                 ImGui::GetContentRegionAvail(), ImVec2(0, 1), ImVec2(1, 0));
+
+    ImGui::End();
+
+    // Rendering
+    ImGui::Render();
+
+    // Render the model for the framebuffer
+    bind_framebuffer();
+
+    // Render model
+    MDL::cleanup();
+    MDL::reshape(window_width, window_height);
+    MDL::render();
+
+    // and unbind it again
+    unbind_framebuffer();
+
+    glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,
+                 clear_color.z * clear_color.w, clear_color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    SDL_GL_SwapWindow(window);
+  }
+#ifdef __EMSCRIPTEN__
+  EMSCRIPTEN_MAINLOOP_END;
+#endif
+
+  // Cleanup
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplSDL2_Shutdown();
+  ImGui::DestroyContext();
+
+  glDeleteFramebuffers(1, &FBO);
+  glDeleteTextures(1, &texture_id);
+  glDeleteRenderbuffers(1, &RBO);
+
+  SDL_GL_DeleteContext(gl_context);
+  SDL_DestroyWindow(window);
+  SDL_Quit();
 
   return 0;
 }
