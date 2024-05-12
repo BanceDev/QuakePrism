@@ -6,4 +6,6 @@ imgui_impl_sdl2.o
 imgui_tables.o
 imgui_widgets.o
 imgui.o
+windows.o
+mdl.o
 QuakePrism
