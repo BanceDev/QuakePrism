@@ -13,9 +13,10 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
 #include "mdl.h"
+#include "theme.h"
 #include <SDL2/SDL.h>
-#include <stdio.h>
 #include <iostream>
+#include <stdio.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <SDL_opengles2.h>
 #else
@@ -32,11 +33,11 @@
 #define SCREEN_HEIGHT 480
 
 // global defined indices for OpenGL
-GLuint VAO; // vertex array object
-GLuint VBO; // vertex buffer object
-GLuint FBO; // frame buffer object
-GLuint RBO; // rendering buffer object
-GLuint texture_id; // the texture id we'll need later to create a texture 
+GLuint VAO;        // vertex array object
+GLuint VBO;        // vertex buffer object
+GLuint FBO;        // frame buffer object
+GLuint RBO;        // rendering buffer object
+GLuint texture_id; // the texture id we'll need later to create a texture
 
 void create_framebuffer() {
   glGenFramebuffers(1, &FBO);
@@ -159,7 +160,8 @@ int main(int, char **) {
 
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
-  // ImGui::StyleColorsLight();
+
+  QuakePrism::UI::SetImguiTheme();
 
   // Setup Platform/Renderer backends
   ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
@@ -198,7 +200,7 @@ int main(int, char **) {
 
   // Our state
   bool show_demo_window = true;
-  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+  ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
   // create the framebuffer right before the main loop
   create_framebuffer();
@@ -257,8 +259,8 @@ int main(int, char **) {
     rescale_framebuffer(window_width, window_height);
     glViewport(0, 0, window_width, window_height);
 
-    ImGui::Image((ImTextureID)texture_id,
-                 ImGui::GetContentRegionAvail(), ImVec2(0, 1), ImVec2(1, 0));
+    ImGui::Image((ImTextureID)texture_id, ImGui::GetContentRegionAvail(),
+                 ImVec2(0, 1), ImVec2(1, 0));
 
     ImGui::End();
 

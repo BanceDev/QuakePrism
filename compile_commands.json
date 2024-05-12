@@ -1,1 +1,233 @@
-[]
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "main.o",
+      "main.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/main.cpp",
+    "output": "/home/lanceb/QuakePrism/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "windows.o",
+      "windows.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/windows.cpp",
+    "output": "/home/lanceb/QuakePrism/windows.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "mdl.o",
+      "mdl.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/mdl.cpp",
+    "output": "/home/lanceb/QuakePrism/mdl.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "theme.o",
+      "theme.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/theme.cpp",
+    "output": "/home/lanceb/QuakePrism/theme.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "imgui.o",
+      "lib/imgui/imgui.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/lib/imgui/imgui.cpp",
+    "output": "/home/lanceb/QuakePrism/imgui.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "imgui_demo.o",
+      "lib/imgui/imgui_demo.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/lib/imgui/imgui_demo.cpp",
+    "output": "/home/lanceb/QuakePrism/imgui_demo.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "imgui_draw.o",
+      "lib/imgui/imgui_draw.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/lib/imgui/imgui_draw.cpp",
+    "output": "/home/lanceb/QuakePrism/imgui_draw.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "imgui_tables.o",
+      "lib/imgui/imgui_tables.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/lib/imgui/imgui_tables.cpp",
+    "output": "/home/lanceb/QuakePrism/imgui_tables.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "imgui_widgets.o",
+      "lib/imgui/imgui_widgets.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/lib/imgui/imgui_widgets.cpp",
+    "output": "/home/lanceb/QuakePrism/imgui_widgets.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "imgui_impl_sdl2.o",
+      "lib/imgui/backends/imgui_impl_sdl2.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/lib/imgui/backends/imgui_impl_sdl2.cpp",
+    "output": "/home/lanceb/QuakePrism/imgui_impl_sdl2.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++11",
+      "-I./lib/imgui",
+      "-I./lib/imgui/backends",
+      "-I./gui",
+      "-g",
+      "-Wall",
+      "-Wformat",
+      "-I/usr/include/SDL2",
+      "-D_REENTRANT",
+      "-c",
+      "-o",
+      "imgui_impl_opengl3.o",
+      "lib/imgui/backends/imgui_impl_opengl3.cpp"
+    ],
+    "directory": "/home/lanceb/QuakePrism",
+    "file": "/home/lanceb/QuakePrism/lib/imgui/backends/imgui_impl_opengl3.cpp",
+    "output": "/home/lanceb/QuakePrism/imgui_impl_opengl3.o"
+  }
+]
