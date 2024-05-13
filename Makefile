@@ -5,6 +5,7 @@ EXE := build/QuakePrism
 IMGUI_DIR := ./lib/imgui
 SRC_DIR := ./src
 BUILD_DIR := ./build
+RES_DIR := $(BUILD_DIR)/res
 SOURCES := $(SRC_DIR)/main.cpp $(SRC_DIR)/windows.cpp $(SRC_DIR)/mdl.cpp $(SRC_DIR)/theme.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
@@ -56,11 +57,15 @@ $(BUILD_DIR)/%.o: $(IMGUI_DIR)/backends/%.cpp
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-all: $(EXE)
+all: $(EXE) copy_resources
 	@echo Build complete for $(ECHO_MESSAGE)
 
 $(EXE): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
+
+copy_resources:
+	@echo "Copying resources directory..."
+	@cp -r $(SRC_DIR)/res $(RES_DIR)
 
 clean:
 	rm -rf $(BUILD_DIR) $(EXE)
