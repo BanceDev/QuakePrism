@@ -11,4 +11,5 @@ mdl.o
 theme.o
 .vscode
 .cache
+build
 QuakePrism
