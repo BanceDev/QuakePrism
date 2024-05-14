@@ -10,11 +10,13 @@
 // - Introduction, links and more at the top of imgui.cpp
 
 #include "SDL_video.h"
+#include "TextEditor.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
 #include "mdl.h"
 #include "theme.h"
+#include "windows.h"
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <stdio.h>
@@ -39,6 +41,8 @@ GLuint VBO;        // vertex buffer object
 GLuint FBO;        // frame buffer object
 GLuint RBO;        // rendering buffer object
 GLuint texture_id; // the texture id we'll need later to create a texture
+
+TextEditor editor;
 
 void create_framebuffer() {
   glGenFramebuffers(1, &FBO);
@@ -160,6 +164,7 @@ int main(int, char **) {
       ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
   io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
 
@@ -225,14 +230,13 @@ int main(int, char **) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-
+    QuakePrism::DrawMenuBar();
+    ImGui::DockSpaceOverViewport();
     // 1. Show the big demo window (Most of the sample code is in
     // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
     // ImGui!).
     if (show_demo_window)
       ImGui::ShowDemoWindow(&show_demo_window);
-
-    ImGui::Begin("My Scene");
 
     // we access the ImGui window size
     const float window_width = ImGui::GetContentRegionAvail().x;
@@ -243,10 +247,9 @@ int main(int, char **) {
     rescale_framebuffer(window_width, window_height);
     glViewport(0, 0, window_width, window_height);
 
-    ImGui::Image((ImTextureID)texture_id, ImGui::GetContentRegionAvail(),
-                 ImVec2(0, 1), ImVec2(1, 0));
+    QuakePrism::DrawModelViewer(texture_id);
 
-    ImGui::End();
+    QuakePrism::DrawTextEditor(&editor);
 
     // Rendering
     ImGui::Render();

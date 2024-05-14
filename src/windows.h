@@ -1,11 +1,16 @@
-namespace ImGui {
-namespace QPrism {
+#include "TextEditor.h"
+#include "mdl.h"
 
-void DrawModelViewer();
+namespace QuakePrism {
 
-void DrawTextEditor();
+void DrawMenuBar();
+
+void DrawModelViewer(const GLuint texture_id);
+
+void DrawTextEditor(TextEditor *editor);
+
+void DrawErrorPopup();
 
 void DrawFileExplorer();
 
-} // namespace QPrism
-} // namespace ImGui
+} // namespace QuakePrism

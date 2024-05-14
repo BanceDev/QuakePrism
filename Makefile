@@ -6,14 +6,14 @@ IMGUI_DIR := ./lib/imgui
 SRC_DIR := ./src
 BUILD_DIR := ./build
 RES_DIR := $(BUILD_DIR)/res
-SOURCES := $(SRC_DIR)/main.cpp $(SRC_DIR)/windows.cpp $(SRC_DIR)/mdl.cpp $(SRC_DIR)/theme.cpp
+SOURCES := $(SRC_DIR)/main.cpp $(SRC_DIR)/windows.cpp $(SRC_DIR)/mdl.cpp $(SRC_DIR)/theme.cpp $(SRC_DIR)/TextEditor.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 OBJS := $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS := -lGL -lGLU -lGLEW
 
-CXXFLAGS := -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(SRC_DIR) -g -Wall -Wformat
+CXXFLAGS := -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(SRC_DIR) -g -Wall -Wformat
 LIBS :=
 
 ## OPENGL ES
