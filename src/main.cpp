@@ -1,24 +1,12 @@
-// Dear ImGui: standalone example application for SDL2 + OpenGL
-// (SDL is a cross-platform general purpose library for handling windows,
-// inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)
-
-// Learn about Dear ImGui:
-// - FAQ                  https://dearimgui.com/faq
-// - Getting Started      https://dearimgui.com/getting-started
-// - Documentation        https://dearimgui.com/docs (same as your local docs/
-// folder).
-// - Introduction, links and more at the top of imgui.cpp
-
 #include "SDL_video.h"
 #include "TextEditor.h"
+#include "framebuffer.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
-#include "mdl.h"
 #include "theme.h"
 #include "windows.h"
 #include <SDL2/SDL.h>
-#include <iostream>
 #include <stdio.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <SDL_opengles2.h>
@@ -32,9 +20,6 @@
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
 #endif
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
-
 // global defined indices for OpenGL
 GLuint VAO;        // vertex array object
 GLuint VBO;        // vertex buffer object
@@ -43,56 +28,6 @@ GLuint RBO;        // rendering buffer object
 GLuint texture_id; // the texture id we'll need later to create a texture
 
 TextEditor editor;
-
-void create_framebuffer() {
-  glGenFramebuffers(1, &FBO);
-  glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-  glGenTextures(1, &texture_id);
-  glBindTexture(GL_TEXTURE_2D, texture_id);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGB,
-               GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                         texture_id, 0);
-
-  glGenRenderbuffers(1, &RBO);
-  glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCREEN_WIDTH,
-                        SCREEN_HEIGHT);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                            GL_RENDERBUFFER, RBO);
-
-  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!\n";
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glBindRenderbuffer(GL_RENDERBUFFER, 0);
-}
-
-// here we bind our framebuffer
-void bind_framebuffer() { glBindFramebuffer(GL_FRAMEBUFFER, FBO); }
-
-// here we unbind our framebuffer
-void unbind_framebuffer() { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
-
-// and we rescale the buffer, so we're able to resize the window
-void rescale_framebuffer(float width, float height) {
-  glBindTexture(GL_TEXTURE_2D, texture_id);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-               GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                         texture_id, 0);
-
-  glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                            GL_RENDERBUFFER, RBO);
-}
 
 // Main code
 int main(int, char **) {
@@ -192,7 +127,7 @@ int main(int, char **) {
   ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
   // create the framebuffer right before the main loop
-  create_framebuffer();
+  QuakePrism::createFramebuffer(FBO, RBO, texture_id);
 
   // Main loop
   bool done = false;
@@ -238,32 +173,12 @@ int main(int, char **) {
     if (show_demo_window)
       ImGui::ShowDemoWindow(&show_demo_window);
 
-    // we access the ImGui window size
-    const float window_width = ImGui::GetContentRegionAvail().x;
-    const float window_height = ImGui::GetContentRegionAvail().y;
+    QuakePrism::DrawModelViewer(texture_id, RBO, FBO);
 
-    // we rescale the framebuffer to the actual window size here and reset the
-    // glViewport
-    rescale_framebuffer(window_width, window_height);
-    glViewport(0, 0, window_width, window_height);
-
-    QuakePrism::DrawModelViewer(texture_id);
-
-    QuakePrism::DrawTextEditor(&editor);
+    QuakePrism::DrawTextEditor(editor);
 
     // Rendering
     ImGui::Render();
-
-    // Render the model for the framebuffer
-    bind_framebuffer();
-
-    // Render model
-    MDL::cleanup();
-    MDL::reshape(window_width, window_height);
-    MDL::render();
-
-    // and unbind it again
-    unbind_framebuffer();
 
     glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
     glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w,

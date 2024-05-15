@@ -412,6 +412,9 @@ void render() {
 
   GLfloat lightpos[] = {5.0f, 10.0f, 0.0f, 1.0f};
 
+  if (!ReadMDLModel("player.mdl", &mdlfile))
+    return;
+
   // Initialize OpenGL context
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glShadeModel(GL_SMOOTH);
@@ -423,15 +426,10 @@ void render() {
 
   glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
-  // Load MDL model file
-  if (!ReadMDLModel("player.mdl", &mdlfile))
-    exit(-1);
-
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
 
   last_time = curent_time;
-  // curent_time = (double)glutGet(GLUT_ELAPSED_TIME) / 1000.0;
   curent_time = SDL_GetTicks() / 1000.0;
 
   // Animate model from frames 0 to num_frames-1
