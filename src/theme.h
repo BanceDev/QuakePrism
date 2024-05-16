@@ -1,3 +1,22 @@
+/*
+Copyright (C) 2024 Lance Borden
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 3.0
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.
+
+*/
+
 #pragma once
 
 #include <algorithm>
@@ -12,9 +31,6 @@ static inline float Convert_sRGB_ToLinear(float thesRGBValue);
 ImVec4 ConvertFromSRGB(ImVec4 colour);
 ImVec4 ConvertToSRGB(ImVec4 colour);
 
-// To experiment with editor theme live you can change these constexpr into
-// static members of a static "Theme" class and add a quick ImGui window to
-// adjust the colour values
 namespace Theme {
 constexpr auto accent = IM_COL32(236, 158, 36, 255);
 constexpr auto highlight = IM_COL32(39, 185, 242, 255);
