@@ -19,4 +19,6 @@ void DrawFileTree(const std::filesystem::path &currentPath, TextEditor &editor);
 
 void DrawFileExplorer(TextEditor &editor);
 
+void DrawOpenProjectPopup();
+
 } // namespace QuakePrism

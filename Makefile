@@ -65,7 +65,10 @@ $(EXE): $(OBJS)
 
 copy_resources:
 	@echo "Copying resources directory..."
-	@cp -r $(SRC_DIR)/res $(RES_DIR)
+	@if [ ! -d $(RES_DIR) ]; then \
+		mkdir -p $(RES_DIR); \
+		cp -r $(SRC_DIR)/res $(RES_DIR); \
+	fi
 
 clean:
 	rm -rf $(BUILD_DIR) $(EXE)

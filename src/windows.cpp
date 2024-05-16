@@ -16,12 +16,16 @@ enum {
   LOAD_FAILED
 };
 
-int userError;
-bool errorOpen;
+int userError = 0;
+bool isAboutOpen = false;
+bool isErrorOpen = false;
+bool isOpenProjectOpen = false;
 
 std::filesystem::path currentFileName;
 std::filesystem::path currentDirectory;
 std::filesystem::path baseDirectory;
+std::filesystem::path executingDirectory = std::filesystem::current_path();
+
 namespace QuakePrism {
 
 void DrawMenuBar() {
@@ -42,7 +46,7 @@ void DrawMenuBar() {
 
     if (ImGui::BeginMenu("Help")) {
       if (ImGui::MenuItem("About")) {
-        // Draw about popup
+        isAboutOpen = true;
       }
       ImGui::EndMenu();
     }
@@ -64,7 +68,7 @@ void DrawMenuBar() {
 }
 
 void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
-  ImGui::Begin("Model Viewer");
+  ImGui::Begin("Model Viewer", nullptr, ImGuiWindowFlags_NoMove);
 
   // we access the ImGui window size
   const float window_width = ImGui::GetContentRegionAvail().x;
@@ -110,7 +114,7 @@ void DrawTextEditor(TextEditor &editor) {
           output << textToSave;
           output.close();
         } else {
-          errorOpen = true;
+          isErrorOpen = true;
           userError = SAVE_FAILED;
         }
       }
@@ -203,10 +207,10 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 
       if (directoryEntry.is_directory()) {
 
-        QuakePrism::LoadTextureFromFile("./res/DirectoryIcon.png", &icon,
-                                        &width, &height);
+        QuakePrism::LoadTextureFromFile("res/DirectoryIcon.png", &icon, &width,
+                                        &height);
       } else {
-        QuakePrism::LoadTextureFromFile("./res/FileIcon.png", &icon, &width,
+        QuakePrism::LoadTextureFromFile("res/FileIcon.png", &icon, &width,
                                         &height);
       }
 
@@ -221,7 +225,7 @@ void DrawFileTree(const std::filesystem::path &currentPath,
                               std::istreambuf_iterator<char>());
               editor.SetText(str);
             } else {
-              errorOpen = true;
+              isErrorOpen = true;
               userError = LOAD_FAILED;
             }
 
@@ -246,7 +250,7 @@ void DrawFileExplorer(TextEditor &editor) {
     if (ImGui::Button("New Project")) {
     }
     if (ImGui::Button("Open Project")) {
-      // openProjectOpen = true;
+      isOpenProjectOpen = true;
     }
   }
   if (!baseDirectory.empty()) {
@@ -256,30 +260,143 @@ void DrawFileExplorer(TextEditor &editor) {
   ImGui::End();
 }
 
+void DrawOpenProjectPopup() {
+  if (!isOpenProjectOpen)
+    return;
+
+  ImGui::OpenPopup("Open Project");
+  isOpenProjectOpen = ImGui::BeginPopupModal("Open Project", nullptr,
+                                             ImGuiWindowFlags_AlwaysAutoResize);
+  std::vector<std::filesystem::directory_entry> projectList;
+  if (isOpenProjectOpen) {
+    // TODO: Run an error check on the path validity first here
+
+    try {
+      for (auto &directoryEntry : std::filesystem::directory_iterator(
+               executingDirectory / "Projects")) {
+        if (directoryEntry.is_directory())
+          projectList.push_back(directoryEntry);
+      }
+    } catch (const std::filesystem::filesystem_error &ex) {
+      isErrorOpen = true;
+      userError = MISSING_PROJECTS;
+    }
+
+    static int item_current_idx = 0;
+    if (ImGui::BeginListBox("Projects")) {
+      for (int n = 0; n < projectList.size(); n++) {
+        const bool is_selected = (item_current_idx == n);
+        if (ImGui::Selectable(
+                projectList.at(n).path().filename().string().c_str(),
+                is_selected))
+          item_current_idx = n;
+
+        // Set the initial focus when opening the combo (scrolling + keyboard
+        // navigation focus)
+        if (is_selected)
+          ImGui::SetItemDefaultFocus();
+      }
+      ImGui::EndListBox();
+    }
+
+    if (ImGui::Button("Open")) {
+      baseDirectory = projectList.at(item_current_idx).path();
+      currentDirectory = projectList.at(item_current_idx).path();
+      isOpenProjectOpen = false;
+      ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::EndPopup();
+  }
+}
+
 void DrawAboutPopup() {
+
+  if (!isAboutOpen)
+    return;
 
   GLuint icon;
   int width, height;
 
   ImGui::OpenPopup("About");
-  ImGui::BeginPopupModal("About", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-  QuakePrism::LoadTextureFromFile("./res/prism_small.png", &icon, &width,
-                                  &height);
-  ImGui::Image((ImTextureID)icon, {48, 48});
+  isAboutOpen = ImGui::BeginPopupModal("About", nullptr,
+                                       ImGuiWindowFlags_AlwaysAutoResize);
+  if (isAboutOpen) {
+    QuakePrism::LoadTextureFromFile("res/prism_small.png", &icon, &width,
+                                    &height);
+    ImGui::Image((ImTextureID)icon, {48, 48});
 
-  ImGui::SameLine();
+    ImGui::SameLine();
 
-  // TODO: See if there is a way to add spacing later
+    ImGui::BeginGroup();
+    ImGui::Text("Quake Prism Development Toolkit");
+    ImGui::Text("by Bance.");
+    ImGui::EndGroup();
 
-  ImGui::BeginGroup();
-  ImGui::Text("Quake Prism Development Toolkit");
-  ImGui::Text("by Bance.");
-  ImGui::EndGroup();
+    if (ImGui::Button("Close")) {
+      isAboutOpen = false;
+      ImGui::CloseCurrentPopup();
+    }
 
-  if (ImGui::Button("Close")) {
-    ImGui::CloseCurrentPopup();
+    ImGui::EndPopup();
   }
+}
 
-  ImGui::EndPopup();
+void DrawErrorPopup() {
+  if (!isErrorOpen)
+    return;
+
+  GLuint icon;
+  int width, height;
+
+  ImGui::OpenPopup("Error");
+  isErrorOpen = ImGui::BeginPopupModal("Error", nullptr,
+                                       ImGuiWindowFlags_AlwaysAutoResize);
+  if (isErrorOpen) {
+    QuakePrism::LoadTextureFromFile("res/prism_small.png", &icon, &width,
+                                    &height);
+    ImGui::Image((ImTextureID)icon, {48, 48});
+
+    ImGui::SameLine();
+    switch (userError) {
+    case MISSING_COMPILER:
+      ImGui::BeginGroup();
+      ImGui::Text("Error: Unable to compile progs.");
+      ImGui::Text("fteqcc64 executable is missing in src.");
+      ImGui::EndGroup();
+      break;
+    case MISSING_GAME:
+      ImGui::BeginGroup();
+      ImGui::Text("Error: Unable to launch quake.");
+      ImGui::Text("Quake engine executable is missing.");
+      ImGui::EndGroup();
+      break;
+    case MISSING_PROJECTS:
+      ImGui::BeginGroup();
+      ImGui::Text("Error: Unable to load project.");
+      ImGui::Text("Projects directory is missing.");
+      ImGui::EndGroup();
+      break;
+    case SAVE_FAILED:
+      ImGui::BeginGroup();
+      ImGui::Text("Error: Unable to save to output file.");
+      ImGui::EndGroup();
+      break;
+    case LOAD_FAILED:
+      ImGui::BeginGroup();
+      ImGui::Text("Error: Unable to load file.");
+      ImGui::EndGroup();
+      break;
+    default:
+      break;
+    }
+
+    if (ImGui::Button("Close")) {
+      isErrorOpen = false;
+      ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::EndPopup();
+  }
 }
 } // namespace QuakePrism
