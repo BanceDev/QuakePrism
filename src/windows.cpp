@@ -21,11 +21,14 @@ along with this program.
 #include "TextEditor.h"
 #include "framebuffer.h"
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "mdl.h"
+#include "resources.h"
 #include "util.h"
 #include <filesystem>
 #include <fstream>
 #include <list>
+#include <string>
 
 enum {
   MISSING_COMPILER,
@@ -41,6 +44,7 @@ bool isErrorOpen = false;
 bool isOpenProjectOpen = false;
 
 std::filesystem::path currentFileName;
+std::filesystem::path currentModelName;
 std::filesystem::path currentDirectory;
 std::filesystem::path baseDirectory;
 std::filesystem::path executingDirectory = std::filesystem::current_path();
@@ -52,7 +56,7 @@ void DrawMenuBar() {
 
     if (ImGui::BeginMenu("File")) {
       if (ImGui::MenuItem("Open")) {
-        // editorLayer->ShowOpenProject();
+        isOpenProjectOpen = true;
       }
       if (ImGui::MenuItem("Exit")) {
 
@@ -87,32 +91,53 @@ void DrawMenuBar() {
 }
 
 void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
-  ImGui::Begin("Model Viewer", nullptr, ImGuiWindowFlags_NoMove);
 
-  // we access the ImGui window size
+  ImGui::Begin("Model Viewer", nullptr, ImGuiWindowFlags_NoMove);
+  ImGuiID dockspace_id = ImGui::GetID("DockSpace");
+  ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+  static bool first_time = true;
+  if (first_time) {
+    first_time = false;
+    ImGui::DockBuilderRemoveNode(dockspace_id);
+    ImGui::DockBuilderAddNode(dockspace_id);
+    ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
+
+    auto dock_id_up = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up,
+                                                  0.8f, nullptr, &dockspace_id);
+    auto dock_id_down = ImGui::DockBuilderSplitNode(
+        dockspace_id, ImGuiDir_Down, 0.2f, nullptr, &dockspace_id);
+    ImGui::DockBuilderDockWindow("Model View", dock_id_up);
+    ImGui::DockBuilderDockWindow("Model Tools", dock_id_down);
+
+    ImGui::DockBuilderFinish(dockspace_id);
+  }
+  ImGui::End();
+
+  ImGui::Begin("Model View", nullptr, ImGuiWindowFlags_NoMove);
   const float window_width = ImGui::GetContentRegionAvail().x;
   const float window_height = ImGui::GetContentRegionAvail().y;
 
-  // we rescale the framebuffer to the actual window size here and reset the
-  // glViewport
-
   glViewport(0, 0, window_width, window_height);
   QuakePrism::rescaleFramebuffer(window_width, window_height, RBO, texture_id);
-  ImGui::Image((ImTextureID)texture_id, ImGui::GetContentRegionAvail(),
-               ImVec2(0, 1), ImVec2(1, 0));
+  if (!currentModelName.empty())
+    ImGui::Image((ImTextureID)texture_id, ImGui::GetContentRegionAvail(),
+                 ImVec2(0, 1), ImVec2(1, 0));
 
   ImGui::End();
 
-  // Render the model for the framebuffer
-  QuakePrism::bindFramebuffer(FBO);
+  ImGui::Begin("Model Tools", nullptr, ImGuiWindowFlags_NoMove);
+  ImGui::Text("Imagine tools here");
+  ImGui::End();
+  if (!currentModelName.empty()) {
 
-  // Render model
-  MDL::cleanup();
-  MDL::reshape(window_width, window_height);
-  MDL::render();
+    QuakePrism::bindFramebuffer(FBO);
 
-  // and unbind it again
-  QuakePrism::unbindFramebuffer();
+    MDL::cleanup();
+    MDL::reshape(window_width, window_height);
+    MDL::render(currentModelName);
+
+    QuakePrism::unbindFramebuffer();
+  }
 }
 
 void DrawTextEditor(TextEditor &editor) {
@@ -222,24 +247,21 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 
       ImGui::PushID(filenameString.c_str());
       GLuint icon;
-      int width, height;
 
       if (directoryEntry.is_directory()) {
 
-        QuakePrism::LoadTextureFromFile("res/DirectoryIcon.png", &icon, &width,
-                                        &height);
+        icon = QuakePrism::UI::getDirectoryIcon();
       } else {
-        QuakePrism::LoadTextureFromFile("res/FileIcon.png", &icon, &width,
-                                        &height);
+        icon = QuakePrism::UI::getFileIcon();
       }
 
       if (QuakePrism::ImageTreeNode(filenameString.c_str(), icon)) {
         if (ImGui::IsItemHovered() &&
             ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
           if (path.extension() == ".qc") {
-            currentFileName = path;
             std::ifstream input(path);
             if (input.good()) {
+              currentFileName = path;
               std::string str((std::istreambuf_iterator<char>(input)),
                               std::istreambuf_iterator<char>());
               editor.SetText(str);
@@ -249,6 +271,17 @@ void DrawFileTree(const std::filesystem::path &currentPath,
             }
 
             input.close();
+          }
+          if (path.extension() == ".mdl") {
+            // This only exists to validate the file actual loading is in the
+            // render function in the mdl file
+            std::ifstream input(path);
+            if (input.good()) {
+              currentModelName = path;
+            } else {
+              isErrorOpen = true;
+              userError = LOAD_FAILED;
+            }
           }
         }
         if (directoryEntry.is_directory()) {

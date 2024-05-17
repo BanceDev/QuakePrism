@@ -23,6 +23,7 @@ along with this program.
 #include <GL/glu.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#include <filesystem>
 
 namespace QuakePrism::MDL {
 struct mdl_header_t;
@@ -57,5 +58,5 @@ void cleanup();
 
 void reshape(int w, int h);
 
-void render();
+void render(const std::filesystem::path modelPath);
 } // namespace QuakePrism::MDL

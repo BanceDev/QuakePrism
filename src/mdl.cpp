@@ -423,7 +423,7 @@ void reshape(int w, int h) {
   glLoadIdentity();
 }
 
-void render() {
+void render(const std::filesystem::path modelPath) {
   static int n = 0;
   static float interp = 0.0;
   static double curent_time = 0;
@@ -431,11 +431,14 @@ void render() {
 
   GLfloat lightpos[] = {5.0f, 10.0f, 0.0f, 1.0f};
 
-  if (!ReadMDLModel("player.mdl", &mdlfile))
+  if (modelPath.empty())
+    return;
+
+  if (!ReadMDLModel(modelPath.c_str(), &mdlfile))
     return;
 
   // Initialize OpenGL context
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.25f, 0.5f, 0.5f, 1.0f);
   glShadeModel(GL_SMOOTH);
 
   glEnable(GL_DEPTH_TEST);

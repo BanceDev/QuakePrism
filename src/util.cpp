@@ -57,9 +57,12 @@ bool LoadTextureFromFile(const char *filename, GLuint *out_texture,
                GL_UNSIGNED_BYTE, image_data);
   stbi_image_free(image_data);
 
-  *out_texture = image_texture;
-  *out_width = image_width;
-  *out_height = image_height;
+  if (out_texture != nullptr)
+    *out_texture = image_texture;
+  if (out_width != nullptr)
+    *out_width = image_width;
+  if (out_height != nullptr)
+    *out_height = image_height;
 
   return true;
 }

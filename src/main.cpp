@@ -23,6 +23,7 @@ along with this program.
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
+#include "resources.h"
 #include "theme.h"
 #include "windows.h"
 #include <SDL2/SDL.h>
@@ -129,7 +130,7 @@ int main(int, char **) {
   }
 
   QuakePrism::UI::SetImguiTheme();
-
+  QuakePrism::UI::loadIcons();
   // Setup Platform/Renderer backends
   ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
   ImGui_ImplOpenGL3_Init(glsl_version);
@@ -138,8 +139,11 @@ int main(int, char **) {
   glewInit();
 
   // Set font to the Ubuntu font
-  ImFont *font = io.Fonts->AddFontFromFileTTF("./res/Ubuntu-M.ttf", 18.0f);
-  IM_ASSERT(font != nullptr);
+  ImFont *ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 21.0f);
+  IM_ASSERT(ubuntuFont != nullptr);
+  ImFont *jetBrainsFont =
+      io.Fonts->AddFontFromFileTTF("res/JetBrainsMono-Medium.ttf", 21.0f);
+  IM_ASSERT(jetBrainsFont != nullptr);
 
   // Our state
   bool show_demo_window = true;
@@ -184,6 +188,7 @@ int main(int, char **) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
+    ImGui::PushFont(ubuntuFont);
     QuakePrism::DrawMenuBar();
     ImGui::DockSpaceOverViewport();
     // 1. Show the big demo window (Most of the sample code is in
@@ -193,9 +198,13 @@ int main(int, char **) {
       ImGui::ShowDemoWindow(&show_demo_window);
 
     QuakePrism::DrawModelViewer(texture_id, RBO, FBO);
+    ImGui::PopFont();
 
+    ImGui::PushFont(jetBrainsFont);
     QuakePrism::DrawTextEditor(editor);
+    ImGui::PopFont();
 
+    ImGui::PushFont(ubuntuFont);
     QuakePrism::DrawFileExplorer(editor);
 
     // Display all active popups
@@ -203,7 +212,8 @@ int main(int, char **) {
     QuakePrism::DrawErrorPopup();
     QuakePrism::DrawOpenProjectPopup();
 
-    // Rendering
+    ImGui::PopFont();
+
     ImGui::Render();
 
     glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);

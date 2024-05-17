@@ -10,5 +10,7 @@ Quake Prism is an all in one development solution for vanilla Quake engine games
 - QuakeC Project Templates
 - In depth docs
 
-### 3rd party libaries
+### Credits
 - [Dear ImGui](https://github.com/ocornut/imgui)
+- [JetBrains Mono Font](https://www.jetbrains.com/lp/mono/)
+- [Ubuntu Font](https://design.ubuntu.com/font)

@@ -5,8 +5,10 @@ EXE := build/QuakePrism
 IMGUI_DIR := ./lib/imgui
 SRC_DIR := ./src
 BUILD_DIR := ./build
+PROJ_DIR := $(BUILD_DIR)/projects
 RES_DIR := $(BUILD_DIR)/res
 SOURCES := $(SRC_DIR)/main.cpp $(SRC_DIR)/windows.cpp $(SRC_DIR)/mdl.cpp $(SRC_DIR)/theme.cpp $(SRC_DIR)/TextEditor.cpp $(SRC_DIR)/framebuffer.cpp $(SRC_DIR)/util.cpp
+SOURCES += $(SRC_DIR)/resources.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 OBJS := $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
@@ -65,9 +67,9 @@ $(EXE): $(OBJS)
 
 copy_resources:
 	@echo "Copying resources directory..."
-	@if [ ! -d $(RES_DIR) ]; then \
-		mkdir -p $(RES_DIR); \
-		cp -r $(SRC_DIR)/res $(RES_DIR); \
+	@cp -r $(SRC_DIR)/res $(BUILD_DIR)
+	@if [ ! -d $(PROJ_DIR) ]; then \
+		mkdir $(PROJ_DIR); \
 	fi
 
 clean:
