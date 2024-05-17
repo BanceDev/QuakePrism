@@ -25,7 +25,6 @@ along with this program.
 #include <SDL2/SDL_opengl.h>
 #include <filesystem>
 
-namespace QuakePrism::MDL {
 struct mdl_header_t;
 
 struct mdl_skin_t;
@@ -41,6 +40,13 @@ struct mdl_simpleframe_t;
 struct mdl_frame_t;
 
 struct mdl_model_t;
+
+typedef struct {
+  int currentFrame;
+  int totalFrames;
+} mdl_animation_t;
+
+namespace QuakePrism::MDL {
 
 GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl);
 
@@ -58,5 +64,5 @@ void cleanup();
 
 void reshape(int w, int h);
 
-void render(const std::filesystem::path modelPath);
+mdl_animation_t render(const std::filesystem::path modelPath);
 } // namespace QuakePrism::MDL

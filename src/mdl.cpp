@@ -32,7 +32,6 @@ unsigned char colormap[256][3] = {
 #include "colormap.h"
 };
 
-namespace QuakePrism::MDL {
 /* MDL header */
 struct mdl_header_t {
   int ident;   /* magic number: "IDPO" */
@@ -112,6 +111,7 @@ struct mdl_model_t {
 // An MDL model
 mdl_model_t mdlfile;
 
+namespace QuakePrism::MDL {
 /**
  * Make a texture given a skin index 'n'.
  */
@@ -423,19 +423,22 @@ void reshape(int w, int h) {
   glLoadIdentity();
 }
 
-void render(const std::filesystem::path modelPath) {
+mdl_animation_t render(const std::filesystem::path modelPath) {
   static int n = 0;
   static float interp = 0.0;
   static double curent_time = 0;
   static double last_time = 0;
+  mdl_animation_t anim;
+  anim.currentFrame = 0;
+  anim.totalFrames = 0;
 
   GLfloat lightpos[] = {5.0f, 10.0f, 0.0f, 1.0f};
 
   if (modelPath.empty())
-    return;
+    return anim;
 
   if (!ReadMDLModel(modelPath.c_str(), &mdlfile))
-    return;
+    return anim;
 
   // Initialize OpenGL context
   glClearColor(0.25f, 0.5f, 0.5f, 1.0f);
@@ -467,5 +470,9 @@ void render(const std::filesystem::path modelPath) {
     RenderFrameItp(n, interp, &mdlfile);
   else
     RenderFrame(n, &mdlfile);
+  anim.currentFrame = n;
+  anim.totalFrames = mdlfile.header.num_frames;
+
+  return anim;
 }
 } // namespace QuakePrism::MDL
