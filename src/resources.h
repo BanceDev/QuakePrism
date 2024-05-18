@@ -18,12 +18,18 @@ along with this program.
 */
 
 #pragma once
+#include "imgui.h"
 #include <SDL.h>
 #include <SDL_opengl.h>
 
 namespace QuakePrism::UI {
 
+extern ImFont *jetBrainsFont;
+extern ImFont *ubuntuFont;
+
 void loadIcons();
+
+void loadFonts();
 
 const GLuint getFileIcon();
 

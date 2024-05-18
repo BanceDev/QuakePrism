@@ -41,12 +41,11 @@ struct mdl_frame_t;
 
 struct mdl_model_t;
 
-typedef struct {
-  int currentFrame;
-  int totalFrames;
-} mdl_animation_t;
-
 namespace QuakePrism::MDL {
+
+extern float interpAmt;
+extern int currentFrame;
+extern int totalFrames;
 
 GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl);
 
@@ -64,5 +63,5 @@ void cleanup();
 
 void reshape(int w, int h);
 
-mdl_animation_t render(const std::filesystem::path modelPath);
+void render(const std::filesystem::path modelPath);
 } // namespace QuakePrism::MDL

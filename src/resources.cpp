@@ -24,6 +24,19 @@ GLuint fileIcon;
 GLuint directoryIcon;
 
 namespace QuakePrism::UI {
+ImFont *ubuntuFont;
+ImFont *jetBrainsFont;
+
+void loadFonts() {
+  ImGuiIO &io = ImGui::GetIO();
+  (void)io;
+
+  ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 21.0f);
+  IM_ASSERT(ubuntuFont != nullptr);
+  jetBrainsFont =
+      io.Fonts->AddFontFromFileTTF("res/JetBrainsMono-Medium.ttf", 21.0f);
+  IM_ASSERT(jetBrainsFont != nullptr);
+}
 
 void loadIcons() {
   QuakePrism::LoadTextureFromFile("res/FileIcon.png", &fileIcon, nullptr,

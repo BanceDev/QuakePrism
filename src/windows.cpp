@@ -124,30 +124,40 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
                  ImVec2(0, 1), ImVec2(1, 0));
 
   ImGui::End();
-  mdl_animation_t anim;
   if (!currentModelName.empty()) {
 
     QuakePrism::bindFramebuffer(FBO);
 
     MDL::cleanup();
     MDL::reshape(window_width, window_height);
-    anim = MDL::render(currentModelName);
+    MDL::render(currentModelName);
 
     QuakePrism::unbindFramebuffer();
   }
 
-  const float animProgress = anim.totalFrames == 0
+  const float animProgress = MDL::totalFrames == 0
                                  ? 0.0f
-                                 : anim.currentFrame / (float)anim.totalFrames;
+                                 : MDL::currentFrame / (float)MDL::totalFrames;
   ImGui::Begin("Model Tools", nullptr, ImGuiWindowFlags_NoMove);
   ImGui::TextUnformatted(currentModelName.filename().c_str());
   char buf[32];
-  sprintf(buf, "%d/%d", (int)(animProgress * anim.totalFrames),
-          anim.totalFrames);
+  sprintf(buf, "%d/%d", (int)(animProgress * MDL::totalFrames),
+          MDL::totalFrames);
   ImGui::ProgressBar(animProgress, ImVec2(0.0f, 0.0f), buf);
   ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
   ImGui::Text("Animation");
-
+  /*ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+  if (ImGui::Button("⟵")) {
+  }
+  ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+  if (ImGui::Button("■")) {
+  }
+  ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+  if (ImGui::Button("▶")) {
+  }
+  ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+  if (ImGui::Button("⟶")) {
+  }*/
   ImGui::End();
 }
 

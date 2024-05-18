@@ -112,6 +112,11 @@ struct mdl_model_t {
 mdl_model_t mdlfile;
 
 namespace QuakePrism::MDL {
+// Init namespace variables from header
+float interpAmt = 1.0f;
+int currentFrame = 0;
+int totalFrames = 0;
+
 /**
  * Make a texture given a skin index 'n'.
  */
@@ -423,23 +428,19 @@ void reshape(int w, int h) {
   glLoadIdentity();
 }
 
-mdl_animation_t render(const std::filesystem::path modelPath) {
-  static int n = 0;
-  static float interp = 0.0;
+void render(const std::filesystem::path modelPath) {
   static double curent_time = 0;
   static double last_time = 0;
-  mdl_animation_t anim;
-  anim.currentFrame = 0;
-  anim.totalFrames = 0;
 
   GLfloat lightpos[] = {5.0f, 10.0f, 0.0f, 1.0f};
 
   if (modelPath.empty())
-    return anim;
+    return;
 
   if (!ReadMDLModel(modelPath.c_str(), &mdlfile))
-    return anim;
+    return;
 
+  totalFrames = mdlfile.header.num_frames;
   // Initialize OpenGL context
   glClearColor(0.25f, 0.5f, 0.5f, 1.0f);
   glShadeModel(GL_SMOOTH);
@@ -458,8 +459,8 @@ mdl_animation_t render(const std::filesystem::path modelPath) {
   curent_time = SDL_GetTicks() / 1000.0;
 
   // Animate model from frames 0 to num_frames-1
-  interp += 10 * (curent_time - last_time);
-  Animate(0, mdlfile.header.num_frames - 1, &n, &interp);
+  interpAmt += 10 * (curent_time - last_time);
+  Animate(0, mdlfile.header.num_frames - 1, &currentFrame, &interpAmt);
 
   glTranslatef(0.0f, 0.0f, -100.0f);
   glRotatef(-90.0f, 1.0, 0.0, 0.0);
@@ -467,12 +468,8 @@ mdl_animation_t render(const std::filesystem::path modelPath) {
 
   // Draw the model
   if (mdlfile.header.num_frames > 1)
-    RenderFrameItp(n, interp, &mdlfile);
+    RenderFrameItp(currentFrame, interpAmt, &mdlfile);
   else
-    RenderFrame(n, &mdlfile);
-  anim.currentFrame = n;
-  anim.totalFrames = mdlfile.header.num_frames;
-
-  return anim;
+    RenderFrame(currentFrame, &mdlfile);
 }
 } // namespace QuakePrism::MDL

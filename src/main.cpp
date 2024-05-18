@@ -139,12 +139,7 @@ int main(int, char **) {
   glewInit();
 
   // Set font to the Ubuntu font
-  ImFont *ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 21.0f);
-  IM_ASSERT(ubuntuFont != nullptr);
-  ImFont *jetBrainsFont =
-      io.Fonts->AddFontFromFileTTF("res/JetBrainsMono-Medium.ttf", 21.0f);
-  IM_ASSERT(jetBrainsFont != nullptr);
-
+  QuakePrism::UI::loadFonts();
   // Our state
   bool show_demo_window = true;
   ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
@@ -188,7 +183,7 @@ int main(int, char **) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-    ImGui::PushFont(ubuntuFont);
+    ImGui::PushFont(QuakePrism::UI::ubuntuFont);
     QuakePrism::DrawMenuBar();
     ImGui::DockSpaceOverViewport();
     // 1. Show the big demo window (Most of the sample code is in
@@ -200,11 +195,11 @@ int main(int, char **) {
     QuakePrism::DrawModelViewer(texture_id, RBO, FBO);
     ImGui::PopFont();
 
-    ImGui::PushFont(jetBrainsFont);
+    ImGui::PushFont(QuakePrism::UI::jetBrainsFont);
     QuakePrism::DrawTextEditor(editor);
     ImGui::PopFont();
 
-    ImGui::PushFont(ubuntuFont);
+    ImGui::PushFont(QuakePrism::UI::ubuntuFont);
     QuakePrism::DrawFileExplorer(editor);
 
     // Display all active popups
