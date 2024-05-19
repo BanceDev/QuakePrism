@@ -24,7 +24,7 @@ along with this program.
 namespace QuakePrism {
 
 bool LoadTextureFromFile(const char *filename, GLuint *out_texture,
-                         int *out_width, int *out_height);
+						 int *out_width, int *out_height);
 
 bool ImageTreeNode(const char *label, const GLuint icon);
 

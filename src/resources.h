@@ -23,15 +23,19 @@ along with this program.
 #include <SDL_opengl.h>
 
 namespace QuakePrism::UI {
-
+// Font Assets
 extern ImFont *jetBrainsFont;
 extern ImFont *ubuntuFont;
+
+// Image Assets
+extern GLuint fileIcon;
+extern GLuint directoryIcon;
+extern GLuint playButton;
+extern GLuint forwardButton;
+extern GLuint backButton;
 
 void loadIcons();
 
 void loadFonts();
 
-const GLuint getFileIcon();
-
-const GLuint getDirectoryIcon();
 } // namespace QuakePrism::UI

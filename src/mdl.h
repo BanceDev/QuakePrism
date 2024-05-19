@@ -25,6 +25,8 @@ along with this program.
 #include <SDL2/SDL_opengl.h>
 #include <filesystem>
 
+typedef float vec3_t[3];
+
 struct mdl_header_t;
 
 struct mdl_skin_t;
@@ -63,5 +65,6 @@ void cleanup();
 
 void reshape(int w, int h);
 
-void render(const std::filesystem::path modelPath);
+void render(const std::filesystem::path modelPath, const vec3_t angles,
+			const bool paused);
 } // namespace QuakePrism::MDL

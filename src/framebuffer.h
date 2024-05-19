@@ -35,6 +35,6 @@ void bindFramebuffer(GLuint &FBO);
 void unbindFramebuffer();
 
 void rescaleFramebuffer(float width, float height, GLuint &RBO,
-                        GLuint &texture_id);
+						GLuint &texture_id);
 
 } // namespace QuakePrism

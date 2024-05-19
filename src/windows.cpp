@@ -31,11 +31,11 @@ along with this program.
 #include <string>
 
 enum {
-  MISSING_COMPILER,
-  MISSING_GAME,
-  MISSING_PROJECTS,
-  SAVE_FAILED,
-  LOAD_FAILED
+	MISSING_COMPILER,
+	MISSING_GAME,
+	MISSING_PROJECTS,
+	SAVE_FAILED,
+	LOAD_FAILED
 };
 
 int userError = 0;
@@ -52,423 +52,448 @@ std::filesystem::path executingDirectory = std::filesystem::current_path();
 namespace QuakePrism {
 
 void DrawMenuBar() {
-  if (ImGui::BeginMainMenuBar()) {
+	if (ImGui::BeginMainMenuBar()) {
 
-    if (ImGui::BeginMenu("File")) {
-      if (ImGui::MenuItem("Open")) {
-        isOpenProjectOpen = true;
-      }
-      if (ImGui::MenuItem("Exit")) {
+		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("Open")) {
+				isOpenProjectOpen = true;
+			}
+			if (ImGui::MenuItem("Exit")) {
 
-        SDL_Event quitEvent;
-        quitEvent.type = SDL_QUIT;
-        SDL_PushEvent(&quitEvent);
-      }
-      ImGui::EndMenu();
-    }
+				SDL_Event quitEvent;
+				quitEvent.type = SDL_QUIT;
+				SDL_PushEvent(&quitEvent);
+			}
+			ImGui::EndMenu();
+		}
 
-    if (ImGui::BeginMenu("Help")) {
-      if (ImGui::MenuItem("About")) {
-        isAboutOpen = true;
-      }
-      ImGui::EndMenu();
-    }
+		if (ImGui::BeginMenu("Help")) {
+			if (ImGui::MenuItem("About")) {
+				isAboutOpen = true;
+			}
+			ImGui::EndMenu();
+		}
 
-    if (ImGui::BeginMenu("Run")) {
-      if (ImGui::MenuItem("Compile")) {
-        // editorLayer->CompileProject();
-      }
-      if (ImGui::MenuItem("Run")) {
-        // editorLayer->RunProject();
-      }
-      if (ImGui::MenuItem("Compile and Run")) {
-        // editorLayer->CompileRunProject();
-      }
-      ImGui::EndMenu();
-    }
-    ImGui::EndMainMenuBar();
-  }
+		if (ImGui::BeginMenu("Run")) {
+			if (ImGui::MenuItem("Compile")) {
+				// editorLayer->CompileProject();
+			}
+			if (ImGui::MenuItem("Run")) {
+				// editorLayer->RunProject();
+			}
+			if (ImGui::MenuItem("Compile and Run")) {
+				// editorLayer->CompileRunProject();
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
 }
 
 void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 
-  ImGui::Begin("Model Viewer", nullptr, ImGuiWindowFlags_NoMove);
-  ImGuiID dockspace_id = ImGui::GetID("DockSpace");
-  ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
-  static bool first_time = true;
-  if (first_time) {
-    first_time = false;
-    ImGui::DockBuilderRemoveNode(dockspace_id);
-    ImGui::DockBuilderAddNode(dockspace_id);
-    ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
+	ImGui::Begin("Model Viewer", nullptr, ImGuiWindowFlags_NoMove);
+	ImGuiID dockspace_id = ImGui::GetID("DockSpace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+	static bool first_time = true;
+	if (first_time) {
+		first_time = false;
+		ImGui::DockBuilderRemoveNode(dockspace_id);
+		ImGui::DockBuilderAddNode(dockspace_id);
+		ImGui::DockBuilderSetNodeSize(dockspace_id,
+									  ImGui::GetMainViewport()->Size);
 
-    auto dock_id_up = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up,
-                                                  0.8f, nullptr, &dockspace_id);
-    auto dock_id_down = ImGui::DockBuilderSplitNode(
-        dockspace_id, ImGuiDir_Down, 0.2f, nullptr, &dockspace_id);
-    ImGui::DockBuilderDockWindow("Model View", dock_id_up);
-    ImGui::DockBuilderDockWindow("Model Tools", dock_id_down);
+		auto dock_id_up = ImGui::DockBuilderSplitNode(
+			dockspace_id, ImGuiDir_Up, 0.8f, nullptr, &dockspace_id);
+		auto dock_id_down = ImGui::DockBuilderSplitNode(
+			dockspace_id, ImGuiDir_Down, 0.2f, nullptr, &dockspace_id);
+		ImGui::DockBuilderDockWindow("Model View", dock_id_up);
+		ImGui::DockBuilderDockWindow("Model Tools", dock_id_down);
 
-    ImGui::DockBuilderFinish(dockspace_id);
-  }
-  ImGui::End();
+		ImGui::DockBuilderFinish(dockspace_id);
+	}
+	ImGui::End();
 
-  ImGui::Begin("Model View", nullptr, ImGuiWindowFlags_NoMove);
-  const float window_width = ImGui::GetContentRegionAvail().x;
-  const float window_height = ImGui::GetContentRegionAvail().y;
+	ImGui::Begin("Model View", nullptr, ImGuiWindowFlags_NoMove);
+	const float window_width = ImGui::GetContentRegionAvail().x;
+	const float window_height = ImGui::GetContentRegionAvail().y;
+	static bool paused = false;
 
-  glViewport(0, 0, window_width, window_height);
-  QuakePrism::rescaleFramebuffer(window_width, window_height, RBO, texture_id);
-  if (!currentModelName.empty())
-    ImGui::Image((ImTextureID)texture_id, ImGui::GetContentRegionAvail(),
-                 ImVec2(0, 1), ImVec2(1, 0));
+	glViewport(0, 0, window_width, window_height);
+	QuakePrism::rescaleFramebuffer(window_width, window_height, RBO,
+								   texture_id);
+	if (!currentModelName.empty())
+		ImGui::Image((ImTextureID)texture_id, ImGui::GetContentRegionAvail(),
+					 ImVec2(0, 1), ImVec2(1, 0));
 
-  ImGui::End();
-  if (!currentModelName.empty()) {
+	// Model Viewer Controls
+	static vec3_t modelAngles = {-90.0f, 0.0f, -90.0f};
+	if (ImGui::IsItemHovered()) {
+		ImGuiIO &io = ImGui::GetIO();
+		if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+			modelAngles[0] += io.MouseDelta.y;
+			modelAngles[2] += io.MouseDelta.x;
+		}
+	}
 
-    QuakePrism::bindFramebuffer(FBO);
+	ImGui::End();
 
-    MDL::cleanup();
-    MDL::reshape(window_width, window_height);
-    MDL::render(currentModelName);
+	if (!currentModelName.empty()) {
 
-    QuakePrism::unbindFramebuffer();
-  }
+		QuakePrism::bindFramebuffer(FBO);
 
-  const float animProgress = MDL::totalFrames == 0
-                                 ? 0.0f
-                                 : MDL::currentFrame / (float)MDL::totalFrames;
-  ImGui::Begin("Model Tools", nullptr, ImGuiWindowFlags_NoMove);
-  ImGui::TextUnformatted(currentModelName.filename().c_str());
-  char buf[32];
-  sprintf(buf, "%d/%d", (int)(animProgress * MDL::totalFrames),
-          MDL::totalFrames);
-  ImGui::ProgressBar(animProgress, ImVec2(0.0f, 0.0f), buf);
-  ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-  ImGui::Text("Animation");
-  /*ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-  if (ImGui::Button("⟵")) {
-  }
-  ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-  if (ImGui::Button("■")) {
-  }
-  ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-  if (ImGui::Button("▶")) {
-  }
-  ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-  if (ImGui::Button("⟶")) {
-  }*/
-  ImGui::End();
+		MDL::cleanup();
+		MDL::reshape(window_width, window_height);
+		MDL::render(currentModelName, modelAngles, paused);
+
+		QuakePrism::unbindFramebuffer();
+	}
+
+	const float animProgress =
+		MDL::totalFrames == 0 ? 0.0f
+							  : MDL::currentFrame / (float)MDL::totalFrames;
+	ImGui::Begin("Model Tools", nullptr, ImGuiWindowFlags_NoMove);
+	ImGui::TextUnformatted(currentModelName.filename().c_str());
+	char buf[32];
+	sprintf(buf, "%d/%d", (int)(animProgress * MDL::totalFrames),
+			MDL::totalFrames);
+	ImGui::ProgressBar(animProgress, ImVec2(0.0f, 0.0f), buf);
+	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::Text("Animation");
+
+	// Animation Control Buttons
+	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+	if (ImGui::ImageButton((ImTextureID)QuakePrism::UI::backButton, {24, 24})) {
+		if (paused)
+			MDL::currentFrame--;
+	}
+	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+	if (ImGui::ImageButton((ImTextureID)QuakePrism::UI::playButton, {24, 24})) {
+		paused = !paused;
+	}
+	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+	if (ImGui::ImageButton((ImTextureID)QuakePrism::UI::forwardButton,
+						   {24, 24})) {
+		if (paused)
+			MDL::currentFrame++;
+	}
+	ImGui::End();
 }
 
 void DrawTextEditor(TextEditor &editor) {
 
-  auto lang = TextEditor::LanguageDefinition::QuakeC();
-  editor.SetLanguageDefinition(lang);
+	auto lang = TextEditor::LanguageDefinition::QuakeC();
+	editor.SetLanguageDefinition(lang);
 
-  auto cpos = editor.GetCursorPosition();
-  ImGui::Begin("QuakeC Editor", nullptr,
-               ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_MenuBar |
-                   ImGuiWindowFlags_NoMove);
-  if (ImGui::BeginMenuBar()) {
-    if (ImGui::BeginMenu("File")) {
-      if (ImGui::MenuItem("Save", "Ctrl-S", nullptr)) {
-        auto textToSave = editor.GetText();
-        std::ofstream output(currentFileName);
-        if (output.is_open()) {
-          output << textToSave;
-          output.close();
-        } else {
-          isErrorOpen = true;
-          userError = SAVE_FAILED;
-        }
-      }
-      ImGui::EndMenu();
-    }
-    if (ImGui::BeginMenu("Edit")) {
-      bool ro = editor.IsReadOnly();
-      if (ImGui::MenuItem("Read-Only", nullptr, &ro))
-        editor.SetReadOnly(ro);
+	auto cpos = editor.GetCursorPosition();
+	ImGui::Begin("QuakeC Editor", nullptr,
+				 ImGuiWindowFlags_HorizontalScrollbar |
+					 ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
+	if (ImGui::BeginMenuBar()) {
+		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("Save", "Ctrl-S", nullptr)) {
+				auto textToSave = editor.GetText();
+				std::ofstream output(currentFileName);
+				if (output.is_open()) {
+					output << textToSave;
+					output.close();
+				} else {
+					isErrorOpen = true;
+					userError = SAVE_FAILED;
+				}
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit")) {
+			bool ro = editor.IsReadOnly();
+			if (ImGui::MenuItem("Read-Only", nullptr, &ro))
+				editor.SetReadOnly(ro);
 
-      ImGui::Separator();
+			ImGui::Separator();
 
-      if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr,
-                          !ro && editor.CanUndo()))
-        editor.Undo();
-      if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr, !ro && editor.CanRedo()))
-        editor.Redo();
+			if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr,
+								!ro && editor.CanUndo()))
+				editor.Undo();
+			if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr,
+								!ro && editor.CanRedo()))
+				editor.Redo();
 
-      ImGui::Separator();
+			ImGui::Separator();
 
-      if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr, editor.HasSelection()))
-        editor.Copy();
-      if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr,
-                          !ro && editor.HasSelection()))
-        editor.Cut();
-      if (ImGui::MenuItem("Delete", "Del", nullptr,
-                          !ro && editor.HasSelection()))
-        editor.Delete();
-      if (ImGui::MenuItem("Paste", "Ctrl-V", nullptr,
-                          !ro && ImGui::GetClipboardText() != nullptr))
-        editor.Paste();
+			if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr,
+								editor.HasSelection()))
+				editor.Copy();
+			if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr,
+								!ro && editor.HasSelection()))
+				editor.Cut();
+			if (ImGui::MenuItem("Delete", "Del", nullptr,
+								!ro && editor.HasSelection()))
+				editor.Delete();
+			if (ImGui::MenuItem("Paste", "Ctrl-V", nullptr,
+								!ro && ImGui::GetClipboardText() != nullptr))
+				editor.Paste();
 
-      ImGui::Separator();
+			ImGui::Separator();
+			if (ImGui::MenuItem("Select all", nullptr, nullptr))
+				editor.SetSelection(
+					TextEditor::Coordinates(),
+					TextEditor::Coordinates(editor.GetTotalLines(), 0));
 
-      if (ImGui::MenuItem("Select all", nullptr, nullptr))
-        editor.SetSelection(TextEditor::Coordinates(),
-                            TextEditor::Coordinates(editor.GetTotalLines(), 0));
+			ImGui::EndMenu();
+		}
 
-      ImGui::EndMenu();
-    }
+		if (ImGui::BeginMenu("View")) {
+			if (ImGui::MenuItem("Dark Mode"))
+				editor.SetPalette(TextEditor::GetDarkPalette());
+			if (ImGui::MenuItem("Light Mode"))
+				editor.SetPalette(TextEditor::GetLightPalette());
+			if (ImGui::MenuItem("Retro Mode"))
+				editor.SetPalette(TextEditor::GetRetroBluePalette());
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
 
-    if (ImGui::BeginMenu("View")) {
-      if (ImGui::MenuItem("Dark Mode"))
-        editor.SetPalette(TextEditor::GetDarkPalette());
-      if (ImGui::MenuItem("Light Mode"))
-        editor.SetPalette(TextEditor::GetLightPalette());
-      if (ImGui::MenuItem("Retro Mode"))
-        editor.SetPalette(TextEditor::GetRetroBluePalette());
-      ImGui::EndMenu();
-    }
-    ImGui::EndMenuBar();
-  }
+	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s ", cpos.mLine + 1,
+				cpos.mColumn + 1, editor.GetTotalLines(),
+				editor.IsOverwrite() ? "Ovr" : "Ins",
+				editor.CanUndo() ? "*" : " ",
+				editor.GetLanguageDefinition().mName.c_str());
 
-  ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s ", cpos.mLine + 1,
-              cpos.mColumn + 1, editor.GetTotalLines(),
-              editor.IsOverwrite() ? "Ovr" : "Ins",
-              editor.CanUndo() ? "*" : " ",
-              editor.GetLanguageDefinition().mName.c_str());
-
-  editor.Render("TextEditor");
-  ImGui::End();
+	editor.Render("TextEditor");
+	ImGui::End();
 }
 
 void DrawFileTree(const std::filesystem::path &currentPath,
-                  TextEditor &editor) {
-  if (!currentPath.empty()) {
-    std::list<std::filesystem::directory_entry> entryList;
+				  TextEditor &editor) {
+	if (!currentPath.empty()) {
+		std::list<std::filesystem::directory_entry> entryList;
 
-    // Theres probabaly a better way to do this without iterating 3 times but I
-    // dont know it rn
-    for (auto &directoryEntry :
-         std::filesystem::directory_iterator(currentPath)) {
-      if (directoryEntry.is_directory())
-        entryList.push_back(directoryEntry);
-    }
+		// Theres probabaly a better way to do this without iterating 3
+		// times but I dont know it rn
+		for (auto &directoryEntry :
+			 std::filesystem::directory_iterator(currentPath)) {
+			if (directoryEntry.is_directory())
+				entryList.push_back(directoryEntry);
+		}
 
-    for (auto &directoryEntry :
-         std::filesystem::directory_iterator(currentPath)) {
-      if (!directoryEntry.is_directory())
-        entryList.push_back(directoryEntry);
-    }
+		for (auto &directoryEntry :
+			 std::filesystem::directory_iterator(currentPath)) {
+			if (!directoryEntry.is_directory())
+				entryList.push_back(directoryEntry);
+		}
 
-    for (auto &directoryEntry : entryList) {
-      const auto &path = directoryEntry.path();
-      std::string filenameString = path.filename().string();
+		for (auto &directoryEntry : entryList) {
+			const auto &path = directoryEntry.path();
+			std::string filenameString = path.filename().string();
 
-      ImGui::PushID(filenameString.c_str());
-      GLuint icon;
+			ImGui::PushID(filenameString.c_str());
+			GLuint icon;
 
-      if (directoryEntry.is_directory()) {
+			if (directoryEntry.is_directory()) {
 
-        icon = QuakePrism::UI::getDirectoryIcon();
-      } else {
-        icon = QuakePrism::UI::getFileIcon();
-      }
+				icon = QuakePrism::UI::directoryIcon;
+			} else {
+				icon = QuakePrism::UI::fileIcon;
+			}
 
-      if (QuakePrism::ImageTreeNode(filenameString.c_str(), icon)) {
-        if (ImGui::IsItemHovered() &&
-            ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-          if (path.extension() == ".qc") {
-            std::ifstream input(path);
-            if (input.good()) {
-              currentFileName = path;
-              std::string str((std::istreambuf_iterator<char>(input)),
-                              std::istreambuf_iterator<char>());
-              editor.SetText(str);
-            } else {
-              isErrorOpen = true;
-              userError = LOAD_FAILED;
-            }
+			if (QuakePrism::ImageTreeNode(filenameString.c_str(), icon)) {
+				if (ImGui::IsItemHovered() &&
+					ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+					if (path.extension() == ".qc") {
+						std::ifstream input(path);
+						if (input.good()) {
+							currentFileName = path;
+							std::string str(
+								(std::istreambuf_iterator<char>(input)),
+								std::istreambuf_iterator<char>());
+							editor.SetText(str);
+						} else {
+							isErrorOpen = true;
+							userError = LOAD_FAILED;
+						}
 
-            input.close();
-          }
-          if (path.extension() == ".mdl") {
-            // This only exists to validate the file actual loading is in the
-            // render function in the mdl file
-            std::ifstream input(path);
-            if (input.good()) {
-              currentModelName = path;
-            } else {
-              isErrorOpen = true;
-              userError = LOAD_FAILED;
-            }
-          }
-        }
-        if (directoryEntry.is_directory()) {
-          DrawFileTree(directoryEntry.path(), editor);
-        }
-        ImGui::TreePop();
-      }
+						input.close();
+					}
+					if (path.extension() == ".mdl") {
+						// This only exists to validate
+						// the file actual loading is in
+						// the render function in the
+						// mdl file
+						std::ifstream input(path);
+						if (input.good()) {
+							currentModelName = path;
+							MDL::currentFrame = 0;
+						} else {
+							isErrorOpen = true;
+							userError = LOAD_FAILED;
+						}
+					}
+				}
+				if (directoryEntry.is_directory()) {
+					DrawFileTree(directoryEntry.path(), editor);
+				}
+				ImGui::TreePop();
+			}
 
-      ImGui::PopID();
-    }
-  }
+			ImGui::PopID();
+		}
+	}
 }
 
 void DrawFileExplorer(TextEditor &editor) {
 
-  ImGui::Begin("Project Browser", nullptr, ImGuiWindowFlags_NoMove);
-  if (baseDirectory.empty()) {
-    if (ImGui::Button("New Project")) {
-    }
-    if (ImGui::Button("Open Project")) {
-      isOpenProjectOpen = true;
-    }
-  }
-  if (!baseDirectory.empty()) {
-    DrawFileTree(baseDirectory, editor);
-  }
+	ImGui::Begin("Project Browser", nullptr, ImGuiWindowFlags_NoMove);
+	if (baseDirectory.empty()) {
+		if (ImGui::Button("New Project")) {
+		}
+		if (ImGui::Button("Open Project")) {
+			isOpenProjectOpen = true;
+		}
+	}
+	if (!baseDirectory.empty()) {
+		DrawFileTree(baseDirectory, editor);
+	}
 
-  ImGui::End();
+	ImGui::End();
 }
 
 void DrawOpenProjectPopup() {
-  if (!isOpenProjectOpen)
-    return;
+	if (!isOpenProjectOpen)
+		return;
 
-  ImGui::OpenPopup("Open Project");
-  isOpenProjectOpen = ImGui::BeginPopupModal("Open Project", nullptr,
-                                             ImGuiWindowFlags_AlwaysAutoResize);
-  std::vector<std::filesystem::directory_entry> projectList;
-  if (isOpenProjectOpen) {
-    try {
-      for (auto &directoryEntry : std::filesystem::directory_iterator(
-               executingDirectory / "projects")) {
-        if (directoryEntry.is_directory())
-          projectList.push_back(directoryEntry);
-      }
-    } catch (const std::filesystem::filesystem_error &ex) {
-      isErrorOpen = true;
-      isOpenProjectOpen = false;
-      userError = MISSING_PROJECTS;
-    }
+	ImGui::OpenPopup("Open Project");
+	isOpenProjectOpen = ImGui::BeginPopupModal(
+		"Open Project", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	std::vector<std::filesystem::directory_entry> projectList;
+	if (isOpenProjectOpen) {
+		try {
+			for (auto &directoryEntry : std::filesystem::directory_iterator(
+					 executingDirectory / "projects")) {
+				if (directoryEntry.is_directory())
+					projectList.push_back(directoryEntry);
+			}
+		} catch (const std::filesystem::filesystem_error &ex) {
+			isErrorOpen = true;
+			isOpenProjectOpen = false;
+			userError = MISSING_PROJECTS;
+		}
 
-    static int item_current_idx = 0;
-    if (ImGui::BeginListBox("Projects")) {
-      for (int n = 0; n < projectList.size(); n++) {
-        const bool is_selected = (item_current_idx == n);
-        if (ImGui::Selectable(
-                projectList.at(n).path().filename().string().c_str(),
-                is_selected))
-          item_current_idx = n;
+		static int item_current_idx = 0;
+		if (ImGui::BeginListBox("Projects")) {
+			for (int n = 0; n < projectList.size(); n++) {
+				const bool is_selected = (item_current_idx == n);
+				if (ImGui::Selectable(
+						projectList.at(n).path().filename().string().c_str(),
+						is_selected))
+					item_current_idx = n;
 
-        // Set the initial focus when opening the combo (scrolling + keyboard
-        // navigation focus)
-        if (is_selected)
-          ImGui::SetItemDefaultFocus();
-      }
-      ImGui::EndListBox();
-    }
+				// Set the initial focus when opening the combo
+				// (scrolling + keyboard navigation focus)
+				if (is_selected)
+					ImGui::SetItemDefaultFocus();
+			}
+			ImGui::EndListBox();
+		}
 
-    if (ImGui::Button("Open")) {
-      baseDirectory = projectList.at(item_current_idx).path();
-      currentDirectory = projectList.at(item_current_idx).path();
-      isOpenProjectOpen = false;
-      ImGui::CloseCurrentPopup();
-    }
+		if (ImGui::Button("Open")) {
+			baseDirectory = projectList.at(item_current_idx).path();
+			currentDirectory = projectList.at(item_current_idx).path();
+			isOpenProjectOpen = false;
+			ImGui::CloseCurrentPopup();
+		}
 
-    ImGui::EndPopup();
-  }
+		ImGui::EndPopup();
+	}
 }
 
 void DrawAboutPopup() {
 
-  if (!isAboutOpen)
-    return;
+	if (!isAboutOpen)
+		return;
 
-  GLuint icon;
-  int width, height;
+	GLuint icon;
+	int width, height;
 
-  ImGui::OpenPopup("About");
-  isAboutOpen = ImGui::BeginPopupModal("About", nullptr,
-                                       ImGuiWindowFlags_AlwaysAutoResize);
-  if (isAboutOpen) {
-    QuakePrism::LoadTextureFromFile("res/prism_small.png", &icon, &width,
-                                    &height);
-    ImGui::Image((ImTextureID)icon, {48, 48});
+	ImGui::OpenPopup("About");
+	isAboutOpen = ImGui::BeginPopupModal("About", nullptr,
+										 ImGuiWindowFlags_AlwaysAutoResize);
+	if (isAboutOpen) {
+		QuakePrism::LoadTextureFromFile("res/prism_small.png", &icon, &width,
+										&height);
+		ImGui::Image((ImTextureID)icon, {48, 48});
 
-    ImGui::SameLine();
+		ImGui::SameLine();
 
-    ImGui::BeginGroup();
-    ImGui::Text("Quake Prism Development Toolkit");
-    ImGui::Text("by Bance.");
-    ImGui::EndGroup();
+		ImGui::BeginGroup();
+		ImGui::Text("Quake Prism Development Toolkit");
+		ImGui::Text("by Bance.");
+		ImGui::EndGroup();
 
-    if (ImGui::Button("Close")) {
-      isAboutOpen = false;
-      ImGui::CloseCurrentPopup();
-    }
+		if (ImGui::Button("Close")) {
+			isAboutOpen = false;
+			ImGui::CloseCurrentPopup();
+		}
 
-    ImGui::EndPopup();
-  }
+		ImGui::EndPopup();
+	}
 }
 
 void DrawErrorPopup() {
-  if (!isErrorOpen)
-    return;
+	if (!isErrorOpen)
+		return;
 
-  GLuint icon;
-  int width, height;
+	GLuint icon;
+	int width, height;
 
-  ImGui::OpenPopup("Error");
-  isErrorOpen = ImGui::BeginPopupModal("Error", nullptr,
-                                       ImGuiWindowFlags_AlwaysAutoResize);
-  if (isErrorOpen) {
-    QuakePrism::LoadTextureFromFile("res/prism_small.png", &icon, &width,
-                                    &height);
-    ImGui::Image((ImTextureID)icon, {48, 48});
+	ImGui::OpenPopup("Error");
+	isErrorOpen = ImGui::BeginPopupModal("Error", nullptr,
+										 ImGuiWindowFlags_AlwaysAutoResize);
+	if (isErrorOpen) {
+		QuakePrism::LoadTextureFromFile("res/prism_small.png", &icon, &width,
+										&height);
+		ImGui::Image((ImTextureID)icon, {48, 48});
 
-    ImGui::SameLine();
-    switch (userError) {
-    case MISSING_COMPILER:
-      ImGui::BeginGroup();
-      ImGui::Text("Error: Unable to compile progs.");
-      ImGui::Text("fteqcc64 executable is missing in src.");
-      ImGui::EndGroup();
-      break;
-    case MISSING_GAME:
-      ImGui::BeginGroup();
-      ImGui::Text("Error: Unable to launch quake.");
-      ImGui::Text("Quake engine executable is missing.");
-      ImGui::EndGroup();
-      break;
-    case MISSING_PROJECTS:
-      ImGui::BeginGroup();
-      ImGui::Text("Error: Unable to load project.");
-      ImGui::Text("Projects directory is missing.");
-      ImGui::EndGroup();
-      break;
-    case SAVE_FAILED:
-      ImGui::BeginGroup();
-      ImGui::Text("Error: Unable to save to output file.");
-      ImGui::EndGroup();
-      break;
-    case LOAD_FAILED:
-      ImGui::BeginGroup();
-      ImGui::Text("Error: Unable to load file.");
-      ImGui::EndGroup();
-      break;
-    default:
-      break;
-    }
+		ImGui::SameLine();
+		switch (userError) {
+		case MISSING_COMPILER:
+			ImGui::BeginGroup();
+			ImGui::Text("Error: Unable to compile progs.");
+			ImGui::Text("fteqcc64 executable is missing in src.");
+			ImGui::EndGroup();
+			break;
+		case MISSING_GAME:
+			ImGui::BeginGroup();
+			ImGui::Text("Error: Unable to launch quake.");
+			ImGui::Text("Quake engine executable is missing.");
+			ImGui::EndGroup();
+			break;
+		case MISSING_PROJECTS:
+			ImGui::BeginGroup();
+			ImGui::Text("Error: Unable to load project.");
+			ImGui::Text("Projects directory is missing.");
+			ImGui::EndGroup();
+			break;
+		case SAVE_FAILED:
+			ImGui::BeginGroup();
+			ImGui::Text("Error: Unable to save to output file.");
+			ImGui::EndGroup();
+			break;
+		case LOAD_FAILED:
+			ImGui::BeginGroup();
+			ImGui::Text("Error: Unable to load file.");
+			ImGui::EndGroup();
+			break;
+		default:
+			break;
+		}
 
-    if (ImGui::Button("Close")) {
-      isErrorOpen = false;
-      ImGui::CloseCurrentPopup();
-    }
+		if (ImGui::Button("Close")) {
+			isErrorOpen = false;
+			ImGui::CloseCurrentPopup();
+		}
 
-    ImGui::EndPopup();
-  }
+		ImGui::EndPopup();
+	}
 }
 } // namespace QuakePrism

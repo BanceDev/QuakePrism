@@ -20,33 +20,40 @@ along with this program.
 #include "resources.h"
 #include "util.h"
 
-GLuint fileIcon;
-GLuint directoryIcon;
-
 namespace QuakePrism::UI {
+// Fonts
 ImFont *ubuntuFont;
 ImFont *jetBrainsFont;
 
-void loadFonts() {
-  ImGuiIO &io = ImGui::GetIO();
-  (void)io;
+// Images
+GLuint fileIcon;
+GLuint directoryIcon;
+GLuint playButton;
+GLuint forwardButton;
+GLuint backButton;
 
-  ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 21.0f);
-  IM_ASSERT(ubuntuFont != nullptr);
-  jetBrainsFont =
-      io.Fonts->AddFontFromFileTTF("res/JetBrainsMono-Medium.ttf", 21.0f);
-  IM_ASSERT(jetBrainsFont != nullptr);
+void loadFonts() {
+	ImGuiIO &io = ImGui::GetIO();
+	(void)io;
+
+	ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 21.0f);
+	IM_ASSERT(ubuntuFont != nullptr);
+	jetBrainsFont =
+		io.Fonts->AddFontFromFileTTF("res/JetBrainsMono-Medium.ttf", 21.0f);
+	IM_ASSERT(jetBrainsFont != nullptr);
 }
 
 void loadIcons() {
-  QuakePrism::LoadTextureFromFile("res/FileIcon.png", &fileIcon, nullptr,
-                                  nullptr);
-  QuakePrism::LoadTextureFromFile("res/DirectoryIcon.png", &directoryIcon,
-                                  nullptr, nullptr);
+	QuakePrism::LoadTextureFromFile("res/FileIcon.png", &fileIcon, nullptr,
+									nullptr);
+	QuakePrism::LoadTextureFromFile("res/DirectoryIcon.png", &directoryIcon,
+									nullptr, nullptr);
+	QuakePrism::LoadTextureFromFile("res/play.png", &playButton, nullptr,
+									nullptr);
+	QuakePrism::LoadTextureFromFile("res/forward.png", &forwardButton, nullptr,
+									nullptr);
+	QuakePrism::LoadTextureFromFile("res/back.png", &backButton, nullptr,
+									nullptr);
 }
-
-const GLuint getFileIcon() { return fileIcon; }
-
-const GLuint getDirectoryIcon() { return directoryIcon; }
 
 } // namespace QuakePrism::UI
