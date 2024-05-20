@@ -128,26 +128,27 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 
 	// Model Viewer Controls
 	static vec3_t modelAngles = {-90.0f, 0.0f, -90.0f};
+	static vec3_t modelPosition = {0.0f, 0.0f, -100.0f};
+	static GLfloat modelScale = 1.0f;
 	if (ImGui::IsItemHovered()) {
 		ImGuiIO &io = ImGui::GetIO();
 		if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
 			modelAngles[0] += io.MouseDelta.y;
 			modelAngles[2] += io.MouseDelta.x;
 		}
+		if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
+			modelPosition[0] += io.MouseDelta.x * 0.5f;
+			modelPosition[1] -= io.MouseDelta.y * 0.5f;
+		}
+		modelScale += io.MouseWheel * 0.1f;
+		if (modelScale <= 0) {
+			modelScale = 0.1f;
+		} else if (modelScale >= 3.0f) {
+			modelScale = 3.0f;
+		}
 	}
 
 	ImGui::End();
-
-	if (!currentModelName.empty()) {
-
-		QuakePrism::bindFramebuffer(FBO);
-
-		MDL::cleanup();
-		MDL::reshape(window_width, window_height);
-		MDL::render(currentModelName, modelAngles, paused);
-
-		QuakePrism::unbindFramebuffer();
-	}
 
 	const float animProgress =
 		MDL::totalFrames == 0 ? 0.0f
@@ -164,7 +165,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	// Animation Control Buttons
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 	if (ImGui::ImageButton((ImTextureID)QuakePrism::UI::backButton, {24, 24})) {
-		if (paused)
+		if (paused && MDL::currentFrame > 0)
 			MDL::currentFrame--;
 	}
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
@@ -174,10 +175,29 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 	if (ImGui::ImageButton((ImTextureID)QuakePrism::UI::forwardButton,
 						   {24, 24})) {
-		if (paused)
-			MDL::currentFrame++;
+		if (paused) {
+			if (MDL::currentFrame < MDL::totalFrames) {
+				MDL::currentFrame++;
+			} else {
+				MDL::currentFrame = 0;
+			}
+		}
 	}
+
 	ImGui::End();
+
+	// Handle all of the model rendering after the UI is complete
+	if (!currentModelName.empty()) {
+
+		QuakePrism::bindFramebuffer(FBO);
+
+		MDL::cleanup();
+		MDL::reshape(window_width, window_height);
+		MDL::render(currentModelName, modelAngles, modelPosition, modelScale,
+					paused);
+
+		QuakePrism::unbindFramebuffer();
+	}
 }
 
 void DrawTextEditor(TextEditor &editor) {

@@ -432,7 +432,7 @@ void reshape(int w, int h) {
 }
 
 void render(const std::filesystem::path modelPath, const vec3_t angles,
-			const bool paused) {
+			const vec3_t pos, const GLfloat scale, const bool paused) {
 	static double curent_time = 0;
 	static double last_time = 0;
 
@@ -446,15 +446,15 @@ void render(const std::filesystem::path modelPath, const vec3_t angles,
 
 	totalFrames = mdlfile.header.num_frames;
 	// Initialize OpenGL context
-	glClearColor(0.25f, 0.5f, 0.5f, 1.0f);
+	glClearColor(0.184f, 0.184f, 0.184f, 1.0f);
 	glShadeModel(GL_SMOOTH);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
+	GLfloat materialEmissive[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	glMaterialfv(GL_FRONT, GL_EMISSION, materialEmissive);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-
-	glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -467,9 +467,10 @@ void render(const std::filesystem::path modelPath, const vec3_t angles,
 	if (!paused)
 		Animate(0, mdlfile.header.num_frames - 1, &currentFrame, &interpAmt);
 
-	glTranslatef(0.0f, 0.0f, -100.0f);
+	glTranslatef(pos[0], pos[1], pos[2]);
 	glRotatef(angles[0], 1.0, 0.0, 0.0);
 	glRotatef(angles[2], 0.0, 0.0, 1.0);
+	glScalef(scale, scale, scale);
 
 	// Draw the model
 	if (mdlfile.header.num_frames > 1 && !paused)

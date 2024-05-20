@@ -18,6 +18,7 @@ along with this program.
 */
 
 #include "theme.h"
+#include "imgui.h"
 
 namespace QuakePrism::UI {
 
@@ -83,6 +84,9 @@ void SetImguiTheme() {
 	// Slider
 	colors[ImGuiCol_SliderGrab] = ImVec4(0.51f, 0.51f, 0.51f, 0.7f);
 	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.66f, 0.66f, 0.66f, 1.0f);
+
+	// Progress Bar
+	colors[ImGuiCol_PlotHistogram] = ImColor(255, 255, 135, 60);
 
 	// Text
 	colors[ImGuiCol_Text] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::text);

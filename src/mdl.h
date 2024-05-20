@@ -66,5 +66,5 @@ void cleanup();
 void reshape(int w, int h);
 
 void render(const std::filesystem::path modelPath, const vec3_t angles,
-			const bool paused);
+			const vec3_t pos, const GLfloat scale, const bool paused);
 } // namespace QuakePrism::MDL
