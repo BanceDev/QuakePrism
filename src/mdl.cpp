@@ -113,18 +113,22 @@ namespace QuakePrism::MDL {
 float interpAmt = 1.0f;
 int currentFrame = 0;
 int totalFrames = 0;
+vec3_t modelAngles = {-90.0f, 0.0f, -90.0f};
+vec3_t modelPosition = {0.0f, 0.0f, -100.0f};
+GLfloat modelScale = 1.0f;
 
 /**
  * Make a texture given a skin index 'n'.
  */
 GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl) {
+	int i;
 	GLuint id;
 
 	GLubyte *pixels =
 		(GLubyte *)malloc(mdl->header.skinwidth * mdl->header.skinheight * 3);
 
 	/* Convert indexed 8 bits texture to RGB 24 bits */
-	for (int i = 0; i < mdl->header.skinwidth * mdl->header.skinheight; i++) {
+	for (i = 0; i < mdl->header.skinwidth * mdl->header.skinheight; ++i) {
 		pixels[(i * 3) + 0] = colormap[mdl->skins[n].data[i]][0];
 		pixels[(i * 3) + 1] = colormap[mdl->skins[n].data[i]][1];
 		pixels[(i * 3) + 2] = colormap[mdl->skins[n].data[i]][2];
@@ -187,7 +191,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 	mdl->iskin = 0;
 
 	/* Read texture data */
-	for (i = 0; i < mdl->header.num_skins; i++) {
+	for (i = 0; i < mdl->header.num_skins; ++i) {
 		mdl->skins[i].data = (GLubyte *)malloc(
 			sizeof(GLubyte) * mdl->header.skinwidth * mdl->header.skinheight);
 
@@ -207,7 +211,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 		  fp);
 
 	/* Read frames */
-	for (i = 0; i < mdl->header.num_frames; i++) {
+	for (i = 0; i < mdl->header.num_frames; ++i) {
 		/* Memory allocation for vertices of this frame */
 		mdl->frames[i].frame.verts = (struct mdl_vertex_t *)malloc(
 			sizeof(struct mdl_vertex_t) * mdl->header.num_verts);
@@ -430,12 +434,9 @@ void reshape(int w, int h) {
 	glLoadIdentity();
 }
 
-void render(const std::filesystem::path modelPath, const vec3_t angles,
-			const vec3_t pos, const GLfloat scale, const bool paused) {
+void render(const std::filesystem::path modelPath, const bool paused) {
 	static double curent_time = 0;
 	static double last_time = 0;
-
-	GLfloat lightpos[] = {5.0f, 10.0f, 0.0f, 1.0f};
 
 	if (modelPath.empty())
 		return;
@@ -466,10 +467,10 @@ void render(const std::filesystem::path modelPath, const vec3_t angles,
 	if (!paused)
 		Animate(0, mdlfile.header.num_frames - 1, &currentFrame, &interpAmt);
 
-	glTranslatef(pos[0], pos[1], pos[2]);
-	glRotatef(angles[0], 1.0, 0.0, 0.0);
-	glRotatef(angles[2], 0.0, 0.0, 1.0);
-	glScalef(scale, scale, scale);
+	glTranslatef(modelPosition[0], modelPosition[1], modelPosition[2]);
+	glRotatef(modelAngles[0], 1.0, 0.0, 0.0);
+	glRotatef(modelAngles[2], 0.0, 0.0, 1.0);
+	glScalef(modelScale, modelScale, modelScale);
 
 	// Draw the model
 	if (mdlfile.header.num_frames > 1 && !paused)

@@ -25,6 +25,7 @@ along with this program.
 #include "mdl.h"
 #include "resources.h"
 #include "util.h"
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <list>
@@ -123,28 +124,26 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	QuakePrism::rescaleFramebuffer(window_width, window_height, RBO,
 								   texture_id);
 	if (!currentModelName.empty())
-		ImGui::Image((ImTextureID)texture_id, ImGui::GetContentRegionAvail(),
-					 ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((ImTextureID)(intptr_t)texture_id,
+					 ImGui::GetContentRegionAvail(), ImVec2(0, 1),
+					 ImVec2(1, 0));
 
 	// Model Viewer Controls
-	static vec3_t modelAngles = {-90.0f, 0.0f, -90.0f};
-	static vec3_t modelPosition = {0.0f, 0.0f, -100.0f};
-	static GLfloat modelScale = 1.0f;
 	if (ImGui::IsItemHovered()) {
 		ImGuiIO &io = ImGui::GetIO();
 		if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
-			modelAngles[0] += io.MouseDelta.y;
-			modelAngles[2] += io.MouseDelta.x;
+			MDL::modelAngles[0] += io.MouseDelta.y;
+			MDL::modelAngles[2] += io.MouseDelta.x;
 		}
 		if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
-			modelPosition[0] += io.MouseDelta.x * 0.5f;
-			modelPosition[1] -= io.MouseDelta.y * 0.5f;
+			MDL::modelPosition[0] += io.MouseDelta.x * 0.5f;
+			MDL::modelPosition[1] -= io.MouseDelta.y * 0.5f;
 		}
-		modelScale += io.MouseWheel * 0.1f;
-		if (modelScale <= 0) {
-			modelScale = 0.1f;
-		} else if (modelScale >= 3.0f) {
-			modelScale = 3.0f;
+		MDL::modelScale += io.MouseWheel * 0.1f;
+		if (MDL::modelScale <= 0) {
+			MDL::modelScale = 0.1f;
+		} else if (MDL::modelScale >= 3.0f) {
+			MDL::modelScale = 3.0f;
 		}
 	}
 
@@ -164,16 +163,18 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 
 	// Animation Control Buttons
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-	if (ImGui::ImageButton((ImTextureID)QuakePrism::UI::backButton, {24, 24})) {
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)QuakePrism::UI::backButton,
+						   {24, 24})) {
 		if (paused && MDL::currentFrame > 0)
 			MDL::currentFrame--;
 	}
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-	if (ImGui::ImageButton((ImTextureID)QuakePrism::UI::playButton, {24, 24})) {
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)QuakePrism::UI::playButton,
+						   {24, 24})) {
 		paused = !paused;
 	}
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-	if (ImGui::ImageButton((ImTextureID)QuakePrism::UI::forwardButton,
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)QuakePrism::UI::forwardButton,
 						   {24, 24})) {
 		if (paused) {
 			if (MDL::currentFrame < MDL::totalFrames) {
@@ -193,8 +194,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 
 		MDL::cleanup();
 		MDL::reshape(window_width, window_height);
-		MDL::render(currentModelName, modelAngles, modelPosition, modelScale,
-					paused);
+		MDL::render(currentModelName, paused);
 
 		QuakePrism::unbindFramebuffer();
 	}
@@ -336,14 +336,22 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 						input.close();
 					}
 					if (path.extension() == ".mdl") {
-						// This only exists to validate
-						// the file actual loading is in
-						// the render function in the
-						// mdl file
+						/* This only exists to validate
+						 the file actual loading is in
+						 the render function in the
+						 mdl file */
 						std::ifstream input(path);
 						if (input.good()) {
 							currentModelName = path;
 							MDL::currentFrame = 0;
+							MDL::modelAngles[0] = -90.0f;
+							MDL::modelAngles[1] = 0.0f;
+							MDL::modelAngles[2] = -90.0f;
+							MDL::modelPosition[0] = 0.0f;
+							MDL::modelPosition[1] = 0.0f;
+							MDL::modelPosition[2] = -100.0f;
+							MDL::modelScale = 1.0f;
+
 						} else {
 							isErrorOpen = true;
 							userError = LOAD_FAILED;
@@ -432,16 +440,11 @@ void DrawAboutPopup() {
 	if (!isAboutOpen)
 		return;
 
-	GLuint icon;
-	int width, height;
-
 	ImGui::OpenPopup("About");
 	isAboutOpen = ImGui::BeginPopupModal("About", nullptr,
 										 ImGuiWindowFlags_AlwaysAutoResize);
 	if (isAboutOpen) {
-		QuakePrism::LoadTextureFromFile("res/prism_small.png", &icon, &width,
-										&height);
-		ImGui::Image((ImTextureID)icon, {48, 48});
+		ImGui::Image((ImTextureID)(intptr_t)QuakePrism::UI::appIcon, {48, 48});
 
 		ImGui::SameLine();
 
@@ -463,16 +466,11 @@ void DrawErrorPopup() {
 	if (!isErrorOpen)
 		return;
 
-	GLuint icon;
-	int width, height;
-
 	ImGui::OpenPopup("Error");
 	isErrorOpen = ImGui::BeginPopupModal("Error", nullptr,
 										 ImGuiWindowFlags_AlwaysAutoResize);
 	if (isErrorOpen) {
-		QuakePrism::LoadTextureFromFile("res/prism_small.png", &icon, &width,
-										&height);
-		ImGui::Image((ImTextureID)icon, {48, 48});
+		ImGui::Image((ImTextureID)(intptr_t)QuakePrism::UI::appIcon, {48, 48});
 
 		ImGui::SameLine();
 		switch (userError) {

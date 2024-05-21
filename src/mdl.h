@@ -48,6 +48,9 @@ namespace QuakePrism::MDL {
 extern float interpAmt;
 extern int currentFrame;
 extern int totalFrames;
+extern vec3_t modelAngles;
+extern vec3_t modelPosition;
+extern GLfloat modelScale;
 
 GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl);
 
@@ -65,6 +68,5 @@ void cleanup();
 
 void reshape(int w, int h);
 
-void render(const std::filesystem::path modelPath, const vec3_t angles,
-			const vec3_t pos, const GLfloat scale, const bool paused);
+void render(const std::filesystem::path modelPath, const bool paused);
 } // namespace QuakePrism::MDL

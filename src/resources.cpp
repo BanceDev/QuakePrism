@@ -31,6 +31,7 @@ GLuint directoryIcon;
 GLuint playButton;
 GLuint forwardButton;
 GLuint backButton;
+GLuint appIcon;
 
 void loadFonts() {
 	ImGuiIO &io = ImGui::GetIO();
@@ -53,6 +54,8 @@ void loadIcons() {
 	QuakePrism::LoadTextureFromFile("res/forward.png", &forwardButton, nullptr,
 									nullptr);
 	QuakePrism::LoadTextureFromFile("res/back.png", &backButton, nullptr,
+									nullptr);
+	QuakePrism::LoadTextureFromFile("res/prism_small.png", &appIcon, nullptr,
 									nullptr);
 }
 

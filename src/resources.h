@@ -33,6 +33,7 @@ extern GLuint directoryIcon;
 extern GLuint playButton;
 extern GLuint forwardButton;
 extern GLuint backButton;
+extern GLuint appIcon;
 
 void loadIcons();
 

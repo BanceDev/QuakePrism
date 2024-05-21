@@ -19,6 +19,7 @@ along with this program.
 
 #include "util.h"
 #include "imgui.h"
+#include <cstdint>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -91,10 +92,10 @@ bool ImageTreeNode(const char *label, const GLuint icon) {
 
 	// Icon, text
 	ImGui::SameLine(x);
-	ImGui::ImageButton((ImTextureID)icon, {24, 24}, ImVec2(0, 0), ImVec2(1, 1),
-					   0);
+	ImGui::ImageButton((ImTextureID)(intptr_t)icon, {24, 24}, ImVec2(0, 0),
+					   ImVec2(1, 1), 0);
 	ImGui::SameLine();
-	ImGui::Text(label);
+	ImGui::TextUnformatted(label);
 	ImGui::EndGroup();
 	if (opened)
 		ImGui::TreePush(label);
