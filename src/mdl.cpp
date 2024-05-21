@@ -118,14 +118,13 @@ int totalFrames = 0;
  * Make a texture given a skin index 'n'.
  */
 GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl) {
-	int i;
 	GLuint id;
 
 	GLubyte *pixels =
 		(GLubyte *)malloc(mdl->header.skinwidth * mdl->header.skinheight * 3);
 
 	/* Convert indexed 8 bits texture to RGB 24 bits */
-	for (i = 0; i < mdl->header.skinwidth * mdl->header.skinheight; ++i) {
+	for (int i = 0; i < mdl->header.skinwidth * mdl->header.skinheight; i++) {
 		pixels[(i * 3) + 0] = colormap[mdl->skins[n].data[i]][0];
 		pixels[(i * 3) + 1] = colormap[mdl->skins[n].data[i]][1];
 		pixels[(i * 3) + 2] = colormap[mdl->skins[n].data[i]][2];
@@ -188,7 +187,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 	mdl->iskin = 0;
 
 	/* Read texture data */
-	for (i = 0; i < mdl->header.num_skins; ++i) {
+	for (i = 0; i < mdl->header.num_skins; i++) {
 		mdl->skins[i].data = (GLubyte *)malloc(
 			sizeof(GLubyte) * mdl->header.skinwidth * mdl->header.skinheight);
 
@@ -208,7 +207,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 		  fp);
 
 	/* Read frames */
-	for (i = 0; i < mdl->header.num_frames; ++i) {
+	for (i = 0; i < mdl->header.num_frames; i++) {
 		/* Memory allocation for vertices of this frame */
 		mdl->frames[i].frame.verts = (struct mdl_vertex_t *)malloc(
 			sizeof(struct mdl_vertex_t) * mdl->header.num_verts);
