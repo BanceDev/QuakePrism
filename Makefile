@@ -68,6 +68,7 @@ $(EXE): $(OBJS)
 copy_resources:
 	@echo "Copying resources directory..."
 	@cp -r $(SRC_DIR)/res $(BUILD_DIR)
+	@cp -r imgui.ini $(BUILD_DIR)
 	@if [ ! -d $(PROJ_DIR) ]; then \
 		mkdir $(PROJ_DIR); \
 	fi
