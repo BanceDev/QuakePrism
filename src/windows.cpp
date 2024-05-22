@@ -185,6 +185,14 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 		}
 	}
 
+	// Texture Export Button
+	if (ImGui::Button("Export Texture")) {
+		if (!MDL::mdlTextureExport(currentModelName)) {
+			isErrorOpen = true;
+			userError = SAVE_FAILED;
+		}
+	}
+
 	ImGui::End();
 
 	// Handle all of the model rendering after the UI is complete

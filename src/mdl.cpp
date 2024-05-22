@@ -18,6 +18,8 @@ along with this program.
 */
 
 #include "mdl.h"
+#include <fstream>
+#include <iostream>
 
 /* Table of precalculated normals */
 vec3_t anorms_table[162] = {
@@ -105,6 +107,23 @@ struct mdl_model_t {
 	int iskin;
 };
 
+/* Header for the .tga texture export */
+#pragma pack(push, 1)
+struct tga_header_t {
+	uint8_t idLength;
+	uint8_t colorMapType;
+	uint8_t dataTypeCode;
+	uint16_t colorMapOrigin;
+	uint16_t colorMapLength;
+	uint8_t colorMapDepth;
+	uint16_t xOrigin;
+	uint16_t yOrigin;
+	uint16_t width;
+	uint16_t height;
+	uint8_t bitsPerPixel;
+	uint8_t imageDescriptor;
+};
+#pragma pack(pop)
 // An MDL model
 mdl_model_t mdlfile;
 
@@ -150,7 +169,46 @@ GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl) {
 	free(pixels);
 	return id;
 }
+bool ExportTextureToTGA(const struct mdl_model_t *mdl, int skinIndex,
+						const std::string &filename) {
+	if (skinIndex < 0 || skinIndex >= mdl->header.num_skins) {
+		return false;
+	}
 
+	int width = mdl->header.skinwidth;
+	int height = mdl->header.skinheight;
+
+	// Allocate memory for the RGB data
+	GLubyte *pixels = (GLubyte *)malloc(width * height * 3);
+
+	// Convert indexed 8 bits texture to RGB 24 bits
+	for (int i = 0; i < width * height; ++i) {
+		int colorIndex = mdl->skins[skinIndex].data[i];
+		pixels[(i * 3) + 0] = colormap[colorIndex][2];
+		pixels[(i * 3) + 1] = colormap[colorIndex][1];
+		pixels[(i * 3) + 2] = colormap[colorIndex][0];
+	}
+
+	tga_header_t tgaHeader = {0};
+	tgaHeader.dataTypeCode = 2; // Uncompressed, true-color image
+	tgaHeader.width = width;
+	tgaHeader.height = height;
+	tgaHeader.bitsPerPixel = 24;
+	tgaHeader.imageDescriptor = 0x20; // Top-left origin
+
+	std::ofstream ofs(filename, std::ios::binary);
+	if (!ofs) {
+		free(pixels);
+		return false;
+	}
+
+	ofs.write(reinterpret_cast<char *>(&tgaHeader), sizeof(tga_header_t));
+	ofs.write(reinterpret_cast<char *>(pixels), width * height * 3);
+	ofs.close();
+
+	free(pixels);
+	return true;
+}
 /**
  * Load an MDL model from file.
  *
@@ -200,9 +258,6 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 			  mdl->header.skinwidth * mdl->header.skinheight, fp);
 
 		mdl->tex_id[i] = MakeTextureFromSkin(i, mdl);
-
-		free(mdl->skins[i].data);
-		mdl->skins[i].data = NULL;
 	}
 
 	fread(mdl->texcoords, sizeof(struct mdl_texcoord_t), mdl->header.num_verts,
@@ -236,6 +291,11 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
  */
 void FreeModel(struct mdl_model_t *mdl) {
 	int i;
+
+	for (i = 0; i < mdl->header.num_skins; ++i) {
+		free(mdl->skins[i].data);
+		mdl->skins[i].data = NULL;
+	}
 
 	if (mdl->skins) {
 		free(mdl->skins);
@@ -416,6 +476,12 @@ void Animate(int start, int end, int *frame, float *interp) {
 		if (*frame >= end)
 			*frame = start;
 	}
+}
+
+bool mdlTextureExport(std::filesystem::path modelPath) {
+	modelPath.replace_extension(".tga");
+	std::string tgaFilename = modelPath.string();
+	return ExportTextureToTGA(&mdlfile, 0, tgaFilename);
 }
 
 void cleanup() { FreeModel(&mdlfile); }

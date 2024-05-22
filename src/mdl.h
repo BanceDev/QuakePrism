@@ -43,6 +43,8 @@ struct mdl_frame_t;
 
 struct mdl_model_t;
 
+struct tga_header_t;
+
 namespace QuakePrism::MDL {
 
 extern float interpAmt;
@@ -54,6 +56,9 @@ extern GLfloat modelScale;
 
 GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl);
 
+bool ExportTextureToTGA(const struct mdl_model_t *mdl, int skinIndex,
+						const std::string &filename);
+
 int ReadMDLModel(const char *filename, struct mdl_model_t *mdl);
 
 void FreeModel(struct mdl_model_t *mdl);
@@ -63,6 +68,8 @@ void RenderFrame(int n, const struct mdl_model_t *mdl);
 void RenderFrameItp(int n, float interp, const struct mdl_model_t *mdl);
 
 void Animate(int start, int end, int *frame, float *interp);
+
+bool mdlTextureExport(std::filesystem::path modelPath);
 
 void cleanup();
 
