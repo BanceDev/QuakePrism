@@ -28,6 +28,8 @@ void DrawMenuBar();
 
 void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO);
 
+void DrawTextureViewer();
+
 void DrawTextEditor(TextEditor &editor);
 
 void DrawErrorPopup();

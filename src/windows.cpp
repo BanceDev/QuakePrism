@@ -44,8 +44,9 @@ bool isAboutOpen = false;
 bool isErrorOpen = false;
 bool isOpenProjectOpen = false;
 
-std::filesystem::path currentFileName;
+std::filesystem::path currentQCFileName;
 std::filesystem::path currentModelName;
+std::filesystem::path currentTextureName;
 std::filesystem::path currentDirectory;
 std::filesystem::path baseDirectory;
 std::filesystem::path executingDirectory = std::filesystem::current_path();
@@ -68,13 +69,6 @@ void DrawMenuBar() {
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Help")) {
-			if (ImGui::MenuItem("About")) {
-				isAboutOpen = true;
-			}
-			ImGui::EndMenu();
-		}
-
 		if (ImGui::BeginMenu("Run")) {
 			if (ImGui::MenuItem("Compile")) {
 				// editorLayer->CompileProject();
@@ -87,6 +81,14 @@ void DrawMenuBar() {
 			}
 			ImGui::EndMenu();
 		}
+
+		if (ImGui::BeginMenu("Help")) {
+			if (ImGui::MenuItem("About")) {
+				isAboutOpen = true;
+			}
+			ImGui::EndMenu();
+		}
+
 		ImGui::EndMainMenuBar();
 	}
 }
@@ -119,9 +121,11 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	const float window_width = ImGui::GetContentRegionAvail().x;
 	const float window_height = ImGui::GetContentRegionAvail().y;
 	static bool paused = false;
+	static float renderScale = 1.0f;
 
 	glViewport(0, 0, window_width, window_height);
-	QuakePrism::rescaleFramebuffer(window_width, window_height, RBO,
+	QuakePrism::rescaleFramebuffer(window_width * renderScale,
+								   window_height * renderScale, RBO,
 								   texture_id);
 	if (!currentModelName.empty())
 		ImGui::Image((ImTextureID)(intptr_t)texture_id,
@@ -185,6 +189,12 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 		}
 	}
 
+	ImGui::SliderFloat("Render Scale", &renderScale, 0.125f, 1.0f);
+
+	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+	static bool lerpEnabled = true;
+	ImGui::Checkbox("Enable Interpolation", &lerpEnabled);
+
 	static int textureMode = MDL::TEXTURED_MODE;
 	const char *textureModes[] = {"Textured", "Textureless", "Wireframe"};
 	ImGui::Combo("Texture Mode", &textureMode, textureModes,
@@ -206,11 +216,23 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 		QuakePrism::bindFramebuffer(FBO);
 
 		MDL::cleanup();
-		MDL::reshape(window_width, window_height);
-		MDL::render(currentModelName, textureMode, paused);
+		MDL::reshape(window_width * renderScale, window_height * renderScale);
+		MDL::render(currentModelName, textureMode, paused, lerpEnabled);
 
 		QuakePrism::unbindFramebuffer();
 	}
+}
+
+void DrawTextureViewer() {
+	ImGui::Begin("Texture Viewer", nullptr, ImGuiWindowFlags_NoMove);
+	if (!currentTextureName.empty()) {
+		GLuint texture;
+		LoadTextureFromFile(currentTextureName.c_str(), &texture, nullptr,
+							nullptr);
+		ImGui::Image((ImTextureID)(intptr_t)texture,
+					 ImGui::GetContentRegionAvail());
+	}
+	ImGui::End();
 }
 
 void DrawTextEditor(TextEditor &editor) {
@@ -226,7 +248,7 @@ void DrawTextEditor(TextEditor &editor) {
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("Save", "Ctrl-S", nullptr)) {
 				auto textToSave = editor.GetText();
-				std::ofstream output(currentFileName);
+				std::ofstream output(currentQCFileName);
 				if (output.is_open()) {
 					output << textToSave;
 					output.close();
@@ -336,7 +358,7 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 					if (path.extension() == ".qc") {
 						std::ifstream input(path);
 						if (input.good()) {
-							currentFileName = path;
+							currentQCFileName = path;
 							std::string str(
 								(std::istreambuf_iterator<char>(input)),
 								std::istreambuf_iterator<char>());
@@ -365,6 +387,19 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 							MDL::modelPosition[2] = -100.0f;
 							MDL::modelScale = 1.0f;
 
+						} else {
+							isErrorOpen = true;
+							userError = LOAD_FAILED;
+						}
+					}
+					if (path.extension() == ".tga") {
+						/* This only exists to validate
+						 the file actual loading is in
+						 the render function in the
+						 mdl file */
+						std::ifstream input(path);
+						if (input.good()) {
+							currentTextureName = path;
 						} else {
 							isErrorOpen = true;
 							userError = LOAD_FAILED;

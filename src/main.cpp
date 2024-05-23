@@ -195,6 +195,7 @@ int main(int, char **) {
 			ImGui::ShowDemoWindow(&show_demo_window);
 
 		QuakePrism::DrawModelViewer(texture_id, RBO, FBO);
+		QuakePrism::DrawTextureViewer();
 		ImGui::PopFont();
 
 		ImGui::PushFont(QuakePrism::UI::jetBrainsFont);

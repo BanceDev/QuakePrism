@@ -79,5 +79,5 @@ void cleanup();
 void reshape(int w, int h);
 
 void render(const std::filesystem::path modelPath, const int mode,
-			const bool paused);
+			const bool paused, const bool lerpEnabled);
 } // namespace QuakePrism::MDL

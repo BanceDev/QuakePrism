@@ -523,7 +523,7 @@ void reshape(int w, int h) {
 }
 
 void render(const std::filesystem::path modelPath, const int mode,
-			const bool paused) {
+			const bool paused, const bool lerpEnabled) {
 	static double curent_time = 0;
 	static double last_time = 0;
 
@@ -577,7 +577,7 @@ void render(const std::filesystem::path modelPath, const int mode,
 	glScalef(modelScale, modelScale, modelScale);
 
 	// Draw the model
-	if (mdlfile.header.num_frames > 1 && !paused)
+	if (mdlfile.header.num_frames > 1 && !paused && lerpEnabled)
 		RenderFrameItp(currentFrame, interpAmt, mode, &mdlfile);
 	else
 		RenderFrame(currentFrame, mode, &mdlfile);
