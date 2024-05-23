@@ -185,6 +185,11 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 		}
 	}
 
+	static int textureMode = MDL::TEXTURED_MODE;
+	const char *textureModes[] = {"Textured", "Textureless", "Wireframe"};
+	ImGui::Combo("Texture Mode", &textureMode, textureModes,
+				 IM_ARRAYSIZE(textureModes));
+
 	// Texture Export Button
 	if (ImGui::Button("Export Texture")) {
 		if (!MDL::mdlTextureExport(currentModelName)) {
@@ -202,7 +207,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 
 		MDL::cleanup();
 		MDL::reshape(window_width, window_height);
-		MDL::render(currentModelName, paused);
+		MDL::render(currentModelName, textureMode, paused);
 
 		QuakePrism::unbindFramebuffer();
 	}

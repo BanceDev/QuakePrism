@@ -47,6 +47,8 @@ struct tga_header_t;
 
 namespace QuakePrism::MDL {
 
+enum { TEXTURED_MODE, TEXTURELESS_MODE, WIREFRAME_MODE };
+
 extern float interpAmt;
 extern int currentFrame;
 extern int totalFrames;
@@ -63,9 +65,10 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl);
 
 void FreeModel(struct mdl_model_t *mdl);
 
-void RenderFrame(int n, const struct mdl_model_t *mdl);
+void RenderFrame(int n, const int mode, const struct mdl_model_t *mdl);
 
-void RenderFrameItp(int n, float interp, const struct mdl_model_t *mdl);
+void RenderFrameItp(int n, float interp, const int mode,
+					const struct mdl_model_t *mdl);
 
 void Animate(int start, int end, int *frame, float *interp);
 
@@ -75,5 +78,6 @@ void cleanup();
 
 void reshape(int w, int h);
 
-void render(const std::filesystem::path modelPath, const bool paused);
+void render(const std::filesystem::path modelPath, const int mode,
+			const bool paused);
 } // namespace QuakePrism::MDL

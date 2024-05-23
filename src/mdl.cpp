@@ -140,14 +140,13 @@ GLfloat modelScale = 1.0f;
  * Make a texture given a skin index 'n'.
  */
 GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl) {
-	int i;
 	GLuint id;
 
 	GLubyte *pixels =
 		(GLubyte *)malloc(mdl->header.skinwidth * mdl->header.skinheight * 3);
 
 	/* Convert indexed 8 bits texture to RGB 24 bits */
-	for (i = 0; i < mdl->header.skinwidth * mdl->header.skinheight; ++i) {
+	for (int i = 0; i < mdl->header.skinwidth * mdl->header.skinheight; i++) {
 		pixels[(i * 3) + 0] = colormap[mdl->skins[n].data[i]][0];
 		pixels[(i * 3) + 1] = colormap[mdl->skins[n].data[i]][1];
 		pixels[(i * 3) + 2] = colormap[mdl->skins[n].data[i]][2];
@@ -182,7 +181,7 @@ bool ExportTextureToTGA(const struct mdl_model_t *mdl, int skinIndex,
 	GLubyte *pixels = (GLubyte *)malloc(width * height * 3);
 
 	// Convert indexed 8 bits texture to RGB 24 bits
-	for (int i = 0; i < width * height; ++i) {
+	for (int i = 0; i < width * height; i++) {
 		int colorIndex = mdl->skins[skinIndex].data[i];
 		pixels[(i * 3) + 0] = colormap[colorIndex][2];
 		pixels[(i * 3) + 1] = colormap[colorIndex][1];
@@ -217,7 +216,6 @@ bool ExportTextureToTGA(const struct mdl_model_t *mdl, int skinIndex,
  */
 int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 	FILE *fp;
-	int i;
 
 	fp = fopen(filename, "rb");
 	if (!fp) {
@@ -249,7 +247,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 	mdl->iskin = 0;
 
 	/* Read texture data */
-	for (i = 0; i < mdl->header.num_skins; ++i) {
+	for (int i = 0; i < mdl->header.num_skins; i++) {
 		mdl->skins[i].data = (GLubyte *)malloc(
 			sizeof(GLubyte) * mdl->header.skinwidth * mdl->header.skinheight);
 
@@ -266,7 +264,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 		  fp);
 
 	/* Read frames */
-	for (i = 0; i < mdl->header.num_frames; ++i) {
+	for (int i = 0; i < mdl->header.num_frames; i++) {
 		/* Memory allocation for vertices of this frame */
 		mdl->frames[i].frame.verts = (struct mdl_vertex_t *)malloc(
 			sizeof(struct mdl_vertex_t) * mdl->header.num_verts);
@@ -290,9 +288,8 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
  * Free resources allocated for the model.
  */
 void FreeModel(struct mdl_model_t *mdl) {
-	int i;
 
-	for (i = 0; i < mdl->header.num_skins; ++i) {
+	for (int i = 0; i < mdl->header.num_skins; i++) {
 		free(mdl->skins[i].data);
 		mdl->skins[i].data = NULL;
 	}
@@ -321,7 +318,7 @@ void FreeModel(struct mdl_model_t *mdl) {
 	}
 
 	if (mdl->frames) {
-		for (i = 0; i < mdl->header.num_frames; ++i) {
+		for (int i = 0; i < mdl->header.num_frames; i++) {
 			free(mdl->frames[i].frame.verts);
 			mdl->frames[i].frame.verts = NULL;
 		}
@@ -331,11 +328,36 @@ void FreeModel(struct mdl_model_t *mdl) {
 	}
 }
 
+void SetTextureMode(const int mode, const struct mdl_model_t *mdl) {
+	switch (mode) {
+	case TEXTURED_MODE:
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glBindTexture(GL_TEXTURE_2D, mdl->tex_id[mdl->iskin]);
+		break;
+	case TEXTURELESS_MODE: {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		GLfloat materialAmbient[] = {0.4f, 0.4f, 0.4f, 1.0f};
+		GLfloat materialDiffuse[] = {0.9f, 0.9f, 0.9f, 1.0f};
+		GLfloat materialEmissive[] = {0.0f, 0.0f, 0.0f, 1.0f};
+		glMaterialfv(GL_FRONT, GL_AMBIENT, materialAmbient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, materialDiffuse);
+		glMaterialfv(GL_FRONT, GL_EMISSION, materialEmissive);
+		break;
+	}
+	case WIREFRAME_MODE:
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		break;
+	default:
+		break;
+	}
+}
+
 /**
  * Render the model at frame n.
  */
-void RenderFrame(int n, const struct mdl_model_t *mdl) {
-	int i, j;
+void RenderFrame(int n, const int mode, const struct mdl_model_t *mdl) {
 	GLfloat s, t;
 	vec3_t v;
 	struct mdl_vertex_t *pvert;
@@ -344,15 +366,15 @@ void RenderFrame(int n, const struct mdl_model_t *mdl) {
 	if ((n < 0) || (n > mdl->header.num_frames - 1))
 		return;
 
-	/* Enable model's texture */
-	glBindTexture(GL_TEXTURE_2D, mdl->tex_id[mdl->iskin]);
+	/* Setup the texture render mode */
+	SetTextureMode(mode, mdl);
 
 	/* Draw the model */
 	glBegin(GL_TRIANGLES);
 	/* Draw each triangle */
-	for (i = 0; i < mdl->header.num_tris; ++i) {
+	for (int i = 0; i < mdl->header.num_tris; i++) {
 		/* Draw each vertex */
-		for (j = 0; j < 3; ++j) {
+		for (int j = 0; j < 3; j++) {
 			pvert = &mdl->frames[n].frame.verts[mdl->triangles[i].vertex[j]];
 
 			/* Compute texture coordinates */
@@ -392,8 +414,8 @@ void RenderFrame(int n, const struct mdl_model_t *mdl) {
  * Render the model with interpolation between frame n and n+1.
  * interp is the interpolation percent. (from 0.0 to 1.0)
  */
-void RenderFrameItp(int n, float interp, const struct mdl_model_t *mdl) {
-	int i, j;
+void RenderFrameItp(int n, float interp, const int mode,
+					const struct mdl_model_t *mdl) {
 	GLfloat s, t;
 	vec3_t norm, v;
 	GLfloat *n_curr, *n_next;
@@ -403,15 +425,15 @@ void RenderFrameItp(int n, float interp, const struct mdl_model_t *mdl) {
 	if ((n < 0) || (n > mdl->header.num_frames))
 		return;
 
-	/* Enable model's texture */
-	glBindTexture(GL_TEXTURE_2D, mdl->tex_id[mdl->iskin]);
+	/* Setup the texture render mode */
+	SetTextureMode(mode, mdl);
 
 	/* Draw the model */
 	glBegin(GL_TRIANGLES);
 	/* Draw each triangle */
-	for (i = 0; i < mdl->header.num_tris; ++i) {
+	for (int i = 0; i < mdl->header.num_tris; i++) {
 		/* Draw each vertex */
-		for (j = 0; j < 3; ++j) {
+		for (int j = 0; j < 3; j++) {
 			pvert1 = &mdl->frames[n].frame.verts[mdl->triangles[i].vertex[j]];
 			pvert2 =
 				&mdl->frames[n + 1].frame.verts[mdl->triangles[i].vertex[j]];
@@ -500,7 +522,8 @@ void reshape(int w, int h) {
 	glLoadIdentity();
 }
 
-void render(const std::filesystem::path modelPath, const bool paused) {
+void render(const std::filesystem::path modelPath, const int mode,
+			const bool paused) {
 	static double curent_time = 0;
 	static double last_time = 0;
 
@@ -513,14 +536,29 @@ void render(const std::filesystem::path modelPath, const bool paused) {
 	totalFrames = mdlfile.header.num_frames;
 	// Initialize OpenGL context
 	glClearColor(0.184f, 0.184f, 0.184f, 1.0f);
-	glShadeModel(GL_SMOOTH);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
-	GLfloat materialEmissive[] = {1.0f, 1.0f, 1.0f, 1.0f};
-	glMaterialfv(GL_FRONT, GL_EMISSION, materialEmissive);
+	if (mode != TEXTURELESS_MODE) {
+		glShadeModel(GL_SMOOTH);
+		GLfloat materialEmissive[] = {1.0f, 1.0f, 1.0f, 1.0f};
+		glMaterialfv(GL_FRONT, GL_EMISSION, materialEmissive);
+	} else {
+		glShadeModel(GL_FLAT);
+		GLfloat lightpos[] = {5.0f, 10.0f, 0.0f, 1.0f};
+		GLfloat lightAmbient[] = {0.2f, 0.2f, 0.2f, 1.0f};
+		GLfloat lightDiffuse[] = {0.5f, 0.5f, 0.5f, 1.0f};
+		GLfloat lightSpecular[] = {0.5f, 0.5f, 0.5f, 1.0f};
+		glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+		glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpecular);
+		glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+	}
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
+
+	// This normalize is done to clean up lighting when the model is scaled
+	glEnable(GL_NORMALIZE);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -540,8 +578,8 @@ void render(const std::filesystem::path modelPath, const bool paused) {
 
 	// Draw the model
 	if (mdlfile.header.num_frames > 1 && !paused)
-		RenderFrameItp(currentFrame, interpAmt, &mdlfile);
+		RenderFrameItp(currentFrame, interpAmt, mode, &mdlfile);
 	else
-		RenderFrame(currentFrame, &mdlfile);
+		RenderFrame(currentFrame, mode, &mdlfile);
 }
 } // namespace QuakePrism::MDL
