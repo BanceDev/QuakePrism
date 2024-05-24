@@ -18,6 +18,7 @@ along with this program.
 */
 
 #include "mdl.h"
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 

@@ -26,9 +26,11 @@ along with this program.
 #include "resources.h"
 #include "util.h"
 #include <cstdint>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <list>
+#include <stdexcept>
 #include <string>
 
 enum {
@@ -120,6 +122,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	ImGui::Begin("Model View", nullptr, ImGuiWindowFlags_NoMove);
 	const float window_width = ImGui::GetContentRegionAvail().x;
 	const float window_height = ImGui::GetContentRegionAvail().y;
+	const bool shouldRender = ImGui::IsItemVisible();
 	static bool paused = false;
 	static float renderScale = 1.0f;
 
@@ -189,7 +192,17 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 		}
 	}
 
-	ImGui::SliderFloat("Render Scale", &renderScale, 0.125f, 1.0f);
+	enum RenderFraction { EIGTH, FOURTH, HALF, ONE, COUNT };
+	static int sliderPos = ONE;
+	const char *renderScaleLabels[] = {"1/8", "1/4", "1/2", "1"};
+	const float renderScaleOptions[] = {0.125f, 0.25f, 0.5f, 1.0f};
+	const char *renderScaleText = (sliderPos >= 0 && sliderPos < COUNT)
+									  ? renderScaleLabels[sliderPos]
+									  : "Unknown";
+	if (ImGui::SliderInt("Render Scale", &sliderPos, 0, COUNT - 1,
+						 renderScaleText)) {
+		renderScale = renderScaleOptions[sliderPos];
+	}
 
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 	static bool lerpEnabled = true;
@@ -211,7 +224,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	ImGui::End();
 
 	// Handle all of the model rendering after the UI is complete
-	if (!currentModelName.empty()) {
+	if (!currentModelName.empty() && shouldRender) {
 
 		QuakePrism::bindFramebuffer(FBO);
 
@@ -473,8 +486,12 @@ void DrawOpenProjectPopup() {
 		}
 
 		if (ImGui::Button("Open")) {
-			baseDirectory = projectList.at(item_current_idx).path();
-			currentDirectory = projectList.at(item_current_idx).path();
+			try {
+				baseDirectory = projectList.at(item_current_idx).path();
+				currentDirectory = projectList.at(item_current_idx).path();
+			} catch (const std::out_of_range) {
+				// Go to new project Menu
+			}
 			isOpenProjectOpen = false;
 			ImGui::CloseCurrentPopup();
 		}
