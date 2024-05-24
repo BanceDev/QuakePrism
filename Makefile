@@ -45,6 +45,16 @@ ifeq ($(OS), Windows_NT)
     CFLAGS := $(CXXFLAGS)
 endif
 
+## Cross-compilation for Windows
+ifeq ($(CROSS_COMPILE), x86_64-w64-mingw32)
+    ECHO_MESSAGE := "Cross-compiling for Windows"
+    CXX := x86_64-w64-mingw32-g++
+    LIBS += -lgdi32 -lopengl32 -limm32 -lSDL2 -lglew32
+    CXXFLAGS += -std=c++17 -I/usr/x86_64-w64-mingw32/include/SDL2
+    CFLAGS := $(CXXFLAGS)
+    EXE := build/QuakePrism.exe
+endif
+
 ## BUILD RULES
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
@@ -75,3 +85,4 @@ copy_resources:
 
 clean:
 	rm -rf $(BUILD_DIR) $(EXE)
+

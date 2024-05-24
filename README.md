@@ -21,7 +21,7 @@ Clone the repo recursively to install all dependencies
 ```
 git clone --recursive
 ```
-run the make command in the QuakePrism directory and it will output to a build directory.
+Run the make command in the QuakePrism directory and it will output to a build directory. The makefile currently supports linux and linux cross compile fully. It has not been tested on windows and there are currently no plans to make visual studio compatibility. Feel free to contribute better cross platform support in a pull request; it would be much appreciated.
 
 ## Contributing
 - For bug reports and feature suggestions please use [issues](https://github.com/BanceDev/QuakePrism/issues).
