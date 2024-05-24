@@ -16,10 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.
 
 */
-
+#pragma once
 #include "TextEditor.h"
 #include "mdl.h"
-#include <GL/gl.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include <filesystem>
 
 namespace QuakePrism {

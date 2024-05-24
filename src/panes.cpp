@@ -17,7 +17,7 @@ along with this program.
 
 */
 
-#include "windows.h"
+#include "panes.h"
 #include "TextEditor.h"
 #include "framebuffer.h"
 #include "imgui.h"
@@ -160,7 +160,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 		MDL::totalFrames == 0 ? 0.0f
 							  : MDL::currentFrame / (float)MDL::totalFrames;
 	ImGui::Begin("Model Tools", nullptr, ImGuiWindowFlags_NoMove);
-	ImGui::TextUnformatted(currentModelName.filename().c_str());
+	ImGui::TextUnformatted(currentModelName.filename().string().c_str());
 	char buf[32];
 	sprintf(buf, "%d/%d", (int)(animProgress * MDL::totalFrames),
 			MDL::totalFrames);
@@ -240,8 +240,8 @@ void DrawTextureViewer() {
 	ImGui::Begin("Texture Viewer", nullptr, ImGuiWindowFlags_NoMove);
 	if (!currentTextureName.empty()) {
 		GLuint texture;
-		LoadTextureFromFile(currentTextureName.c_str(), &texture, nullptr,
-							nullptr);
+		LoadTextureFromFile(currentTextureName.string().c_str(), &texture,
+							nullptr, nullptr);
 		ImGui::Image((ImTextureID)(intptr_t)texture,
 					 ImGui::GetContentRegionAvail());
 	}

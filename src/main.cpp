@@ -23,9 +23,9 @@ along with this program.
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
+#include "panes.h"
 #include "resources.h"
 #include "theme.h"
-#include "windows.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)

@@ -531,7 +531,7 @@ void render(const std::filesystem::path modelPath, const int mode,
 	if (modelPath.empty())
 		return;
 
-	if (!ReadMDLModel(modelPath.c_str(), &mdlfile))
+	if (!ReadMDLModel(modelPath.string().c_str(), &mdlfile))
 		return;
 
 	totalFrames = mdlfile.header.num_frames;
