@@ -18,6 +18,7 @@ along with this program.
 */
 
 #include "mdl.h"
+#include "tga.h"
 #include <cstdio>
 #include <fstream>
 #include <iostream>
@@ -171,11 +172,96 @@ GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl) {
 }
 
 bool ReadTGATexture(const char *filename, struct mdl_model_t *mdl) {
+	int width = mdl->header.skinwidth;
+	int height = mdl->header.skinheight;
+
+	// Allocate memory for the RGB data
+	GLubyte *pixels = (GLubyte *)malloc(width * height * 3);
+
+	tga_header_t tgaHeader;
+	std::ifstream ifs(filename, std::ios::binary);
+	if (!ifs) {
+		free(pixels);
+		return false;
+	}
+
+	ifs.read(reinterpret_cast<char *>(&tgaHeader), sizeof(tga_header_t));
+	ifs.read(reinterpret_cast<char *>(pixels), width * height * 3);
+	std::cout << tgaHeader.width << "\n";
+	// Convert 24 bit pixels to 8 bit indexes
+	for (int i = 0; i < width * height; i++) {
+		for (int j = 0; j < 256; j++) {
+			if (colormap[j][0] == pixels[(j * 3) + 0] &&
+				colormap[j][1] == pixels[(j * 3) + 1] &&
+				colormap[j][2] == pixels[(j * 3) + 2]) {
+				mdl->skins[0].data[i] = ((float)j) / 255.0f;
+				break;
+			}
+		}
+	}
+
+	ifs.close();
+
+	free(pixels);
 	return true;
 }
 
 bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 						  struct mdl_model_t *mdl) {
+
+	if (!ReadTGATexture(textureName, mdl)) {
+		return false;
+	}
+
+	FILE *fp = fopen(modelName, "wb");
+	if (!fp) {
+		return false;
+	}
+
+	/* Write header */
+	fwrite(&mdl->header, 1, sizeof(struct mdl_header_t), fp);
+
+	/* Put new texture data into struct */
+	int width = mdl->header.skinwidth;
+	int height = mdl->header.skinheight;
+
+	// Allocate memory for the RGB data
+	GLubyte *pixels = (GLubyte *)malloc(width * height * 3);
+
+	// Convert indexed 8 bits texture to RGB 24 bits
+	for (int i = 0; i < width * height; i++) {
+		int colorIndex = mdl->skins[0].data[i];
+		pixels[(i * 3) + 0] = colormap[colorIndex][2];
+		pixels[(i * 3) + 1] = colormap[colorIndex][1];
+		pixels[(i * 3) + 2] = colormap[colorIndex][0];
+	}
+
+	/* Write texture data */
+	for (int i = 0; i < mdl->header.num_skins; i++) {
+		fwrite(&mdl->skins[i].group, sizeof(int), 1, fp);
+		fwrite(mdl->skins[i].data, sizeof(GLubyte),
+			   mdl->header.skinwidth * mdl->header.skinheight, fp);
+	}
+
+	/* Write texture coordinates and triangles */
+	fwrite(mdl->texcoords, sizeof(struct mdl_texcoord_t), mdl->header.num_verts,
+		   fp);
+	fwrite(mdl->triangles, sizeof(struct mdl_triangle_t), mdl->header.num_tris,
+		   fp);
+
+	/* Write frames */
+	for (int i = 0; i < mdl->header.num_frames; i++) {
+		fwrite(&mdl->frames[i].type, sizeof(int), 1, fp);
+		fwrite(&mdl->frames[i].frame.bboxmin, sizeof(struct mdl_vertex_t), 1,
+			   fp);
+		fwrite(&mdl->frames[i].frame.bboxmax, sizeof(struct mdl_vertex_t), 1,
+			   fp);
+		fwrite(mdl->frames[i].frame.name, sizeof(char), 16, fp);
+		fwrite(mdl->frames[i].frame.verts, sizeof(struct mdl_vertex_t),
+			   mdl->header.num_verts, fp);
+	}
+
+	fclose(fp);
 	return true;
 }
 

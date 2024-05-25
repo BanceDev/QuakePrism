@@ -3,6 +3,3 @@ path = lib/imgui
 url = https://github.com/ocornut/imgui.git
 branch = docking
 
-[submodule "lib/tga"]
-path = lib/tga
-url = https://github.com/aseprite/tga.git
