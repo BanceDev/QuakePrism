@@ -57,8 +57,12 @@ extern GLfloat modelScale;
 
 GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl);
 
-bool ExportTextureToTGA(const struct mdl_model_t *mdl, int skinIndex,
-						const std::string &filename);
+bool ImportTextureFromTGA(const char *textureName, const char *modelName,
+						  struct mdl_model_t *mdl);
+
+bool ExportTextureToTGA(const char *textureName, struct mdl_model_t *mdl);
+
+bool ReadTGATexture(const char *filename, struct mdl_model_t *mdl);
 
 int ReadMDLModel(const char *filename, struct mdl_model_t *mdl);
 
@@ -70,6 +74,9 @@ void RenderFrameItp(int n, float interp, const int mode,
 					const struct mdl_model_t *mdl);
 
 void Animate(int start, int end, int *frame, float *interp);
+
+bool mdlTextureImport(std::filesystem::path texturePath,
+					  std::filesystem::path modelPath);
 
 bool mdlTextureExport(std::filesystem::path modelPath);
 

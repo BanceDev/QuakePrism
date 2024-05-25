@@ -169,12 +169,17 @@ GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl) {
 	free(pixels);
 	return id;
 }
-bool ExportTextureToTGA(const struct mdl_model_t *mdl, int skinIndex,
-						const std::string &filename) {
-	if (skinIndex < 0 || skinIndex >= mdl->header.num_skins) {
-		return false;
-	}
 
+bool ReadTGATexture(const char *filename, struct mdl_model_t *mdl) {
+	return true;
+}
+
+bool ImportTextureFromTGA(const char *textureName, const char *modelName,
+						  struct mdl_model_t *mdl) {
+	return true;
+}
+
+bool ExportTextureToTGA(const char *textureName, struct mdl_model_t *mdl) {
 	int width = mdl->header.skinwidth;
 	int height = mdl->header.skinheight;
 
@@ -183,7 +188,7 @@ bool ExportTextureToTGA(const struct mdl_model_t *mdl, int skinIndex,
 
 	// Convert indexed 8 bits texture to RGB 24 bits
 	for (int i = 0; i < width * height; i++) {
-		int colorIndex = mdl->skins[skinIndex].data[i];
+		int colorIndex = mdl->skins[0].data[i];
 		pixels[(i * 3) + 0] = colormap[colorIndex][2];
 		pixels[(i * 3) + 1] = colormap[colorIndex][1];
 		pixels[(i * 3) + 2] = colormap[colorIndex][0];
@@ -196,7 +201,7 @@ bool ExportTextureToTGA(const struct mdl_model_t *mdl, int skinIndex,
 	tgaHeader.bitsPerPixel = 24;
 	tgaHeader.imageDescriptor = 0x20; // Top-left origin
 
-	std::ofstream ofs(filename, std::ios::binary);
+	std::ofstream ofs(textureName, std::ios::binary);
 	if (!ofs) {
 		free(pixels);
 		return false;
@@ -501,10 +506,16 @@ void Animate(int start, int end, int *frame, float *interp) {
 	}
 }
 
+bool mdlTextureImport(std::filesystem::path texturePath,
+					  std::filesystem::path modelPath) {
+	return ImportTextureFromTGA(texturePath.string().c_str(),
+								modelPath.string().c_str(), &mdlfile);
+}
+
 bool mdlTextureExport(std::filesystem::path modelPath) {
 	modelPath.replace_extension(".tga");
 	std::string tgaFilename = modelPath.string();
-	return ExportTextureToTGA(&mdlfile, 0, tgaFilename);
+	return ExportTextureToTGA(tgaFilename.c_str(), &mdlfile);
 }
 
 void cleanup() { FreeModel(&mdlfile); }
