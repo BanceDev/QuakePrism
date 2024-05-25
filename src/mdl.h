@@ -55,7 +55,8 @@ extern vec3_t modelAngles;
 extern vec3_t modelPosition;
 extern GLfloat modelScale;
 
-GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl);
+GLuint MakeTextureFromSkin(int n, const bool filteringEnabled,
+						   const struct mdl_model_t *mdl);
 
 float colorDistance(const GLubyte *color1, const unsigned char *color2);
 int findClosestColorIndex(const GLubyte *color);
@@ -66,7 +67,8 @@ bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 
 bool ExportTextureToTGA(const char *textureName, struct mdl_model_t *mdl);
 
-int ReadMDLModel(const char *filename, struct mdl_model_t *mdl);
+bool ReadMDLModel(const char *filename, struct mdl_model_t *mdl,
+				  const bool filteringEnabled);
 
 void FreeModel(struct mdl_model_t *mdl);
 
@@ -87,5 +89,6 @@ void cleanup();
 void reshape(int w, int h);
 
 void render(const std::filesystem::path modelPath, const int mode,
-			const bool paused, const bool lerpEnabled);
+			const bool paused, const bool lerpEnabled,
+			const bool filteringEnabled);
 } // namespace QuakePrism::MDL

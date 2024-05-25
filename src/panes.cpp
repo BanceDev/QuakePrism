@@ -110,9 +110,9 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 									  ImGui::GetMainViewport()->Size);
 
 		auto dock_id_up = ImGui::DockBuilderSplitNode(
-			dockspace_id, ImGuiDir_Up, 0.8f, nullptr, &dockspace_id);
+			dockspace_id, ImGuiDir_Up, 0.7f, nullptr, &dockspace_id);
 		auto dock_id_down = ImGui::DockBuilderSplitNode(
-			dockspace_id, ImGuiDir_Down, 0.2f, nullptr, &dockspace_id);
+			dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
 		ImGui::DockBuilderDockWindow("Model View", dock_id_up);
 		ImGui::DockBuilderDockWindow("Model Tools", dock_id_down);
 
@@ -165,23 +165,24 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	char buf[32];
 	sprintf(buf, "%d/%d", (int)(animProgress * MDL::totalFrames),
 			MDL::totalFrames);
+	ImGui::Columns(2, "tools");
 	ImGui::ProgressBar(animProgress, ImVec2(0.0f, 0.0f), buf);
-	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-	ImGui::Text("Animation");
-
 	// Animation Control Buttons
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::PushButtonRepeat(true);
 	if (ImGui::ImageButton((ImTextureID)(intptr_t)QuakePrism::UI::backButton,
 						   {24, 24})) {
 		if (paused && MDL::currentFrame > 0)
 			MDL::currentFrame--;
 	}
+	ImGui::PopButtonRepeat();
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 	if (ImGui::ImageButton((ImTextureID)(intptr_t)QuakePrism::UI::playButton,
 						   {24, 24})) {
 		paused = !paused;
 	}
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::PushButtonRepeat(true);
 	if (ImGui::ImageButton((ImTextureID)(intptr_t)QuakePrism::UI::forwardButton,
 						   {24, 24})) {
 		if (paused) {
@@ -192,6 +193,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 			}
 		}
 	}
+	ImGui::PopButtonRepeat();
 
 	enum RenderFraction { EIGTH, FOURTH, HALF, ONE, COUNT };
 	static int sliderPos = ONE;
@@ -200,19 +202,31 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	const char *renderScaleText = (sliderPos >= 0 && sliderPos < COUNT)
 									  ? renderScaleLabels[sliderPos]
 									  : "Unknown";
+
 	if (ImGui::SliderInt("Render Scale", &sliderPos, 0, COUNT - 1,
 						 renderScaleText)) {
 		renderScale = renderScaleOptions[sliderPos];
 	}
 
-	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-	static bool lerpEnabled = true;
-	ImGui::Checkbox("Enable Interpolation", &lerpEnabled);
-
 	static int textureMode = MDL::TEXTURED_MODE;
 	const char *textureModes[] = {"Textured", "Textureless", "Wireframe"};
 	ImGui::Combo("Texture Mode", &textureMode, textureModes,
 				 IM_ARRAYSIZE(textureModes));
+
+	ImGui::NextColumn();
+
+	static bool lerpEnabled = true;
+	ImGui::Checkbox("Interpolation", &lerpEnabled);
+
+	static bool filteringEnabled = true;
+	ImGui::Checkbox("Texture Filtering", &filteringEnabled);
+
+	// File browser is for import texture
+	static ImGui::FileBrowser texImportBrowser;
+	texImportBrowser.SetTitle("Select Texture");
+	texImportBrowser.SetTypeFilters({".tga"});
+	if (!texImportBrowser.IsOpened())
+		texImportBrowser.SetPwd(currentDirectory);
 
 	// Texture Export Button
 	if (ImGui::Button("Export Texture")) {
@@ -222,15 +236,20 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 		}
 	}
 	if (ImGui::Button("Import Texture")) {
-		std::filesystem::path texturePath = currentModelName;
-		texturePath.replace_extension(".tga");
+		texImportBrowser.Open();
+	}
+
+	ImGui::End();
+
+	texImportBrowser.Display();
+	if (texImportBrowser.HasSelected()) {
+		std::filesystem::path texturePath = texImportBrowser.GetSelected();
 		if (!MDL::mdlTextureImport(texturePath, currentModelName)) {
 			isErrorOpen = true;
 			userError = LOAD_FAILED;
 		}
+		texImportBrowser.ClearSelected();
 	}
-
-	ImGui::End();
 
 	// Handle all of the model rendering after the UI is complete
 	if (!currentModelName.empty() && shouldRender) {
@@ -239,7 +258,8 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 
 		MDL::cleanup();
 		MDL::reshape(window_width * renderScale, window_height * renderScale);
-		MDL::render(currentModelName, textureMode, paused, lerpEnabled);
+		MDL::render(currentModelName, textureMode, paused, lerpEnabled,
+					filteringEnabled);
 
 		QuakePrism::unbindFramebuffer();
 	}
@@ -249,10 +269,13 @@ void DrawTextureViewer() {
 	ImGui::Begin("Texture Viewer", nullptr, ImGuiWindowFlags_NoMove);
 	if (!currentTextureName.empty()) {
 		GLuint texture;
+		int width, height;
 		LoadTextureFromFile(currentTextureName.string().c_str(), &texture,
-							nullptr, nullptr);
-		ImGui::Image((ImTextureID)(intptr_t)texture,
-					 ImGui::GetContentRegionAvail());
+							&width, &height);
+		ImGui::Image(
+			(ImTextureID)(intptr_t)texture,
+			ImVec2(ImGui::GetContentRegionAvail().x,
+				   ImGui::GetContentRegionAvail().x * (height / (float)width)));
 	}
 	ImGui::End();
 }
@@ -341,26 +364,46 @@ void DrawTextEditor(TextEditor &editor) {
 	ImGui::End();
 }
 
+bool AlphabeticalComparator(const std::filesystem::directory_entry &a,
+							const std::filesystem::directory_entry &b) {
+	return a.path().filename().string() < b.path().filename().string();
+}
+
 void DrawFileTree(const std::filesystem::path &currentPath,
 				  TextEditor &editor) {
 	if (!currentPath.empty()) {
-		std::list<std::filesystem::directory_entry> entryList;
+		std::vector<std::filesystem::directory_entry> directoryEntries;
 
-		// Theres probabaly a better way to do this without iterating 3
-		// times but I dont know it rn
+		// Collect all entries (both directories and files) in the current path
 		for (auto &directoryEntry :
 			 std::filesystem::directory_iterator(currentPath)) {
-			if (directoryEntry.is_directory())
-				entryList.push_back(directoryEntry);
+			directoryEntries.push_back(directoryEntry);
 		}
 
-		for (auto &directoryEntry :
-			 std::filesystem::directory_iterator(currentPath)) {
-			if (!directoryEntry.is_directory())
-				entryList.push_back(directoryEntry);
+		// Sort entries alphabetically
+		std::sort(directoryEntries.begin(), directoryEntries.end(),
+				  AlphabeticalComparator);
+
+		// Separate directories and files
+		std::vector<std::filesystem::directory_entry> directories;
+		std::vector<std::filesystem::directory_entry> files;
+
+		for (const auto &entry : directoryEntries) {
+			if (entry.is_directory()) {
+				directories.push_back(entry);
+			} else {
+				files.push_back(entry);
+			}
 		}
 
-		for (auto &directoryEntry : entryList) {
+		// Merge directories and files back into the entryList
+		directoryEntries.clear();
+		directoryEntries.insert(directoryEntries.end(), directories.begin(),
+								directories.end());
+		directoryEntries.insert(directoryEntries.end(), files.begin(),
+								files.end());
+
+		for (auto &directoryEntry : directoryEntries) {
 			const auto &path = directoryEntry.path();
 			std::string filenameString = path.filename().string();
 
@@ -391,6 +434,7 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 						}
 
 						input.close();
+						ImGui::SetWindowFocus("QuakeC Editor");
 					}
 					if (path.extension() == ".mdl") {
 						/* This only exists to validate
@@ -413,6 +457,7 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 							isErrorOpen = true;
 							userError = LOAD_FAILED;
 						}
+						ImGui::SetWindowFocus("Model Viewer");
 					}
 					if (path.extension() == ".tga") {
 						/* This only exists to validate
@@ -426,6 +471,7 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 							isErrorOpen = true;
 							userError = LOAD_FAILED;
 						}
+						ImGui::SetWindowFocus("Texture Viewer");
 					}
 				}
 				if (directoryEntry.is_directory()) {
@@ -498,6 +544,9 @@ void DrawOpenProjectPopup() {
 			try {
 				baseDirectory = projectList.at(item_current_idx).path();
 				currentDirectory = projectList.at(item_current_idx).path();
+				currentQCFileName.clear();
+				currentModelName.clear();
+				currentTextureName.clear();
 			} catch (const std::out_of_range) {
 				// Go to new project Menu
 			}

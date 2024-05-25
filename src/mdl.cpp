@@ -18,7 +18,6 @@ along with this program.
 */
 
 #include "mdl.h"
-#include "SDL_opengl.h"
 #include "util.h"
 #include <cstdio>
 #include <fstream>
@@ -142,7 +141,8 @@ GLfloat modelScale = 1.0f;
 /**
  * Make a texture given a skin index 'n'.
  */
-GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl) {
+GLuint MakeTextureFromSkin(int n, const bool filteringEnabled,
+						   const struct mdl_model_t *mdl) {
 	GLuint id;
 
 	GLubyte *pixels =
@@ -158,9 +158,13 @@ GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl) {
 	/* Generate OpenGL texture */
 	glGenTextures(1, &id);
 	glBindTexture(GL_TEXTURE_2D, id);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	if (filteringEnabled) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	} else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -210,6 +214,16 @@ bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 										 nullptr)) {
 		return false;
 	}
+	FILE *texp = fopen(textureName, "rb");
+	if (!texp) {
+		return false;
+	}
+	tga_header_t texHeader;
+	fread(&texHeader, 1, sizeof(tga_header_t), texp);
+	fclose(texp);
+
+	const int width = texHeader.width;
+	const int height = texHeader.height;
 
 	FILE *fp = fopen(modelName, "wb");
 	if (!fp) {
@@ -218,10 +232,6 @@ bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 
 	/* Write header */
 	fwrite(&mdl->header, 1, sizeof(struct mdl_header_t), fp);
-
-	/* Put new texture data into struct */
-	const int width = mdl->header.skinwidth;
-	const int height = mdl->header.skinheight;
 
 	// Allocate memory for the RGB data
 	glBindTexture(GL_TEXTURE_2D, tgaTexID);
@@ -304,23 +314,21 @@ bool ExportTextureToTGA(const char *textureName, struct mdl_model_t *mdl) {
  * Note: MDL format stores model's data in little-endian ordering.  On
  * big-endian machines, you'll have to perform proper conversions.
  */
-int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
+bool ReadMDLModel(const char *filename, struct mdl_model_t *mdl,
+				  const bool filteringEnabled) {
 	FILE *fp;
 
 	fp = fopen(filename, "rb");
 	if (!fp) {
-		fprintf(stderr, "error: couldn't open \"%s\"!\n", filename);
-		return 0;
+		return false;
 	}
 
 	/* Read header */
 	fread(&mdl->header, 1, sizeof(struct mdl_header_t), fp);
 
 	if ((mdl->header.ident != 1330660425) || (mdl->header.version != 6)) {
-		/* Error! */
-		fprintf(stderr, "Error: bad version or identifier\n");
 		fclose(fp);
-		return 0;
+		return false;
 	}
 
 	/* Memory allocations */
@@ -345,7 +353,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 		fread(mdl->skins[i].data, sizeof(GLubyte),
 			  mdl->header.skinwidth * mdl->header.skinheight, fp);
 
-		mdl->tex_id[i] = MakeTextureFromSkin(i, mdl);
+		mdl->tex_id[i] = MakeTextureFromSkin(i, filteringEnabled, mdl);
 	}
 
 	fread(mdl->texcoords, sizeof(struct mdl_texcoord_t), mdl->header.num_verts,
@@ -371,7 +379,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 	}
 
 	fclose(fp);
-	return 1;
+	return true;
 }
 
 /**
@@ -619,14 +627,15 @@ void reshape(int w, int h) {
 }
 
 void render(const std::filesystem::path modelPath, const int mode,
-			const bool paused, const bool lerpEnabled) {
+			const bool paused, const bool lerpEnabled,
+			const bool filteringEnabled) {
 	static double curent_time = 0;
 	static double last_time = 0;
 
 	if (modelPath.empty())
 		return;
 
-	if (!ReadMDLModel(modelPath.string().c_str(), &mdlfile))
+	if (!ReadMDLModel(modelPath.string().c_str(), &mdlfile, filteringEnabled))
 		return;
 
 	totalFrames = mdlfile.header.num_frames;
