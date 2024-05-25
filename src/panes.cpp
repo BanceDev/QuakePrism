@@ -30,7 +30,6 @@ along with this program.
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
-#include <list>
 #include <stdexcept>
 #include <string>
 
@@ -412,9 +411,15 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 
 			if (directoryEntry.is_directory()) {
 
-				icon = QuakePrism::UI::directoryIcon;
+				icon = UI::directoryIcon;
 			} else {
-				icon = QuakePrism::UI::fileIcon;
+				if (directoryEntry.path().extension() == ".mdl") {
+					icon = UI::modelIcon;
+				} else if (directoryEntry.path().extension() == ".tga") {
+					icon = UI::imageIcon;
+				} else {
+					icon = UI::fileIcon;
+				}
 			}
 
 			if (QuakePrism::ImageTreeNode(filenameString.c_str(), icon)) {

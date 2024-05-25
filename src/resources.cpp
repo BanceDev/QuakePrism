@@ -28,6 +28,8 @@ ImFont *jetBrainsFont;
 // Images
 GLuint fileIcon;
 GLuint directoryIcon;
+GLuint modelIcon;
+GLuint imageIcon;
 GLuint playButton;
 GLuint forwardButton;
 GLuint backButton;
@@ -49,6 +51,10 @@ void loadIcons() {
 									nullptr);
 	QuakePrism::LoadTextureFromFile("res/DirectoryIcon.png", &directoryIcon,
 									nullptr, nullptr);
+	QuakePrism::LoadTextureFromFile("res/ModelIcon.png", &modelIcon, nullptr,
+									nullptr);
+	QuakePrism::LoadTextureFromFile("res/ImageIcon.png", &imageIcon, nullptr,
+									nullptr);
 	QuakePrism::LoadTextureFromFile("res/play.png", &playButton, nullptr,
 									nullptr);
 	QuakePrism::LoadTextureFromFile("res/forward.png", &forwardButton, nullptr,

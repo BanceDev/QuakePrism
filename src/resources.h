@@ -30,6 +30,8 @@ extern ImFont *ubuntuFont;
 // Image Assets
 extern GLuint fileIcon;
 extern GLuint directoryIcon;
+extern GLuint modelIcon;
+extern GLuint imageIcon;
 extern GLuint playButton;
 extern GLuint forwardButton;
 extern GLuint backButton;
