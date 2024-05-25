@@ -221,16 +221,15 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 			userError = SAVE_FAILED;
 		}
 	}
-	/*
-		if (ImGui::Button("Import Texture")) {
-			std::filesystem::path texturePath = currentModelName;
-			texturePath.replace_extension(".tga");
-			if (!MDL::mdlTextureImport(texturePath, currentModelName)) {
-				isErrorOpen = true;
-				userError = LOAD_FAILED;
-			}
+	if (ImGui::Button("Import Texture")) {
+		std::filesystem::path texturePath = currentModelName;
+		texturePath.replace_extension(".tga");
+		if (!MDL::mdlTextureImport(texturePath, currentModelName)) {
+			isErrorOpen = true;
+			userError = LOAD_FAILED;
 		}
-	*/
+	}
+
 	ImGui::End();
 
 	// Handle all of the model rendering after the UI is complete

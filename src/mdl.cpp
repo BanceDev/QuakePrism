@@ -18,7 +18,8 @@ along with this program.
 */
 
 #include "mdl.h"
-#include "tga.h"
+#include "SDL_opengl.h"
+#include "util.h"
 #include <cstdio>
 #include <fstream>
 #include <iostream>
@@ -148,7 +149,7 @@ GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl) {
 		(GLubyte *)malloc(mdl->header.skinwidth * mdl->header.skinheight * 3);
 
 	/* Convert indexed 8 bits texture to RGB 24 bits */
-	for (int i = 0; i < mdl->header.skinwidth * mdl->header.skinheight; i++) {
+	for (int i = 0; i < mdl->header.skinwidth * mdl->header.skinheight; ++i) {
 		pixels[(i * 3) + 0] = colormap[mdl->skins[n].data[i]][0];
 		pixels[(i * 3) + 1] = colormap[mdl->skins[n].data[i]][1];
 		pixels[(i * 3) + 2] = colormap[mdl->skins[n].data[i]][2];
@@ -171,45 +172,42 @@ GLuint MakeTextureFromSkin(int n, const struct mdl_model_t *mdl) {
 	return id;
 }
 
-bool ReadTGATexture(const char *filename, struct mdl_model_t *mdl) {
-	int width = mdl->header.skinwidth;
-	int height = mdl->header.skinheight;
+float colorDistance(const GLubyte *color1, const unsigned char *color2) {
+	return std::sqrt(std::pow(color1[0] - color2[0], 2) +
+					 std::pow(color1[1] - color2[1], 2) +
+					 std::pow(color1[2] - color2[2], 2));
+}
 
-	// Allocate memory for the RGB data
-	GLubyte *pixels = (GLubyte *)malloc(width * height * 3);
+int findClosestColorIndex(const GLubyte *color) {
+	float minDistance = std::numeric_limits<float>::max();
+	int closestIndex = 0;
 
-	tga_header_t tgaHeader;
-	std::ifstream ifs(filename, std::ios::binary);
-	if (!ifs) {
-		free(pixels);
-		return false;
-	}
-
-	ifs.read(reinterpret_cast<char *>(&tgaHeader), sizeof(tga_header_t));
-	ifs.read(reinterpret_cast<char *>(pixels), width * height * 3);
-	std::cout << tgaHeader.width << "\n";
-	// Convert 24 bit pixels to 8 bit indexes
-	for (int i = 0; i < width * height; i++) {
-		for (int j = 0; j < 256; j++) {
-			if (colormap[j][0] == pixels[(j * 3) + 0] &&
-				colormap[j][1] == pixels[(j * 3) + 1] &&
-				colormap[j][2] == pixels[(j * 3) + 2]) {
-				mdl->skins[0].data[i] = ((float)j) / 255.0f;
-				break;
-			}
+	for (int i = 0; i < 256; ++i) {
+		float distance = colorDistance(color, colormap[i]);
+		if (distance < minDistance) {
+			minDistance = distance;
+			closestIndex = i;
 		}
 	}
 
-	ifs.close();
+	return closestIndex;
+}
 
-	free(pixels);
-	return true;
+void convertRGBToIndices(GLubyte *pixels, GLubyte *indices, const int size) {
+	for (int i = 0; i < size; ++i) {
+		const GLubyte color[3] = {pixels[(i * 3) + 0], pixels[(i * 3) + 1],
+								  pixels[(i * 3) + 2]};
+		indices[i] = findClosestColorIndex(color);
+	}
 }
 
 bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 						  struct mdl_model_t *mdl) {
 
-	if (!ReadTGATexture(textureName, mdl)) {
+	GLuint tgaTexID;
+
+	if (!QuakePrism::LoadTextureFromFile(textureName, &tgaTexID, nullptr,
+										 nullptr)) {
 		return false;
 	}
 
@@ -222,26 +220,26 @@ bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 	fwrite(&mdl->header, 1, sizeof(struct mdl_header_t), fp);
 
 	/* Put new texture data into struct */
-	int width = mdl->header.skinwidth;
-	int height = mdl->header.skinheight;
+	const int width = mdl->header.skinwidth;
+	const int height = mdl->header.skinheight;
 
 	// Allocate memory for the RGB data
+	glBindTexture(GL_TEXTURE_2D, tgaTexID);
 	GLubyte *pixels = (GLubyte *)malloc(width * height * 3);
+	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+	GLubyte *indices = (GLubyte *)malloc(width * height);
+	// Convert RGB 24 bits into 8 bits texture
+	convertRGBToIndices(pixels, indices, width * height);
 
-	// Convert indexed 8 bits texture to RGB 24 bits
-	for (int i = 0; i < width * height; i++) {
-		int colorIndex = mdl->skins[0].data[i];
-		pixels[(i * 3) + 0] = colormap[colorIndex][2];
-		pixels[(i * 3) + 1] = colormap[colorIndex][1];
-		pixels[(i * 3) + 2] = colormap[colorIndex][0];
-	}
-
+	free(pixels);
 	/* Write texture data */
-	for (int i = 0; i < mdl->header.num_skins; i++) {
+	for (int i = 0; i < mdl->header.num_skins; ++i) {
 		fwrite(&mdl->skins[i].group, sizeof(int), 1, fp);
-		fwrite(mdl->skins[i].data, sizeof(GLubyte),
+		fwrite(indices, sizeof(GLubyte),
 			   mdl->header.skinwidth * mdl->header.skinheight, fp);
 	}
+	free(indices);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	/* Write texture coordinates and triangles */
 	fwrite(mdl->texcoords, sizeof(struct mdl_texcoord_t), mdl->header.num_verts,
@@ -250,7 +248,7 @@ bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 		   fp);
 
 	/* Write frames */
-	for (int i = 0; i < mdl->header.num_frames; i++) {
+	for (int i = 0; i < mdl->header.num_frames; ++i) {
 		fwrite(&mdl->frames[i].type, sizeof(int), 1, fp);
 		fwrite(&mdl->frames[i].frame.bboxmin, sizeof(struct mdl_vertex_t), 1,
 			   fp);
@@ -273,7 +271,7 @@ bool ExportTextureToTGA(const char *textureName, struct mdl_model_t *mdl) {
 	GLubyte *pixels = (GLubyte *)malloc(width * height * 3);
 
 	// Convert indexed 8 bits texture to RGB 24 bits
-	for (int i = 0; i < width * height; i++) {
+	for (int i = 0; i < width * height; ++i) {
 		int colorIndex = mdl->skins[0].data[i];
 		pixels[(i * 3) + 0] = colormap[colorIndex][2];
 		pixels[(i * 3) + 1] = colormap[colorIndex][1];
@@ -339,7 +337,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 	mdl->iskin = 0;
 
 	/* Read texture data */
-	for (int i = 0; i < mdl->header.num_skins; i++) {
+	for (int i = 0; i < mdl->header.num_skins; ++i) {
 		mdl->skins[i].data = (GLubyte *)malloc(
 			sizeof(GLubyte) * mdl->header.skinwidth * mdl->header.skinheight);
 
@@ -356,7 +354,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
 		  fp);
 
 	/* Read frames */
-	for (int i = 0; i < mdl->header.num_frames; i++) {
+	for (int i = 0; i < mdl->header.num_frames; ++i) {
 		/* Memory allocation for vertices of this frame */
 		mdl->frames[i].frame.verts = (struct mdl_vertex_t *)malloc(
 			sizeof(struct mdl_vertex_t) * mdl->header.num_verts);
@@ -381,7 +379,7 @@ int ReadMDLModel(const char *filename, struct mdl_model_t *mdl) {
  */
 void FreeModel(struct mdl_model_t *mdl) {
 
-	for (int i = 0; i < mdl->header.num_skins; i++) {
+	for (int i = 0; i < mdl->header.num_skins; ++i) {
 		free(mdl->skins[i].data);
 		mdl->skins[i].data = NULL;
 	}
@@ -410,7 +408,7 @@ void FreeModel(struct mdl_model_t *mdl) {
 	}
 
 	if (mdl->frames) {
-		for (int i = 0; i < mdl->header.num_frames; i++) {
+		for (int i = 0; i < mdl->header.num_frames; ++i) {
 			free(mdl->frames[i].frame.verts);
 			mdl->frames[i].frame.verts = NULL;
 		}
@@ -464,7 +462,7 @@ void RenderFrame(int n, const int mode, const struct mdl_model_t *mdl) {
 	/* Draw the model */
 	glBegin(GL_TRIANGLES);
 	/* Draw each triangle */
-	for (int i = 0; i < mdl->header.num_tris; i++) {
+	for (int i = 0; i < mdl->header.num_tris; ++i) {
 		/* Draw each vertex */
 		for (int j = 0; j < 3; j++) {
 			pvert = &mdl->frames[n].frame.verts[mdl->triangles[i].vertex[j]];
@@ -523,7 +521,7 @@ void RenderFrameItp(int n, float interp, const int mode,
 	/* Draw the model */
 	glBegin(GL_TRIANGLES);
 	/* Draw each triangle */
-	for (int i = 0; i < mdl->header.num_tris; i++) {
+	for (int i = 0; i < mdl->header.num_tris; ++i) {
 		/* Draw each vertex */
 		for (int j = 0; j < 3; j++) {
 			pvert1 = &mdl->frames[n].frame.verts[mdl->triangles[i].vertex[j]];
