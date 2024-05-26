@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{20b90ce4-7fcb-4731-b9a0-075f875de82d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources">
+      <UniqueIdentifier>{f18ab499-84e1-499f-8eff-9754361e0e52}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\lib\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="framebuffer.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="mdl.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="panes.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="resources.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEditor.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="theme.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="util.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\backends\imgui_impl_sdl2.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\lib\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="framebuffer.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="mdl.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="panes.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="resources.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="theme.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="anorms.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="colormap.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="imfilebrowser.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\backends\imgui_impl_sdl2.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\backends\imgui_impl_opengl3.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\imgui\backends\imgui_impl_opengl3_loader.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
+    <None Include="..\lib\imgui\misc\debuggers\imgui.natvis">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="..\lib\imgui\misc\debuggers\imgui.natstepfilter">
+      <Filter>imgui</Filter>
+    </None>
+  </ItemGroup>
+</Project>
