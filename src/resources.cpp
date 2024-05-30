@@ -23,7 +23,7 @@ along with this program.
 namespace QuakePrism::UI {
 // Fonts
 ImFont *ubuntuFont;
-ImFont *jetBrainsFont;
+ImFont *ubuntuMonoFont;
 
 // Images
 GLuint fileIcon;
@@ -41,9 +41,9 @@ void loadFonts() {
 
 	ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 21.0f);
 	IM_ASSERT(ubuntuFont != nullptr);
-	jetBrainsFont =
-		io.Fonts->AddFontFromFileTTF("res/JetBrainsMono-Medium.ttf", 21.0f);
-	IM_ASSERT(jetBrainsFont != nullptr);
+	ubuntuMonoFont = io.Fonts->AddFontFromFileTTF(
+		"res/UbuntuMonoNerdFontMono-Regular.ttf", 21.0f);
+	IM_ASSERT(ubuntuMonoFont != nullptr);
 }
 
 void loadIcons() {

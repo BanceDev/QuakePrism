@@ -3,7 +3,6 @@
 
 EXE := build/QuakePrism
 IMGUI_DIR := ./lib/imgui
-TGA_DIR := ./lib/tga
 SRC_DIR := ./src
 BUILD_DIR := ./build
 PROJ_DIR := $(BUILD_DIR)/projects
@@ -17,7 +16,7 @@ UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS := -lGL -lGLU -lGLEW
 
 CXX := g++  # Default compiler
-CXXFLAGS := -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(TGA_DIR) -I$(SRC_DIR)  -g -Wall -Wformat
+CXXFLAGS := -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(SRC_DIR)  -g -Wall -Wformat
 LIBS :=
 
 ifeq ($(UNAME_S), Linux)

@@ -24,7 +24,7 @@ along with this program.
 
 namespace QuakePrism::UI {
 // Font Assets
-extern ImFont *jetBrainsFont;
+extern ImFont *ubuntuMonoFont;
 extern ImFont *ubuntuFont;
 
 // Image Assets

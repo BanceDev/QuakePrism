@@ -198,7 +198,7 @@ int main(int, char **) {
 		QuakePrism::DrawTextureViewer();
 		ImGui::PopFont();
 
-		ImGui::PushFont(QuakePrism::UI::jetBrainsFont);
+		ImGui::PushFont(QuakePrism::UI::ubuntuMonoFont);
 		QuakePrism::DrawTextEditor(editor);
 		ImGui::PopFont();
 
