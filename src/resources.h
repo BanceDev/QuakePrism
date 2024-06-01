@@ -37,6 +37,11 @@ extern GLuint forwardButton;
 extern GLuint backButton;
 extern GLuint appIcon;
 
+extern GLuint newCard;
+extern GLuint importCard;
+extern GLuint sharewareCard;
+extern GLuint libreCard;
+
 void loadIcons();
 
 void loadFonts();

@@ -574,19 +574,29 @@ void DrawNewProjectPopup() {
 		"New Project", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	if (isNewProjectOpen) {
 		ImGui::TextUnformatted("Templates");
-		HelpMarker("Help Me I suck at UI");
-		GLuint card;
-		int width, height;
-		LoadTextureFromFile("res/SharewareCard.png", &card, &width, &height);
 		if (ImGui::BeginTable("table1", 3)) {
-			for (int row = 0; row < 2; row++) {
-				ImGui::TableNextRow();
-				for (int column = 0; column < 2; column++) {
-					ImGui::TableSetColumnIndex(column);
-					ImGui::Image((ImTextureID)(intptr_t)card,
-								 ImVec2(width, height));
-				}
-			}
+
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			HelpMarker("Template for a bare minimum Quake project, ideal for "
+					   "original games");
+			ImGui::Image((ImTextureID)(intptr_t)UI::newCard, ImVec2(128, 160));
+			ImGui::TableSetColumnIndex(1);
+			HelpMarker("Template for modding the full version of Quake, "
+					   "requires pak1");
+			ImGui::Image((ImTextureID)(intptr_t)UI::importCard,
+						 ImVec2(128, 160));
+
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			HelpMarker("Template for modding the shareware version of Quake");
+			ImGui::Image((ImTextureID)(intptr_t)UI::sharewareCard,
+						 ImVec2(128, 160));
+			ImGui::TableSetColumnIndex(1);
+			HelpMarker("Template for modding Libre Quake");
+			ImGui::Image((ImTextureID)(intptr_t)UI::libreCard,
+						 ImVec2(128, 160));
+
 			ImGui::EndTable();
 		}
 

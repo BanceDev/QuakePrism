@@ -35,6 +35,11 @@ GLuint forwardButton;
 GLuint backButton;
 GLuint appIcon;
 
+GLuint newCard;
+GLuint importCard;
+GLuint sharewareCard;
+GLuint libreCard;
+
 void loadFonts() {
 	ImGuiIO &io = ImGui::GetIO();
 	(void)io;
@@ -62,6 +67,14 @@ void loadIcons() {
 	QuakePrism::LoadTextureFromFile("res/back.png", &backButton, nullptr,
 									nullptr);
 	QuakePrism::LoadTextureFromFile("res/prism_small.png", &appIcon, nullptr,
+									nullptr);
+	QuakePrism::LoadTextureFromFile("res/NewCard.png", &newCard, nullptr,
+									nullptr);
+	QuakePrism::LoadTextureFromFile("res/ImportCard.png", &importCard, nullptr,
+									nullptr);
+	QuakePrism::LoadTextureFromFile("res/SharewareCard.png", &sharewareCard,
+									nullptr, nullptr);
+	QuakePrism::LoadTextureFromFile("res/LibreCard.png", &libreCard, nullptr,
 									nullptr);
 }
 
