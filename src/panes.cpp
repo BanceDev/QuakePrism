@@ -573,29 +573,84 @@ void DrawNewProjectPopup() {
 	isNewProjectOpen = ImGui::BeginPopupModal(
 		"New Project", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	if (isNewProjectOpen) {
-		ImGui::TextUnformatted("Templates");
-		if (ImGui::BeginTable("table1", 3)) {
+		static int projectType = 0;
+		if (ImGui::BeginTable("table1", 2)) {
+			ImGui::TableSetupColumn("Column1", ImGuiTableColumnFlags_WidthFixed,
+									300.0f);
+			ImGui::TableSetupColumn("Column2",
+									ImGuiTableColumnFlags_WidthStretch);
 
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0);
-			HelpMarker("Template for a bare minimum Quake project, ideal for "
-					   "original games");
-			ImGui::Image((ImTextureID)(intptr_t)UI::newCard, ImVec2(128, 160));
-			ImGui::TableSetColumnIndex(1);
-			HelpMarker("Template for modding the full version of Quake, "
-					   "requires pak1");
-			ImGui::Image((ImTextureID)(intptr_t)UI::importCard,
-						 ImVec2(128, 160));
+			ImGui::TextUnformatted("Templates");
+			if (ImGui::BeginTable("table2", 2)) {
 
-			ImGui::TableNextRow();
-			ImGui::TableSetColumnIndex(0);
-			HelpMarker("Template for modding the shareware version of Quake");
-			ImGui::Image((ImTextureID)(intptr_t)UI::sharewareCard,
-						 ImVec2(128, 160));
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				HelpMarker(
+					"Template for a bare minimum Quake project,\nideal for "
+					"original games");
+				if (ImGui::ImageButton((ImTextureID)(intptr_t)UI::newCard,
+									   ImVec2(128, 160))) {
+					projectType = 1;
+				}
+				ImGui::TableSetColumnIndex(1);
+				HelpMarker("Template for modding the full version of Quake,\n"
+						   "requires pak1.pak");
+				if (ImGui::ImageButton((ImTextureID)(intptr_t)UI::importCard,
+									   ImVec2(128, 160))) {
+					projectType = 2;
+				}
+
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				HelpMarker(
+					"Template for modding the shareware version of Quake");
+				if (ImGui::ImageButton((ImTextureID)(intptr_t)UI::sharewareCard,
+									   ImVec2(128, 160))) {
+					projectType = 3;
+				}
+				ImGui::TableSetColumnIndex(1);
+				HelpMarker("Template for modding Libre Quake");
+				if (ImGui::ImageButton((ImTextureID)(intptr_t)UI::libreCard,
+									   ImVec2(128, 160))) {
+					projectType = 4;
+				}
+
+				ImGui::EndTable();
+			}
 			ImGui::TableSetColumnIndex(1);
-			HelpMarker("Template for modding Libre Quake");
-			ImGui::Image((ImTextureID)(intptr_t)UI::libreCard,
-						 ImVec2(128, 160));
+			ImGui::TextUnformatted("Settings: ");
+			ImGui::SameLine();
+			const std::string projectTypeList[5] = {"None Selected",
+													"Blank Game", "Import PAK",
+													"Shareware", "LibreQuake"};
+			ImGui::TextUnformatted(projectTypeList[projectType].c_str());
+			ImGui::Dummy(ImVec2(1, 20));
+			static char projectName[32] = "";
+			ImGui::TextUnformatted("Project Name");
+			ImGui::SetNextItemWidth(360.0f);
+			ImGui::InputText("", projectName, IM_ARRAYSIZE(projectName));
+
+			static ImGui::FileBrowser pakImportBrowser;
+			pakImportBrowser.SetTitle("Import PAK");
+			pakImportBrowser.SetTypeFilters({".pak", ".PAK"});
+			if (projectType == 2) { // Import PAK Type
+				ImGui::Dummy(ImVec2(1, 138));
+				if (ImGui::Button("Import PAK File")) {
+					pakImportBrowser.Open();
+				}
+
+				pakImportBrowser.Display();
+				static std::filesystem::path pakPath;
+				if (pakImportBrowser.HasSelected()) {
+					pakPath = pakImportBrowser.GetSelected();
+					pakImportBrowser.ClearSelected();
+				}
+
+				ImGui::Dummy(ImVec2(1, 20));
+				ImGui::TextUnformatted(pakPath.filename().c_str());
+			}
 
 			ImGui::EndTable();
 		}
