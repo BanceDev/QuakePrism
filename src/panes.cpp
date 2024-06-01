@@ -45,6 +45,7 @@ int userError = 0;
 bool isAboutOpen = false;
 bool isErrorOpen = false;
 bool isOpenProjectOpen = false;
+bool isNewProjectOpen = false;
 
 std::filesystem::path currentQCFileName;
 std::filesystem::path currentModelName;
@@ -495,6 +496,7 @@ void DrawFileExplorer(TextEditor &editor) {
 	ImGui::Begin("Project Browser", nullptr, ImGuiWindowFlags_NoMove);
 	if (baseDirectory.empty()) {
 		if (ImGui::Button("New Project")) {
+			isNewProjectOpen = true;
 		}
 		if (ImGui::Button("Open Project")) {
 			isOpenProjectOpen = true;
@@ -561,6 +563,39 @@ void DrawOpenProjectPopup() {
 
 		ImGui::EndPopup();
 	}
+}
+
+void DrawNewProjectPopup() {
+	if (!isNewProjectOpen)
+		return;
+
+	ImGui::OpenPopup("New Project");
+	isNewProjectOpen = ImGui::BeginPopupModal(
+		"New Project", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	if (isNewProjectOpen) {
+		ImGui::TextUnformatted("Templates");
+		HelpMarker("Help Me I suck at UI");
+		GLuint card;
+		int width, height;
+		LoadTextureFromFile("res/SharewareCard.png", &card, &width, &height);
+		if (ImGui::BeginTable("table1", 3)) {
+			for (int row = 0; row < 2; row++) {
+				ImGui::TableNextRow();
+				for (int column = 0; column < 2; column++) {
+					ImGui::TableSetColumnIndex(column);
+					ImGui::Image((ImTextureID)(intptr_t)card,
+								 ImVec2(width, height));
+				}
+			}
+			ImGui::EndTable();
+		}
+
+		if (ImGui::Button("Close")) {
+			isNewProjectOpen = false;
+			ImGui::CloseCurrentPopup();
+		}
+	}
+	ImGui::EndPopup();
 }
 
 void DrawAboutPopup() {

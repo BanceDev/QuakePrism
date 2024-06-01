@@ -28,4 +28,6 @@ bool LoadTextureFromFile(const char *filename, GLuint *out_texture,
 
 bool ImageTreeNode(const char *label, const GLuint icon);
 
+void HelpMarker(const char *desc);
+
 } // namespace QuakePrism

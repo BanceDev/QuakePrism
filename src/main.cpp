@@ -209,6 +209,7 @@ int main(int, char **) {
 		QuakePrism::DrawAboutPopup();
 		QuakePrism::DrawErrorPopup();
 		QuakePrism::DrawOpenProjectPopup();
+		QuakePrism::DrawNewProjectPopup();
 
 		ImGui::PopFont();
 

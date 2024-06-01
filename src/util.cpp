@@ -102,4 +102,14 @@ bool ImageTreeNode(const char *label, const GLuint icon) {
 	return opened != 0;
 }
 
+void HelpMarker(const char *desc) {
+	ImGui::TextDisabled("(i)");
+	if (ImGui::BeginItemTooltip()) {
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+		ImGui::TextUnformatted(desc);
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
+}
+
 } // namespace QuakePrism

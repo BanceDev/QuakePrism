@@ -43,4 +43,6 @@ void DrawFileExplorer(TextEditor &editor);
 
 void DrawOpenProjectPopup();
 
+void DrawNewProjectPopup();
+
 } // namespace QuakePrism
