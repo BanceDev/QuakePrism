@@ -5,9 +5,8 @@ Quake Prism is an all in one development solution for vanilla Quake engine games
 ## Features
 - Model Viewer
 - Texture Viewer
-- Audio Player
 - WAD Editor
-- PAK tools
+- PAK Import/Export
 - File Explorer
 - QuakeC Editor
 - QuakeC Project Templates
@@ -21,7 +20,7 @@ Clone the repo recursively to install all dependencies
 ```
 git clone --recursive
 ```
-Run the make command in the QuakePrism directory and it will output to a build directory. The makefile currently supports linux and linux cross compile fully. It has not been tested on windows and there are currently no plans to make visual studio compatibility. Feel free to contribute better cross platform support in a pull request; it would be much appreciated.
+Run the make command in the QuakePrism directory and it will output to a build directory. The makefile currently supports Linux fully, for Windows developers it is reccomended to use the Visual Studio project instead.
 
 ## Contributing
 - For bug reports and feature suggestions please use [issues](https://github.com/BanceDev/QuakePrism/issues).
@@ -31,5 +30,5 @@ Run the make command in the QuakePrism directory and it will output to a build d
 
 ### Credits
 - [Dear ImGui](https://github.com/ocornut/imgui)
-- [JetBrains Mono Font](https://www.jetbrains.com/lp/mono/)
 - [Ubuntu Font](https://design.ubuntu.com/font)
+- [YamagiQ2 PakExtract](https://github.com/yquake2/pakextract)
