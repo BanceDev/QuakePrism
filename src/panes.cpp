@@ -565,6 +565,48 @@ void DrawOpenProjectPopup() {
 	}
 }
 
+static bool CopyTemplate(const std::filesystem::path &source,
+						 const char *projectName) {
+	std::filesystem::path destination =
+		executingDirectory / "projects" / projectName;
+	try {
+		// Check if the source directory exists
+		if (!std::filesystem::exists(source) ||
+			!std::filesystem::is_directory(source)) {
+			return false;
+		}
+
+		// Create the destination directory if it does not exist
+		if (!std::filesystem::exists(destination)) {
+			std::filesystem::create_directory(destination);
+		}
+
+		// Iterate over the source directory and copy its contents
+		for (const auto &entry :
+			 std::filesystem::recursive_directory_iterator(source)) {
+			const auto &path = entry.path();
+			auto relative_path = std::filesystem::relative(path, source);
+			auto dest = destination / relative_path;
+
+			if (std::filesystem::is_directory(path)) {
+				std::filesystem::create_directories(dest);
+			} else if (std::filesystem::is_regular_file(path) ||
+					   std::filesystem::is_symlink(path)) {
+				std::filesystem::copy(
+					path, dest,
+					std::filesystem::copy_options::overwrite_existing);
+			}
+		}
+
+	} catch (const std::filesystem::filesystem_error &e) {
+		return false;
+	} catch (const std::exception &e) {
+		return false;
+	}
+
+	return true;
+}
+
 void DrawNewProjectPopup() {
 	if (!isNewProjectOpen)
 		return;
@@ -631,6 +673,36 @@ void DrawNewProjectPopup() {
 			ImGui::TextUnformatted("Project Name");
 			ImGui::SetNextItemWidth(360.0f);
 			ImGui::InputText("", projectName, IM_ARRAYSIZE(projectName));
+			if (ImGui::Button("Make Project")) {
+				switch (projectType) {
+				case 1:
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				case 4: {
+					std::filesystem::path libreQuakeDir =
+						executingDirectory / "res/.templates/LibreQuake";
+					if (!CopyTemplate(libreQuakeDir, projectName)) {
+						userError = MISSING_PROJECTS;
+						isErrorOpen = true;
+					}
+					baseDirectory =
+						executingDirectory / "projects" / projectName;
+					currentDirectory = baseDirectory;
+					currentQCFileName.clear();
+					currentModelName.clear();
+					currentTextureName.clear();
+
+					isNewProjectOpen = false;
+					ImGui::CloseCurrentPopup();
+					break;
+				}
+				default:
+					break;
+				}
+			}
 
 			static ImGui::FileBrowser pakImportBrowser;
 			pakImportBrowser.SetTitle("Import PAK");
