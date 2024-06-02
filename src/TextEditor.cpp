@@ -3236,18 +3236,19 @@ const TextEditor::LanguageDefinition &TextEditor::LanguageDefinition::QuakeC() {
 	static LanguageDefinition langDef;
 	if (!inited) {
 		static const char *const keywords[] = {
-			"auto",			  "break",		  "case",		"char",
-			"const",		  "continue",	  "default",	"do",
-			"double",		  "else",		  "enum",		"extern",
-			"float",		  "for",		  "goto",		"if",
-			"inline",		  "int",		  "long",		"other",
-			"register",		  "restrict",	  "return",		"self",
-			"short",		  "signed",		  "sizeof",		"static",
-			"struct",		  "switch",		  "typedef",	"union",
-			"unsigned",		  "void",		  "volatile",	"while",
-			"_Alignas",		  "_Alignof",	  "_Atomic",	"_Bool",
-			"_Complex",		  "_Generic",	  "_Imaginary", "_Noreturn",
-			"_Static_assert", "_Thread_local"};
+			"auto",			"break",	  "case",	   "char",
+			"const",		"continue",	  "default",   "do",
+			"double",		"else",		  "entity",	   "enum",
+			"extern",		"float",	  "for",	   "goto",
+			"if",			"inline",	  "int",	   "local",
+			"long",			"other",	  "register",  "restrict",
+			"return",		"self",		  "short",	   "signed",
+			"sizeof",		"static",	  "string",	   "struct",
+			"switch",		"typedef",	  "union",	   "unsigned",
+			"vector",		"void",		  "volatile",  "while",
+			"_Alignas",		"_Alignof",	  "_Bool",	   "_Complex",
+			"_Generic",		"_Imaginary", "_Noreturn", "_Static_assert",
+			"_Thread_local"};
 		for (auto &k : keywords)
 			langDef.mKeywords.insert(k);
 

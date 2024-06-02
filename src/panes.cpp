@@ -60,6 +60,9 @@ void DrawMenuBar() {
 	if (ImGui::BeginMainMenuBar()) {
 
 		if (ImGui::BeginMenu("File")) {
+			if (ImGui::MenuItem("New")) {
+				isNewProjectOpen = true;
+			}
 			if (ImGui::MenuItem("Open")) {
 				isOpenProjectOpen = true;
 			}
@@ -424,9 +427,10 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 			}
 
 			if (QuakePrism::ImageTreeNode(filenameString.c_str(), icon)) {
-				if (ImGui::IsItemHovered() &&
-					ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-					if (path.extension() == ".qc") {
+				if (ImGui::IsItemClicked()) {
+					if (path.extension() == ".qc" ||
+						path.extension() == ".src") {
+						// Now load in the new file
 						std::ifstream input(path);
 						if (input.good()) {
 							currentQCFileName = path;
@@ -676,6 +680,22 @@ void DrawNewProjectPopup() {
 			if (ImGui::Button("Make Project")) {
 				switch (projectType) {
 				case 1:
+					std::filesystem::path blankDir =
+						executingDirectory / "res/.templates/Blank";
+					if (!CopyTemplate(blankDir, projectName)) {
+						userError = MISSING_PROJECTS;
+						isErrorOpen = true;
+					}
+					baseDirectory =
+						executingDirectory / "projects" / projectName;
+					currentDirectory = baseDirectory;
+					currentQCFileName.clear();
+					currentModelName.clear();
+					currentTextureName.clear();
+
+					isNewProjectOpen = false;
+					ImGui::CloseCurrentPopup();
+
 					break;
 				case 2:
 					break;
