@@ -679,7 +679,7 @@ void DrawNewProjectPopup() {
 			ImGui::InputText("", projectName, IM_ARRAYSIZE(projectName));
 			if (ImGui::Button("Make Project")) {
 				switch (projectType) {
-				case 1:
+				case 1: {
 					std::filesystem::path blankDir =
 						executingDirectory / "res/.templates/Blank";
 					if (!CopyTemplate(blankDir, projectName)) {
@@ -697,6 +697,7 @@ void DrawNewProjectPopup() {
 					ImGui::CloseCurrentPopup();
 
 					break;
+				}
 				case 2:
 					break;
 				case 3: {
