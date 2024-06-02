@@ -679,8 +679,24 @@ void DrawNewProjectPopup() {
 					break;
 				case 2:
 					break;
-				case 3:
+				case 3: {
+					std::filesystem::path sharewareDir =
+						executingDirectory / "res/.templates/Shareware";
+					if (!CopyTemplate(sharewareDir, projectName)) {
+						userError = MISSING_PROJECTS;
+						isErrorOpen = true;
+					}
+					baseDirectory =
+						executingDirectory / "projects" / projectName;
+					currentDirectory = baseDirectory;
+					currentQCFileName.clear();
+					currentModelName.clear();
+					currentTextureName.clear();
+
+					isNewProjectOpen = false;
+					ImGui::CloseCurrentPopup();
 					break;
+				}
 				case 4: {
 					std::filesystem::path libreQuakeDir =
 						executingDirectory / "res/.templates/LibreQuake";
