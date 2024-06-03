@@ -62,6 +62,7 @@ all: $(EXE) copy_resources
 
 $(EXE): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
+	@rm -f $(OBJS)
 
 copy_resources:
 	@echo "Copying resources directory..."

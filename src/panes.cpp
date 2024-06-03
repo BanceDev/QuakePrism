@@ -24,6 +24,7 @@ along with this program.
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "mdl.h"
+#include "pak.h"
 #include "resources.h"
 #include "util.h"
 #include <cstdint>
@@ -550,7 +551,11 @@ void DrawOpenProjectPopup() {
 			}
 			ImGui::EndListBox();
 		}
-
+		if (ImGui::Button("Cancel")) {
+			isOpenProjectOpen = false;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 		if (ImGui::Button("Open")) {
 			try {
 				baseDirectory = projectList.at(item_current_idx).path();
@@ -676,8 +681,13 @@ void DrawNewProjectPopup() {
 			static char projectName[32] = "";
 			ImGui::TextUnformatted("Project Name");
 			ImGui::SetNextItemWidth(360.0f);
-			ImGui::InputText("", projectName, IM_ARRAYSIZE(projectName));
-			if (ImGui::Button("Make Project")) {
+			ImGui::InputText("##projectname", projectName,
+							 IM_ARRAYSIZE(projectName));
+
+			// These variables only used by the second case
+			static std::vector<std::filesystem::path> paks;
+			static int codebaseType = 0;
+			if (ImGui::Button("Make Project") && strcmp(projectName, "") != 0) {
 				switch (projectType) {
 				case 1: {
 					std::filesystem::path blankDir =
@@ -686,20 +696,49 @@ void DrawNewProjectPopup() {
 						userError = MISSING_PROJECTS;
 						isErrorOpen = true;
 					}
-					baseDirectory =
+					break;
+				}
+				case 2: {
+					std::filesystem::path projectPath =
 						executingDirectory / "projects" / projectName;
-					currentDirectory = baseDirectory;
-					currentQCFileName.clear();
-					currentModelName.clear();
-					currentTextureName.clear();
 
-					isNewProjectOpen = false;
-					ImGui::CloseCurrentPopup();
+					// Create the destination directory if it does not exist
+					if (!std::filesystem::exists(projectPath)) {
+						std::filesystem::create_directory(projectPath);
+					}
+
+					for (const auto &pak : paks) {
+						if (!PAK::ExtractPAK(pak, &projectPath)) {
+							userError = MISSING_PROJECTS;
+							isErrorOpen = true;
+							break;
+						}
+					}
+
+					if (!std::filesystem::exists(projectPath / "src")) {
+						std::filesystem::create_directory(projectPath / "src");
+					}
+
+					std::string srcDir = projectName;
+					srcDir += "/src";
+					if (codebaseType == 0) {
+						std::filesystem::path quakeCodebase =
+							executingDirectory / "res/.templates/Shareware/src";
+						if (!CopyTemplate(quakeCodebase, srcDir.c_str())) {
+							userError = MISSING_PROJECTS;
+							isErrorOpen = true;
+						}
+					} else {
+						std::filesystem::path blankCodebase =
+							executingDirectory / "res/.templates/Blank/src";
+						if (!CopyTemplate(blankCodebase, srcDir.c_str())) {
+							userError = MISSING_PROJECTS;
+							isErrorOpen = true;
+						}
+					}
 
 					break;
 				}
-				case 2:
-					break;
 				case 3: {
 					std::filesystem::path sharewareDir =
 						executingDirectory / "res/.templates/Shareware";
@@ -707,15 +746,6 @@ void DrawNewProjectPopup() {
 						userError = MISSING_PROJECTS;
 						isErrorOpen = true;
 					}
-					baseDirectory =
-						executingDirectory / "projects" / projectName;
-					currentDirectory = baseDirectory;
-					currentQCFileName.clear();
-					currentModelName.clear();
-					currentTextureName.clear();
-
-					isNewProjectOpen = false;
-					ImGui::CloseCurrentPopup();
 					break;
 				}
 				case 4: {
@@ -725,46 +755,51 @@ void DrawNewProjectPopup() {
 						userError = MISSING_PROJECTS;
 						isErrorOpen = true;
 					}
-					baseDirectory =
-						executingDirectory / "projects" / projectName;
-					currentDirectory = baseDirectory;
-					currentQCFileName.clear();
-					currentModelName.clear();
-					currentTextureName.clear();
-
-					isNewProjectOpen = false;
-					ImGui::CloseCurrentPopup();
 					break;
 				}
 				default:
 					break;
 				}
+
+				baseDirectory = executingDirectory / "projects" / projectName;
+				currentDirectory = baseDirectory;
+				currentQCFileName.clear();
+				currentModelName.clear();
+				currentTextureName.clear();
+
+				isNewProjectOpen = false;
+				ImGui::CloseCurrentPopup();
 			}
 
 			static ImGui::FileBrowser pakImportBrowser;
 			pakImportBrowser.SetTitle("Import PAK");
 			pakImportBrowser.SetTypeFilters({".pak", ".PAK"});
 			if (projectType == 2) { // Import PAK Type
-				ImGui::Dummy(ImVec2(1, 138));
-				if (ImGui::Button("Import PAK File")) {
+				ImGui::TextUnformatted("Select QuakeC codebase:");
+				const char *items[] = {"Quake", "Blank"};
+				ImGui::Combo("##codebasetype", &codebaseType, items,
+							 IM_ARRAYSIZE(items));
+
+				if (ImGui::Button("Add PAK File")) {
 					pakImportBrowser.Open();
 				}
 
 				pakImportBrowser.Display();
-				static std::filesystem::path pakPath;
 				if (pakImportBrowser.HasSelected()) {
-					pakPath = pakImportBrowser.GetSelected();
+					paks.push_back(pakImportBrowser.GetSelected());
 					pakImportBrowser.ClearSelected();
 				}
-
-				ImGui::Dummy(ImVec2(1, 20));
-				ImGui::TextUnformatted(pakPath.filename().c_str());
+			}
+			ImGui::Dummy(ImVec2(1, 20));
+			ImGui::TextUnformatted("Loaded pak files:");
+			for (const auto &pak : paks) {
+				ImGui::TextUnformatted(pak.filename().c_str());
 			}
 
 			ImGui::EndTable();
 		}
 
-		if (ImGui::Button("Close")) {
+		if (ImGui::Button("Cancel")) {
 			isNewProjectOpen = false;
 			ImGui::CloseCurrentPopup();
 		}
