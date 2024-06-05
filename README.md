@@ -1,6 +1,6 @@
 # Quake Prism
 
-Quake Prism is an all in one development solution for vanilla Quake engine games and mods based on modern game engine tools. Quakespasm Spiked is included by default for running mods and games however alternate source ports can be imported into the project and used.
+Quake Prism is an all in one development solution for vanilla Quake engine games and mods based on modern game engine tools.
 
 ## Features
 - Model Viewer
