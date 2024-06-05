@@ -297,6 +297,12 @@ void DrawTextEditor(TextEditor &editor) {
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("Save", "Ctrl-S", nullptr)) {
 				auto textToSave = editor.GetText();
+				// had issue with extra whitespace so this cleans that
+				size_t end = textToSave.find_last_not_of(" \t\n\r");
+			    if (end == std::string::npos) {
+			        textToSave = ""; // All characters are whitespace or newlines
+			    }
+			    textToSave =  textToSave.substr(0, end + 1);
 				std::ofstream output(currentQCFileName);
 				if (output.is_open()) {
 					output << textToSave;

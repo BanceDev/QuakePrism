@@ -173,6 +173,7 @@
     <ClCompile Include="resources.cpp" />
     <ClCompile Include="theme.cpp" />
     <ClCompile Include="util.cpp" />
+    <ClCompile Include="pak.cpp" />
     <ClCompile Include="TextEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -188,6 +189,7 @@
     <ClInclude Include="resources.h" />
     <ClInclude Include="theme.h" />
     <ClInclude Include="util.h" />
+    <ClInclude Include="pak.h" />
     <ClInclude Include="TextEditor.h" />
     <ClInclude Include="anorms.h" />
     <ClInclude Include="colormap.h" />
