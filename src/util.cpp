@@ -112,4 +112,49 @@ void HelpMarker(const char *desc) {
 	}
 }
 
+bool ButtonRight(const char* label, float offset_from_right = 10.0f) {
+    // Get the window size and cursor position
+    ImVec2 windowSize = ImGui::GetWindowSize();
+
+    // Calculate the new cursor position for the button
+    float buttonWidth = ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+    float newCursorX = windowSize.x - buttonWidth - offset_from_right;
+
+    // Set the new cursor position
+    ImGui::SetCursorPosX(newCursorX);
+
+    // Create the button
+    if (ImGui::Button(label))
+    {
+        return true;
+    }
+
+    // Move to the next line
+    ImGui::SameLine();
+
+	return false;
+}
+
+bool ButtonCentered(const char* label) {
+    // Get the window size and cursor position
+    ImVec2 windowSize = ImGui::GetWindowSize();
+
+    // Calculate the new cursor position for the button
+    float buttonWidth = ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+    float newCursorX = (windowSize.x - buttonWidth) / 2.0f;
+
+    // Set the new cursor position
+    ImGui::SetCursorPosX(newCursorX);
+
+    // Create the button
+    if (ImGui::Button(label))
+    {
+        return true;
+    }
+
+    // Move to the next line
+    ImGui::SameLine();
+
+	return false;
+}
 } // namespace QuakePrism

@@ -45,4 +45,6 @@ void DrawOpenProjectPopup();
 
 void DrawNewProjectPopup();
 
+void DrawLauncherPopup();
+
 } // namespace QuakePrism

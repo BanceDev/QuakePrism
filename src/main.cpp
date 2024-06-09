@@ -189,8 +189,8 @@ int main(int, char **) {
 		QuakePrism::DrawMenuBar();
 		ImGui::DockSpaceOverViewport();
 		// 1. Show the big demo window (Most of the sample code is in
-		// ImGui::ShowDemoWindow()! You can browse its code to learn more about
-		// Dear ImGui!).
+		// ImGui::ShowDemoWindow()! You can browse its code to learn more
+		// about Dear ImGui!).
 		if (show_demo_window)
 			ImGui::ShowDemoWindow(&show_demo_window);
 
@@ -210,6 +210,7 @@ int main(int, char **) {
 		QuakePrism::DrawErrorPopup();
 		QuakePrism::DrawOpenProjectPopup();
 		QuakePrism::DrawNewProjectPopup();
+		QuakePrism::DrawLauncherPopup();
 
 		ImGui::PopFont();
 

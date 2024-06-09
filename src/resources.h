@@ -46,4 +46,6 @@ void loadIcons();
 
 void loadFonts();
 
+bool configFound();
+
 } // namespace QuakePrism::UI

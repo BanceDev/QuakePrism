@@ -30,4 +30,8 @@ bool ImageTreeNode(const char *label, const GLuint icon);
 
 void HelpMarker(const char *desc);
 
+bool ButtonRight(const char* label, float offset_from_right);
+
+bool ButtonCentered(const char* label);
+
 } // namespace QuakePrism

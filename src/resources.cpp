@@ -19,6 +19,10 @@ along with this program.
 
 #include "resources.h"
 #include "util.h"
+#include <iostream>
+#include <filesystem>
+#include <fstream>
+#include <string>
 
 namespace QuakePrism::UI {
 // Fonts
@@ -78,24 +82,26 @@ void loadIcons() {
 									nullptr);
 }
 
-bool configFound () {
+bool configFound() {
 	// check for quakeprism cfg and return true if it doesn't exist
-	std::filesystem::path configFile = std::filesystem::current_path() / “quakeprism.cfg”;
-	if (std::filesystem::exists(configFile)){
-		// Then if it does read in the first line since for now its just gonna be a one line file. 
+	std::filesystem::path configFile =
+		std::filesystem::current_path() / "quakeprism.cfg";
+	if (std::filesystem::exists(configFile)) {
+		// Then if it does read in the first line since for now its just gonna
+		// be a one line file.
 		std::ifstream input(configFile);
 		std::string projectsDir;
 		if (input.good()) {
-			// That line should just be a filepath, read it in check if the path exists,
-			std::getline(configFile, projectsDir);
+			// That line should just be a filepath, read it in check if the path
+			// exists,
+			std::getline(input, projectsDir);
 		}
 		input.close();
 
 		std::filesystem::path projectsPath(projectsDir);
 
-		return !std::filesystem::exists(projectsPath);
+		return std::filesystem::exists(projectsPath);
 	}
 	return false;
 }
-}
- // namespace QuakePrism::UI
+} // namespace QuakePrism::UI

@@ -47,6 +47,7 @@ bool isAboutOpen = false;
 bool isErrorOpen = false;
 bool isOpenProjectOpen = false;
 bool isNewProjectOpen = false;
+bool isLauncherOpen = true;
 
 std::filesystem::path currentQCFileName;
 std::filesystem::path currentModelName;
@@ -114,7 +115,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 									  ImGui::GetMainViewport()->Size);
 
 		auto dock_id_up = ImGui::DockBuilderSplitNode(
-			dockspace_id, ImGuiDir_Up, 0.7f, nullptr, &dockspace_id);
+		dockspace_id, ImGuiDir_Up, 0.7f, nullptr, &dockspace_id);
 		auto dock_id_down = ImGui::DockBuilderSplitNode(
 			dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
 		ImGui::DockBuilderDockWindow("Model View", dock_id_up);
@@ -795,11 +796,11 @@ void DrawNewProjectPopup() {
 					paks.push_back(pakImportBrowser.GetSelected());
 					pakImportBrowser.ClearSelected();
 				}
-			}
-			ImGui::Dummy(ImVec2(1, 20));
-			ImGui::TextUnformatted("Loaded pak files:");
-			for (const auto &pak : paks) {
-				ImGui::TextUnformatted(pak.filename().c_str());
+				ImGui::Dummy(ImVec2(1, 20));
+				ImGui::TextUnformatted("Loaded pak files:");
+				for (const auto &pak : paks) {
+					ImGui::TextUnformatted(pak.filename().c_str());
+				}
 			}
 
 			ImGui::EndTable();
@@ -811,6 +812,39 @@ void DrawNewProjectPopup() {
 		}
 	}
 	ImGui::EndPopup();
+}
+
+void DrawLauncherPopup() {
+	if (!isLauncherOpen)
+		return;
+
+	if (UI::configFound()) {
+		isLauncherOpen = false;
+		return;
+	}
+
+	ImGui::OpenPopup("Welcome to QuakePrism");
+	isLauncherOpen = ImGui::BeginPopupModal("Welcome to QuakePrism", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+	if (isLauncherOpen) {
+		ImGui::Image((ImTextureID)(intptr_t)UI::appIcon, {48, 48});
+		ImGui::SameLine();
+
+		ImGui::BeginGroup();
+		ImGui::SetWindowFontScale(1.2f);
+		ImGui::Text("Welcome to QuakePrism");
+		ImGui::SetWindowFontScale(1.0f);
+		ImGui::Text("To get started choose a\n projects directory");
+		ImGui::EndGroup();
+
+		if (ButtonCentered("Choose Projects Directory")) {
+			isLauncherOpen = false;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+
 }
 
 void DrawAboutPopup() {
