@@ -19,8 +19,8 @@ along with this program.
 
 #include "resources.h"
 #include "util.h"
-#include <iostream>
 #include <filesystem>
+#include <iostream>
 #include <fstream>
 #include <string>
 
@@ -43,6 +43,10 @@ GLuint newCard;
 GLuint importCard;
 GLuint sharewareCard;
 GLuint libreCard;
+
+// Config Files
+std::filesystem::path configFile = std::filesystem::current_path() / "quakeprism.cfg";
+std::filesystem::path projectsDirectory;
 
 void loadFonts() {
 	ImGuiIO &io = ImGui::GetIO();
@@ -83,24 +87,21 @@ void loadIcons() {
 }
 
 bool configFound() {
-	// check for quakeprism cfg and return true if it doesn't exist
-	std::filesystem::path configFile =
-		std::filesystem::current_path() / "quakeprism.cfg";
 	if (std::filesystem::exists(configFile)) {
 		// Then if it does read in the first line since for now its just gonna
 		// be a one line file.
 		std::ifstream input(configFile);
-		std::string projectsDir;
+		std::string pd;
 		if (input.good()) {
 			// That line should just be a filepath, read it in check if the path
 			// exists,
-			std::getline(input, projectsDir);
+			std::getline(input, pd);
 		}
 		input.close();
 
-		std::filesystem::path projectsPath(projectsDir);
-
-		return std::filesystem::exists(projectsPath);
+		std::filesystem::path p(pd);
+		projectsDirectory = p;
+		return std::filesystem::exists(projectsDirectory);
 	}
 	return false;
 }

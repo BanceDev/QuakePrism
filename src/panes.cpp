@@ -531,8 +531,7 @@ void DrawOpenProjectPopup() {
 	std::vector<std::filesystem::directory_entry> projectList;
 	if (isOpenProjectOpen) {
 		try {
-			for (auto &directoryEntry : std::filesystem::directory_iterator(
-					 executingDirectory / "projects")) {
+			for (auto &directoryEntry : std::filesystem::directory_iterator(UI::projectsDirectory)) {
 				if (directoryEntry.is_directory())
 					projectList.push_back(directoryEntry);
 			}
@@ -583,8 +582,7 @@ void DrawOpenProjectPopup() {
 
 static bool CopyTemplate(const std::filesystem::path &source,
 						 const char *projectName) {
-	std::filesystem::path destination =
-		executingDirectory / "projects" / projectName;
+	std::filesystem::path destination = UI::projectsDirectory / projectName;
 	try {
 		// Check if the source directory exists
 		if (!std::filesystem::exists(source) ||
@@ -706,8 +704,7 @@ void DrawNewProjectPopup() {
 					break;
 				}
 				case 2: {
-					std::filesystem::path projectPath =
-						executingDirectory / "projects" / projectName;
+					std::filesystem::path projectPath = UI::projectsDirectory / projectName;
 
 					// Create the destination directory if it does not exist
 					if (!std::filesystem::exists(projectPath)) {
@@ -768,7 +765,7 @@ void DrawNewProjectPopup() {
 					break;
 				}
 
-				baseDirectory = executingDirectory / "projects" / projectName;
+				baseDirectory = UI::projectsDirectory / projectName;
 				currentDirectory = baseDirectory;
 				currentQCFileName.clear();
 				currentModelName.clear();
@@ -834,12 +831,29 @@ void DrawLauncherPopup() {
 		ImGui::SetWindowFontScale(1.2f);
 		ImGui::Text("Welcome to QuakePrism");
 		ImGui::SetWindowFontScale(1.0f);
-		ImGui::Text("To get started choose a\n projects directory");
+		ImGui::Text("To get started choose a location\n for the projects directory");
 		ImGui::EndGroup();
+		static ImGui::FileBrowser projectBrowser(ImGuiFileBrowserFlags_SelectDirectory);
+		projectBrowser.SetTitle("Select Location For Projects Folder");
 
 		if (ButtonCentered("Choose Projects Directory")) {
+			projectBrowser.Open();
+		}
+
+		projectBrowser.Display();
+		if (projectBrowser.HasSelected()) {
+			UI::projectsDirectory = projectBrowser.GetSelected() / "projects";
+			std::ofstream out("quakeprism.cfg");
+			out << UI::projectsDirectory.string();
+			out.close();
+			// Create the projects directory if it does not exist
+			if (!std::filesystem::exists(UI::projectsDirectory)) {
+				std::filesystem::create_directory(UI::projectsDirectory);
+			}
+
 			isLauncherOpen = false;
 			ImGui::CloseCurrentPopup();
+
 		}
 
 		ImGui::EndPopup();

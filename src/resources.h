@@ -21,6 +21,7 @@ along with this program.
 #include "imgui.h"
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <filesystem>
 
 namespace QuakePrism::UI {
 // Font Assets
@@ -41,6 +42,10 @@ extern GLuint newCard;
 extern GLuint importCard;
 extern GLuint sharewareCard;
 extern GLuint libreCard;
+
+// Config Assets
+extern std::filesystem::path configFile;
+extern std::filesystem::path projectsDirectory;
 
 void loadIcons();
 
