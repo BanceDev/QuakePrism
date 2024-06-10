@@ -1,16 +1,22 @@
 # Quake Prism
 
 Quake Prism is an all in one development solution for vanilla Quake engine games and mods based on modern game engine tools.
+The primary focus of this project is to enable not only modders but also those interested in making fully original games with the Quake engine. Most of the tooling is basic asset manipulation along with a QuakeC editor.
+Quake Prism also ships with project templates to help you start development right away along with including fteqcc64 for compilation and Ironwail for the source port to run your mods/games from the editor.
+
+Quake Prism will not come packaged with tooling for 3D modeling see this [Quake blender plugin](https://github.com/victorfeitosa/quake-hexen2-mdl-export-import) for that. Quake Prism also will not include mapping tools due largely to the complexity of the requirements for map tooling along with the fact that highly featured modern mapping software already exists in the form of [Trenchbroom](https://github.com/TrenchBroom/TrenchBroom).
 
 ## Features
-- Model Viewer
-- Texture Viewer
-- WAD Editor
-- PAK Import/Export
-- File Explorer
-- QuakeC Editor
-- QuakeC Project Templates
-- In depth docs
+- [x] Model Viewer
+- [x] Texture Viewer
+- [x] PAK Import/Export
+- [x] File Explorer
+- [x] QuakeC Editor
+- [x] QuakeC Project Templates
+- [ ] In depth docs
+- [ ] WAD Editor
+- [ ] QuakeC error/warning checking
+- [ ] spr and lmp support
 
 ## Releases
 - Binary builds are available from [releases](https://github.com/BanceDev/QuakePrism/releases)
