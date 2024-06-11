@@ -1,5 +1,5 @@
 # Cross Platform Makefile
-# Compatible with MSYS2/MINGW, Ubuntu 14.04.1 and Mac OS X
+# Compatible with MSYS2/MINGW, Linux g++, and Mac OS X
 
 EXE := build/QuakePrism
 IMGUI_DIR := ./lib/imgui
@@ -14,7 +14,7 @@ OBJS := $(addprefix $(BUILD_DIR)/, $(notdir $(SOURCES:.cpp=.o)))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS := -lGL -lGLU -lGLEW
 
-CXX := g++  # Default compiler
+CXX ?= g++  # Default compiler
 CXXFLAGS := -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(SRC_DIR)  -g -Wall -Wformat
 LIBS :=
 
@@ -62,8 +62,6 @@ all: $(EXE) copy_resources
 
 $(EXE): $(OBJS)
 	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
-
-## @rm -f $(OBJS)
 
 copy_resources:
 	@echo "Copying resources directory..."
