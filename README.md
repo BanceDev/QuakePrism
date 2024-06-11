@@ -1,4 +1,4 @@
-<img src="https://github.com/BanceDev/QuakePrism/preview.png" width="800"  /> 
+<img src="https://github.com/BanceDev/QuakePrism/blob/main/preview.png" width="800"  /> 
 
 # Quake Prism
 
