@@ -9,6 +9,8 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h" // for imGui::GetCurrentWindow()
 
+#include "panes.h"
+
 // TODO
 // - multiline comments vs single-line: latter is blocking start of a ML
 
@@ -710,6 +712,8 @@ void TextEditor::HandleKeyboardInputs() {
 		else if (!ctrl && shift && !alt &&
 				 ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
 			Cut();
+		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGuiKey_S))
+			QuakePrism::SaveQuakeCFile(this->GetText());
 		else if (ctrl && !shift && !alt &&
 				 ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A)))
 			SelectAll();

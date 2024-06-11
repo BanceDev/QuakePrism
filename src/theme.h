@@ -23,7 +23,7 @@ along with this program.
 #include <glm/glm.hpp>
 #include <imgui.h>
 
-namespace QuakePrism::UI {
+namespace QuakePrism {
 
 namespace Colors {
 static inline float Convert_sRGB_FromLinear(float theLinearValue);

@@ -34,4 +34,7 @@ bool ButtonRight(const char* label, float offset_from_right);
 
 bool ButtonCentered(const char* label);
 
+bool CompileProject();
+
+bool RunProject();
 } // namespace QuakePrism

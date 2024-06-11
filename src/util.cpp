@@ -21,7 +21,9 @@ along with this program.
 #include "imgui.h"
 #include <cstdint>
 #define STB_IMAGE_IMPLEMENTATION
+#include "resources.h"
 #include "stb_image.h"
+#include "unistd.h"
 
 namespace QuakePrism {
 
@@ -112,49 +114,75 @@ void HelpMarker(const char *desc) {
 	}
 }
 
-bool ButtonRight(const char* label, float offset_from_right = 10.0f) {
-    // Get the window size and cursor position
-    ImVec2 windowSize = ImGui::GetWindowSize();
+bool ButtonRight(const char *label, float offset_from_right = 10.0f) {
+	// Get the window size and cursor position
+	ImVec2 windowSize = ImGui::GetWindowSize();
 
-    // Calculate the new cursor position for the button
-    float buttonWidth = ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-    float newCursorX = windowSize.x - buttonWidth - offset_from_right;
+	// Calculate the new cursor position for the button
+	float buttonWidth =
+		ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+	float newCursorX = windowSize.x - buttonWidth - offset_from_right;
 
-    // Set the new cursor position
-    ImGui::SetCursorPosX(newCursorX);
+	// Set the new cursor position
+	ImGui::SetCursorPosX(newCursorX);
 
-    // Create the button
-    if (ImGui::Button(label))
-    {
-        return true;
-    }
+	// Create the button
+	if (ImGui::Button(label)) {
+		return true;
+	}
 
-    // Move to the next line
-    ImGui::SameLine();
+	// Move to the next line
+	ImGui::SameLine();
 
 	return false;
 }
 
-bool ButtonCentered(const char* label) {
-    // Get the window size and cursor position
-    ImVec2 windowSize = ImGui::GetWindowSize();
+bool ButtonCentered(const char *label) {
+	// Get the window size and cursor position
+	ImVec2 windowSize = ImGui::GetWindowSize();
 
-    // Calculate the new cursor position for the button
-    float buttonWidth = ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-    float newCursorX = (windowSize.x - buttonWidth) / 2.0f;
+	// Calculate the new cursor position for the button
+	float buttonWidth =
+		ImGui::CalcTextSize(label).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+	float newCursorX = (windowSize.x - buttonWidth) / 2.0f;
 
-    // Set the new cursor position
-    ImGui::SetCursorPosX(newCursorX);
+	// Set the new cursor position
+	ImGui::SetCursorPosX(newCursorX);
 
-    // Create the button
-    if (ImGui::Button(label))
-    {
-        return true;
-    }
+	// Create the button
+	if (ImGui::Button(label)) {
+		return true;
+	}
 
-    // Move to the next line
-    ImGui::SameLine();
+	// Move to the next line
+	ImGui::SameLine();
 
 	return false;
+}
+
+bool CompileProject() {
+
+	chdir((baseDirectory / "src").string().c_str());
+#ifdef _WIN32
+	bool result = system("./fteqcc64.exe") != -1;
+#else
+	bool result = system("./fteqcc64") != -1;
+#endif
+	chdir(baseDirectory.string().c_str());
+	return result;
+}
+
+bool RunProject() {
+	chdir(projectsDirectory.string().c_str());
+#ifdef _WIN32
+	std::string cmd = "./quake.exe -game " + baseDirectory.filename().string();
+	bool result = system(cmd.c_str()) != -1;
+#else
+	std::string cmd =
+		"./quake.AppImage -game " + baseDirectory.filename().string();
+	bool result = system(cmd.c_str()) != -1;
+#endif
+	chdir(baseDirectory.string().c_str());
+	return result;
 }
 } // namespace QuakePrism

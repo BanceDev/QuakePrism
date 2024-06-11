@@ -47,4 +47,6 @@ void DrawNewProjectPopup();
 
 void DrawLauncherPopup();
 
+void SaveQuakeCFile(std::string textToSave);
+
 } // namespace QuakePrism

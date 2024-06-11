@@ -23,7 +23,7 @@ along with this program.
 #include <SDL_opengl.h>
 #include <filesystem>
 
-namespace QuakePrism::UI {
+namespace QuakePrism {
 // Font Assets
 extern ImFont *ubuntuMonoFont;
 extern ImFont *ubuntuFont;
@@ -46,6 +46,15 @@ extern GLuint libreCard;
 // Config Assets
 extern std::filesystem::path configFile;
 extern std::filesystem::path projectsDirectory;
+
+// Essential Paths
+extern std::filesystem::path currentQCFileName;
+extern std::filesystem::path currentModelName;
+extern std::filesystem::path currentTextureName;
+extern std::filesystem::path currentDirectory;
+extern std::filesystem::path baseDirectory;
+extern std::filesystem::path executingDirectory;
+
 
 void loadIcons();
 

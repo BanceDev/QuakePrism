@@ -24,7 +24,8 @@ along with this program.
 #include <fstream>
 #include <string>
 
-namespace QuakePrism::UI {
+namespace QuakePrism {
+
 // Fonts
 ImFont *ubuntuFont;
 ImFont *ubuntuMonoFont;
@@ -47,6 +48,14 @@ GLuint libreCard;
 // Config Files
 std::filesystem::path configFile = std::filesystem::current_path() / "quakeprism.cfg";
 std::filesystem::path projectsDirectory;
+
+// Essential Paths
+std::filesystem::path currentQCFileName;
+std::filesystem::path currentModelName;
+std::filesystem::path currentTextureName;
+std::filesystem::path currentDirectory;
+std::filesystem::path baseDirectory;
+std::filesystem::path executingDirectory = std::filesystem::current_path();
 
 void loadFonts() {
 	ImGuiIO &io = ImGui::GetIO();

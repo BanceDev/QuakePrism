@@ -49,12 +49,6 @@ bool isOpenProjectOpen = false;
 bool isNewProjectOpen = false;
 bool isLauncherOpen = true;
 
-std::filesystem::path currentQCFileName;
-std::filesystem::path currentModelName;
-std::filesystem::path currentTextureName;
-std::filesystem::path currentDirectory;
-std::filesystem::path baseDirectory;
-std::filesystem::path executingDirectory = std::filesystem::current_path();
 
 namespace QuakePrism {
 
@@ -79,13 +73,14 @@ void DrawMenuBar() {
 
 		if (ImGui::BeginMenu("Run")) {
 			if (ImGui::MenuItem("Compile")) {
-				// editorLayer->CompileProject();
+				CompileProject();
 			}
 			if (ImGui::MenuItem("Run")) {
-				// editorLayer->RunProject();
+				RunProject();
 			}
 			if (ImGui::MenuItem("Compile and Run")) {
-				// editorLayer->CompileRunProject();
+				CompileProject();
+				RunProject();
 			}
 			ImGui::EndMenu();
 		}
@@ -175,20 +170,20 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	// Animation Control Buttons
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 	ImGui::PushButtonRepeat(true);
-	if (ImGui::ImageButton((ImTextureID)(intptr_t)QuakePrism::UI::backButton,
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)backButton,
 						   {24, 24})) {
 		if (paused && MDL::currentFrame > 0)
 			MDL::currentFrame--;
 	}
 	ImGui::PopButtonRepeat();
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-	if (ImGui::ImageButton((ImTextureID)(intptr_t)QuakePrism::UI::playButton,
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)playButton,
 						   {24, 24})) {
 		paused = !paused;
 	}
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 	ImGui::PushButtonRepeat(true);
-	if (ImGui::ImageButton((ImTextureID)(intptr_t)QuakePrism::UI::forwardButton,
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)forwardButton,
 						   {24, 24})) {
 		if (paused) {
 			if (MDL::currentFrame < MDL::totalFrames) {
@@ -285,6 +280,24 @@ void DrawTextureViewer() {
 	ImGui::End();
 }
 
+void SaveQuakeCFile(std::string textToSave) {
+	// had issue with extra whitespace so this cleans that
+	size_t end = textToSave.find_last_not_of(" \t\n\r");
+	if (end == std::string::npos) {
+		textToSave = ""; // All characters are whitespace or newlines
+	}
+	    textToSave =  textToSave.substr(0, end + 1);
+		std::ofstream output(currentQCFileName);
+	if (output.is_open()) {
+		output << textToSave;
+		output.close();
+	} else {
+		isErrorOpen = true;
+		userError = SAVE_FAILED;
+	}
+
+}
+
 void DrawTextEditor(TextEditor &editor) {
 
 	auto lang = TextEditor::LanguageDefinition::QuakeC();
@@ -297,21 +310,8 @@ void DrawTextEditor(TextEditor &editor) {
 	if (ImGui::BeginMenuBar()) {
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("Save", "Ctrl-S", nullptr)) {
-				auto textToSave = editor.GetText();
-				// had issue with extra whitespace so this cleans that
-				size_t end = textToSave.find_last_not_of(" \t\n\r");
-			    if (end == std::string::npos) {
-			        textToSave = ""; // All characters are whitespace or newlines
-			    }
-			    textToSave =  textToSave.substr(0, end + 1);
-				std::ofstream output(currentQCFileName);
-				if (output.is_open()) {
-					output << textToSave;
-					output.close();
-				} else {
-					isErrorOpen = true;
-					userError = SAVE_FAILED;
-				}
+				std::string textToSave = editor.GetText();
+				SaveQuakeCFile(textToSave);
 			}
 			ImGui::EndMenu();
 		}
@@ -423,14 +423,14 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 
 			if (directoryEntry.is_directory()) {
 
-				icon = UI::directoryIcon;
+				icon = directoryIcon;
 			} else {
 				if (directoryEntry.path().extension() == ".mdl") {
-					icon = UI::modelIcon;
+					icon = modelIcon;
 				} else if (directoryEntry.path().extension() == ".tga") {
-					icon = UI::imageIcon;
+					icon = imageIcon;
 				} else {
-					icon = UI::fileIcon;
+					icon = fileIcon;
 				}
 			}
 
@@ -531,7 +531,7 @@ void DrawOpenProjectPopup() {
 	std::vector<std::filesystem::directory_entry> projectList;
 	if (isOpenProjectOpen) {
 		try {
-			for (auto &directoryEntry : std::filesystem::directory_iterator(UI::projectsDirectory)) {
+			for (auto &directoryEntry : std::filesystem::directory_iterator(projectsDirectory)) {
 				if (directoryEntry.is_directory())
 					projectList.push_back(directoryEntry);
 			}
@@ -582,7 +582,7 @@ void DrawOpenProjectPopup() {
 
 static bool CopyTemplate(const std::filesystem::path &source,
 						 const char *projectName) {
-	std::filesystem::path destination = UI::projectsDirectory / projectName;
+	std::filesystem::path destination = projectsDirectory / projectName;
 	try {
 		// Check if the source directory exists
 		if (!std::filesystem::exists(source) ||
@@ -646,14 +646,14 @@ void DrawNewProjectPopup() {
 				HelpMarker(
 					"Template for a bare minimum Quake project,\nideal for "
 					"original games");
-				if (ImGui::ImageButton((ImTextureID)(intptr_t)UI::newCard,
+				if (ImGui::ImageButton((ImTextureID)(intptr_t)newCard,
 									   ImVec2(128, 160))) {
 					projectType = 1;
 				}
 				ImGui::TableSetColumnIndex(1);
 				HelpMarker("Template for modding the full version of Quake,\n"
 						   "requires pak1.pak");
-				if (ImGui::ImageButton((ImTextureID)(intptr_t)UI::importCard,
+				if (ImGui::ImageButton((ImTextureID)(intptr_t)importCard,
 									   ImVec2(128, 160))) {
 					projectType = 2;
 				}
@@ -662,13 +662,13 @@ void DrawNewProjectPopup() {
 				ImGui::TableSetColumnIndex(0);
 				HelpMarker(
 					"Template for modding the shareware version of Quake");
-				if (ImGui::ImageButton((ImTextureID)(intptr_t)UI::sharewareCard,
+				if (ImGui::ImageButton((ImTextureID)(intptr_t)sharewareCard,
 									   ImVec2(128, 160))) {
 					projectType = 3;
 				}
 				ImGui::TableSetColumnIndex(1);
 				HelpMarker("Template for modding Libre Quake");
-				if (ImGui::ImageButton((ImTextureID)(intptr_t)UI::libreCard,
+				if (ImGui::ImageButton((ImTextureID)(intptr_t)libreCard,
 									   ImVec2(128, 160))) {
 					projectType = 4;
 				}
@@ -704,7 +704,7 @@ void DrawNewProjectPopup() {
 					break;
 				}
 				case 2: {
-					std::filesystem::path projectPath = UI::projectsDirectory / projectName;
+					std::filesystem::path projectPath = projectsDirectory / projectName;
 
 					// Create the destination directory if it does not exist
 					if (!std::filesystem::exists(projectPath)) {
@@ -765,7 +765,7 @@ void DrawNewProjectPopup() {
 					break;
 				}
 
-				baseDirectory = UI::projectsDirectory / projectName;
+				baseDirectory = projectsDirectory / projectName;
 				currentDirectory = baseDirectory;
 				currentQCFileName.clear();
 				currentModelName.clear();
@@ -815,7 +815,7 @@ void DrawLauncherPopup() {
 	if (!isLauncherOpen)
 		return;
 
-	if (UI::configFound()) {
+	if (configFound()) {
 		isLauncherOpen = false;
 		return;
 	}
@@ -824,7 +824,7 @@ void DrawLauncherPopup() {
 	isLauncherOpen = ImGui::BeginPopupModal("Welcome to QuakePrism", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
 	if (isLauncherOpen) {
-		ImGui::Image((ImTextureID)(intptr_t)UI::appIcon, {48, 48});
+		ImGui::Image((ImTextureID)(intptr_t)appIcon, {48, 48});
 		ImGui::SameLine();
 
 		ImGui::BeginGroup();
@@ -842,14 +842,41 @@ void DrawLauncherPopup() {
 
 		projectBrowser.Display();
 		if (projectBrowser.HasSelected()) {
-			UI::projectsDirectory = projectBrowser.GetSelected() / "projects";
+			projectsDirectory = projectBrowser.GetSelected() / "projects";
 			std::ofstream out("quakeprism.cfg");
-			out << UI::projectsDirectory.string();
+			out << projectsDirectory.string();
 			out.close();
 			// Create the projects directory if it does not exist
-			if (!std::filesystem::exists(UI::projectsDirectory)) {
-				std::filesystem::create_directory(UI::projectsDirectory);
+			if (!std::filesystem::exists(projectsDirectory)) {
+				std::filesystem::create_directory(projectsDirectory);
 			}
+
+			// Copy the correct executable into the projects directory
+		#ifdef _WIN32
+			for (const auto &entry :
+					 std::filesystem::recursive_directory_iterator(executingDirectory / "res/.templates/Windows")) {
+		#else
+			for (const auto &entry :
+					 std::filesystem::recursive_directory_iterator(executingDirectory / "res/.templates/Linux")) {
+		#endif
+				const auto &path = entry.path();
+			#ifdef _WIN32
+				auto relative_path = std::filesystem::relative(path, (executingDirectory / "res/.templates/Windows"));
+			#else
+				auto relative_path = std::filesystem::relative(path, (executingDirectory / "res/.templates/Linux"));
+			#endif
+				auto dest = projectsDirectory / relative_path;
+
+				if (std::filesystem::is_directory(path)) {
+					std::filesystem::create_directories(dest);
+				} else if (std::filesystem::is_regular_file(path) ||
+					   std::filesystem::is_symlink(path)) {
+					std::filesystem::copy(
+						path, dest,
+						std::filesystem::copy_options::overwrite_existing);
+				}
+		    }
+
 
 			isLauncherOpen = false;
 			ImGui::CloseCurrentPopup();
@@ -870,7 +897,7 @@ void DrawAboutPopup() {
 	isAboutOpen = ImGui::BeginPopupModal("About", nullptr,
 										 ImGuiWindowFlags_AlwaysAutoResize);
 	if (isAboutOpen) {
-		ImGui::Image((ImTextureID)(intptr_t)QuakePrism::UI::appIcon, {48, 48});
+		ImGui::Image((ImTextureID)(intptr_t)appIcon, {48, 48});
 
 		ImGui::SameLine();
 
@@ -896,7 +923,7 @@ void DrawErrorPopup() {
 	isErrorOpen = ImGui::BeginPopupModal("Error", nullptr,
 										 ImGuiWindowFlags_AlwaysAutoResize);
 	if (isErrorOpen) {
-		ImGui::Image((ImTextureID)(intptr_t)QuakePrism::UI::appIcon, {48, 48});
+		ImGui::Image((ImTextureID)(intptr_t)appIcon, {48, 48});
 
 		ImGui::SameLine();
 		switch (userError) {

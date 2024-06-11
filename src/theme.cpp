@@ -20,7 +20,7 @@ along with this program.
 #include "theme.h"
 #include "imgui.h"
 
-namespace QuakePrism::UI {
+namespace QuakePrism {
 
 void SetImguiTheme() {
 

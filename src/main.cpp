@@ -130,8 +130,8 @@ int main(int, char **) {
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 	}
 
-	QuakePrism::UI::SetImguiTheme();
-	QuakePrism::UI::loadIcons();
+	QuakePrism::SetImguiTheme();
+	QuakePrism::loadIcons();
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
 	ImGui_ImplOpenGL3_Init(glsl_version);
@@ -140,7 +140,7 @@ int main(int, char **) {
 	glewInit();
 
 	// Set font to the Ubuntu font
-	QuakePrism::UI::loadFonts();
+	QuakePrism::loadFonts();
 	// Our state
 	bool show_demo_window = true;
 	ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
@@ -185,7 +185,7 @@ int main(int, char **) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
-		ImGui::PushFont(QuakePrism::UI::ubuntuFont);
+		ImGui::PushFont(QuakePrism::ubuntuFont);
 		QuakePrism::DrawMenuBar();
 		ImGui::DockSpaceOverViewport();
 		// 1. Show the big demo window (Most of the sample code is in
@@ -198,11 +198,11 @@ int main(int, char **) {
 		QuakePrism::DrawTextureViewer();
 		ImGui::PopFont();
 
-		ImGui::PushFont(QuakePrism::UI::ubuntuMonoFont);
+		ImGui::PushFont(QuakePrism::ubuntuMonoFont);
 		QuakePrism::DrawTextEditor(editor);
 		ImGui::PopFont();
 
-		ImGui::PushFont(QuakePrism::UI::ubuntuFont);
+		ImGui::PushFont(QuakePrism::ubuntuFont);
 		QuakePrism::DrawFileExplorer(editor);
 
 		// Display all active popups
