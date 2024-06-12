@@ -81,6 +81,13 @@ void DrawMenuBar() {
 		}
 
 		if (ImGui::BeginMenu("Help")) {
+			if (ImGui::MenuItem("Documentation")) {
+			#ifdef _WIN32
+				ShellExecute(0, 0, L"https://github.com/BanceDev/QuakePrism/blob/main/docs/MANUAL.md", 0, 0, SW_SHOW);
+			#else
+				system("xdg-open https://github.com/BanceDev/QuakePrism/blob/main/docs/MANUAL.md");
+			#endif
+			}
 			if (ImGui::MenuItem("About")) {
 				isAboutOpen = true;
 			}
