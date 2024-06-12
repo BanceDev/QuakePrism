@@ -16,10 +16,10 @@ Quake Prism will not come packaged with tooling for 3D modeling see this [Quake 
 - [x] File Explorer
 - [x] QuakeC Editor
 - [x] QuakeC Project Templates
-- [ ] In depth docs
+- [ ] Project Template Docs
 - [ ] WAD Editor
 - [ ] QuakeC error/warning checking
-- [ ] spr and lmp support
+- [ ] SPR and LMP support
 
 ## Changing Source Port
 
