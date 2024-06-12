@@ -836,7 +836,7 @@ void DrawLauncherPopup() {
 			ImGuiFileBrowserFlags_SelectDirectory);
 		projectBrowser.SetTitle("Select Location For Projects Folder");
 
-		if (ButtonCentered("Choose Projects Directory")) {
+		if (ButtonCentered("Ok")) {
 			projectBrowser.Open();
 		}
 
