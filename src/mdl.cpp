@@ -22,6 +22,7 @@ along with this program.
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 /* Table of precalculated normals */
 vec3_t anorms_table[162] = {
@@ -133,6 +134,8 @@ namespace QuakePrism::MDL {
 // Init namespace variables from header
 float interpAmt = 1.0f;
 int currentFrame = 0;
+int currentSkin = 1;
+int totalSkins = 0;
 int totalFrames = 0;
 vec3_t modelAngles = {-90.0f, 0.0f, -90.0f};
 vec3_t modelPosition = {0.0f, 0.0f, -100.0f};
@@ -245,8 +248,13 @@ bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 	/* Write texture data */
 	for (int i = 0; i < mdl->header.num_skins; ++i) {
 		fwrite(&mdl->skins[i].group, sizeof(int), 1, fp);
-		fwrite(indices, sizeof(GLubyte),
-			   mdl->header.skinwidth * mdl->header.skinheight, fp);
+		if (i == (currentSkin - 1)) {
+			fwrite(indices, sizeof(GLubyte),
+				   mdl->header.skinwidth * mdl->header.skinheight, fp);
+		} else {
+			fwrite(mdl->skins[i].data, sizeof(GLubyte),
+				   mdl->header.skinwidth * mdl->header.skinheight, fp);
+		}
 	}
 	free(indices);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -282,7 +290,7 @@ bool ExportTextureToTGA(const char *textureName, struct mdl_model_t *mdl) {
 
 	// Convert indexed 8 bits texture to RGB 24 bits
 	for (int i = 0; i < width * height; ++i) {
-		int colorIndex = mdl->skins[0].data[i];
+		int colorIndex = mdl->skins[currentSkin - 1].data[i];
 		pixels[(i * 3) + 0] = colormap[colorIndex][2];
 		pixels[(i * 3) + 1] = colormap[colorIndex][1];
 		pixels[(i * 3) + 2] = colormap[colorIndex][0];
@@ -430,7 +438,7 @@ void SetTextureMode(const int mode, const struct mdl_model_t *mdl) {
 	switch (mode) {
 	case TEXTURED_MODE:
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glBindTexture(GL_TEXTURE_2D, mdl->tex_id[mdl->iskin]);
+		glBindTexture(GL_TEXTURE_2D, mdl->tex_id[currentSkin - 1]);
 		break;
 	case TEXTURELESS_MODE: {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -605,8 +613,12 @@ bool mdlTextureImport(std::filesystem::path texturePath,
 }
 
 bool mdlTextureExport(std::filesystem::path modelPath) {
-	modelPath.replace_extension(".tga");
+	modelPath.replace_extension("");
 	std::string tgaFilename = modelPath.string();
+	if (totalSkins > 1) {
+		tgaFilename += "_" + std::to_string(currentSkin);
+	}
+	tgaFilename += ".tga";
 	return ExportTextureToTGA(tgaFilename.c_str(), &mdlfile);
 }
 
@@ -639,6 +651,7 @@ void render(const std::filesystem::path modelPath, const int mode,
 		return;
 
 	totalFrames = mdlfile.header.num_frames;
+	totalSkins = mdlfile.header.num_skins;
 	// Initialize OpenGL context
 	glClearColor(0.184f, 0.184f, 0.184f, 1.0f);
 

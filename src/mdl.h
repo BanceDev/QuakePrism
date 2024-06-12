@@ -54,6 +54,8 @@ extern int totalFrames;
 extern vec3_t modelAngles;
 extern vec3_t modelPosition;
 extern GLfloat modelScale;
+extern int currentSkin;
+extern int totalSkins;
 
 GLuint MakeTextureFromSkin(int n, const bool filteringEnabled,
 						   const struct mdl_model_t *mdl);

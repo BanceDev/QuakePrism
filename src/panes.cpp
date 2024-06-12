@@ -77,10 +77,6 @@ void DrawMenuBar() {
 			if (ImGui::MenuItem("Run")) {
 				RunProject();
 			}
-			if (ImGui::MenuItem("Compile and Run")) {
-				CompileProject();
-				RunProject();
-			}
 			ImGui::EndMenu();
 		}
 
@@ -160,7 +156,6 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 		MDL::totalFrames == 0 ? 0.0f
 							  : MDL::currentFrame / (float)MDL::totalFrames;
 	ImGui::Begin("Model Tools", nullptr, ImGuiWindowFlags_NoMove);
-	ImGui::TextUnformatted(currentModelName.filename().string().c_str());
 	char buf[32];
 	sprintf(buf, "%d/%d", (int)(animProgress * MDL::totalFrames),
 			MDL::totalFrames);
@@ -210,6 +205,8 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 				 IM_ARRAYSIZE(textureModes));
 
 	ImGui::NextColumn();
+
+	ImGui::SliderInt("skin", &MDL::currentSkin, 1, MDL::totalSkins);
 
 	static bool lerpEnabled = true;
 	ImGui::Checkbox("Interpolation", &lerpEnabled);
@@ -458,6 +455,7 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 						if (input.good()) {
 							currentModelName = path;
 							MDL::currentFrame = 0;
+							MDL::currentSkin = 1;
 							MDL::modelAngles[0] = -90.0f;
 							MDL::modelAngles[1] = 0.0f;
 							MDL::modelAngles[2] = -90.0f;
