@@ -57,8 +57,11 @@ void mktree(const char *s) {
 		if (dir[i] == '/') {
 			dir[i] = '\0'; // this ends the string at this point and allows
 						   // creating the directory up to here
+#ifdef _WIN32
+			mkdir(dir);
+#else
 			mkdir(dir, 0700);
-
+#endif
 			dir[i] = '/'; // restore the / so we can can go on to create next
 						  // directory
 		}

@@ -20,7 +20,6 @@ along with this program.
 #include "resources.h"
 #include "util.h"
 #include <filesystem>
-#include <iostream>
 #include <fstream>
 #include <string>
 
@@ -46,7 +45,8 @@ GLuint sharewareCard;
 GLuint libreCard;
 
 // Config Files
-std::filesystem::path configFile = std::filesystem::current_path() / "quakeprism.cfg";
+std::filesystem::path configFile =
+	std::filesystem::current_path() / "quakeprism.cfg";
 std::filesystem::path projectsDirectory;
 
 // Essential Paths
@@ -61,37 +61,37 @@ void loadFonts() {
 	ImGuiIO &io = ImGui::GetIO();
 	(void)io;
 
-	ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 21.0f);
+	ubuntuFont = io.Fonts->AddFontFromFileTTF(".res/Ubuntu-M.ttf", 21.0f);
 	IM_ASSERT(ubuntuFont != nullptr);
 	ubuntuMonoFont = io.Fonts->AddFontFromFileTTF(
-		"res/UbuntuMonoNerdFontMono-Regular.ttf", 21.0f);
+		".res/UbuntuMonoNerdFontMono-Regular.ttf", 21.0f);
 	IM_ASSERT(ubuntuMonoFont != nullptr);
 }
 
 void loadIcons() {
-	QuakePrism::LoadTextureFromFile("res/FileIcon.png", &fileIcon, nullptr,
+	QuakePrism::LoadTextureFromFile(".res/FileIcon.png", &fileIcon, nullptr,
 									nullptr);
-	QuakePrism::LoadTextureFromFile("res/DirectoryIcon.png", &directoryIcon,
+	QuakePrism::LoadTextureFromFile(".res/DirectoryIcon.png", &directoryIcon,
 									nullptr, nullptr);
-	QuakePrism::LoadTextureFromFile("res/ModelIcon.png", &modelIcon, nullptr,
+	QuakePrism::LoadTextureFromFile(".res/ModelIcon.png", &modelIcon, nullptr,
 									nullptr);
-	QuakePrism::LoadTextureFromFile("res/ImageIcon.png", &imageIcon, nullptr,
+	QuakePrism::LoadTextureFromFile(".res/ImageIcon.png", &imageIcon, nullptr,
 									nullptr);
-	QuakePrism::LoadTextureFromFile("res/play.png", &playButton, nullptr,
+	QuakePrism::LoadTextureFromFile(".res/play.png", &playButton, nullptr,
 									nullptr);
-	QuakePrism::LoadTextureFromFile("res/forward.png", &forwardButton, nullptr,
+	QuakePrism::LoadTextureFromFile(".res/forward.png", &forwardButton, nullptr,
 									nullptr);
-	QuakePrism::LoadTextureFromFile("res/back.png", &backButton, nullptr,
+	QuakePrism::LoadTextureFromFile(".res/back.png", &backButton, nullptr,
 									nullptr);
-	QuakePrism::LoadTextureFromFile("res/prism_small.png", &appIcon, nullptr,
+	QuakePrism::LoadTextureFromFile(".res/prism_small.png", &appIcon, nullptr,
 									nullptr);
-	QuakePrism::LoadTextureFromFile("res/NewCard.png", &newCard, nullptr,
+	QuakePrism::LoadTextureFromFile(".res/NewCard.png", &newCard, nullptr,
 									nullptr);
-	QuakePrism::LoadTextureFromFile("res/ImportCard.png", &importCard, nullptr,
+	QuakePrism::LoadTextureFromFile(".res/ImportCard.png", &importCard, nullptr,
 									nullptr);
-	QuakePrism::LoadTextureFromFile("res/SharewareCard.png", &sharewareCard,
+	QuakePrism::LoadTextureFromFile(".res/SharewareCard.png", &sharewareCard,
 									nullptr, nullptr);
-	QuakePrism::LoadTextureFromFile("res/LibreCard.png", &libreCard, nullptr,
+	QuakePrism::LoadTextureFromFile(".res/LibreCard.png", &libreCard, nullptr,
 									nullptr);
 }
 
@@ -114,4 +114,4 @@ bool configFound() {
 	}
 	return false;
 }
-} // namespace QuakePrism::UI
+} // namespace QuakePrism

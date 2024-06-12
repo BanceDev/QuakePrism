@@ -19,8 +19,8 @@ along with this program.
 
 #pragma once
 #include "imgui.h"
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include <filesystem>
 
 namespace QuakePrism {
@@ -55,11 +55,10 @@ extern std::filesystem::path currentDirectory;
 extern std::filesystem::path baseDirectory;
 extern std::filesystem::path executingDirectory;
 
-
 void loadIcons();
 
 void loadFonts();
 
 bool configFound();
 
-} // namespace QuakePrism::UI
+} // namespace QuakePrism

@@ -17,7 +17,6 @@ along with this program.
 
 */
 
-#include "SDL_video.h"
 #include "TextEditor.h"
 #include "framebuffer.h"
 #include "imgui.h"
@@ -31,7 +30,7 @@ along with this program.
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <SDL_opengles2.h>
 #else
-#include <SDL_opengl.h>
+#include <SDL2/SDL_opengl.h>
 #endif
 
 // This example can also compile and run with Emscripten! See

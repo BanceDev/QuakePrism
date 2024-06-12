@@ -5,8 +5,7 @@ EXE := build/QuakePrism
 IMGUI_DIR := ./lib/imgui
 SRC_DIR := ./src
 BUILD_DIR := ./build
-PROJ_DIR := $(BUILD_DIR)/projects
-RES_DIR := $(BUILD_DIR)/res
+RES_DIR := $(BUILD_DIR)/.res
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
@@ -38,6 +37,16 @@ ifeq ($(OS), Windows_NT)
     CXXFLAGS += `pkg-config --cflags sdl2`
 endif
 
+# Cross-compilation settings for MinGW on Linux
+ifeq ($(UNAME_S), Linux)
+    ifeq ($(CROSS_COMPILE),1)
+        CXX := x86_64-w64-mingw32-g++
+        EXE := build/QuakePrism.exe
+        LIBS := -lmingw32 -lSDL2main -lSDL2 -lgdi32 -lopengl32 -limm32 -lglew32 -lglu32
+        CXXFLAGS := -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(SRC_DIR) -I/usr/x86_64-w64-mingw32/include -I/usr/x86_64-w64-mingw32/include/SDL2 -D_UNICODE -DUNICODE -g -Wall -Wformat
+    endif
+endif
+
 ## BUILD RULES
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
@@ -56,7 +65,6 @@ $(BUILD_DIR)/%.o: $(TGA_DIR)/%.cpp
 	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-
 all: $(EXE) copy_resources
 	@echo Build complete for $(ECHO_MESSAGE)
 
@@ -65,11 +73,12 @@ $(EXE): $(OBJS)
 
 copy_resources:
 	@echo "Copying resources directory..."
-	@cp -r $(SRC_DIR)/res $(BUILD_DIR)
+	@cp -r $(SRC_DIR)/.res $(BUILD_DIR)
+ifeq ($(CROSS_COMPILE),1)
+	@cp -a $(SRC_DIR)/.dlls/* $(BUILD_DIR)/
+endif
 	@cp -r imgui.ini $(BUILD_DIR)
-	@if [ ! -d $(PROJ_DIR) ]; then \
-		mkdir $(PROJ_DIR); \
-	fi
 
 clean:
 	rm -rf $(BUILD_DIR) $(EXE)
+

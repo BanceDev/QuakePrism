@@ -49,7 +49,6 @@ bool isOpenProjectOpen = false;
 bool isNewProjectOpen = false;
 bool isLauncherOpen = true;
 
-
 namespace QuakePrism {
 
 void DrawMenuBar() {
@@ -110,7 +109,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 									  ImGui::GetMainViewport()->Size);
 
 		auto dock_id_up = ImGui::DockBuilderSplitNode(
-		dockspace_id, ImGuiDir_Up, 0.7f, nullptr, &dockspace_id);
+			dockspace_id, ImGuiDir_Up, 0.7f, nullptr, &dockspace_id);
 		auto dock_id_down = ImGui::DockBuilderSplitNode(
 			dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
 		ImGui::DockBuilderDockWindow("Model View", dock_id_up);
@@ -170,21 +169,18 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	// Animation Control Buttons
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 	ImGui::PushButtonRepeat(true);
-	if (ImGui::ImageButton((ImTextureID)(intptr_t)backButton,
-						   {24, 24})) {
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)backButton, {24, 24})) {
 		if (paused && MDL::currentFrame > 0)
 			MDL::currentFrame--;
 	}
 	ImGui::PopButtonRepeat();
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-	if (ImGui::ImageButton((ImTextureID)(intptr_t)playButton,
-						   {24, 24})) {
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)playButton, {24, 24})) {
 		paused = !paused;
 	}
 	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 	ImGui::PushButtonRepeat(true);
-	if (ImGui::ImageButton((ImTextureID)(intptr_t)forwardButton,
-						   {24, 24})) {
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)forwardButton, {24, 24})) {
 		if (paused) {
 			if (MDL::currentFrame < MDL::totalFrames) {
 				MDL::currentFrame++;
@@ -286,8 +282,8 @@ void SaveQuakeCFile(std::string textToSave) {
 	if (end == std::string::npos) {
 		textToSave = ""; // All characters are whitespace or newlines
 	}
-	    textToSave =  textToSave.substr(0, end + 1);
-		std::ofstream output(currentQCFileName);
+	textToSave = textToSave.substr(0, end + 1);
+	std::ofstream output(currentQCFileName);
 	if (output.is_open()) {
 		output << textToSave;
 		output.close();
@@ -295,7 +291,6 @@ void SaveQuakeCFile(std::string textToSave) {
 		isErrorOpen = true;
 		userError = SAVE_FAILED;
 	}
-
 }
 
 void DrawTextEditor(TextEditor &editor) {
@@ -531,7 +526,8 @@ void DrawOpenProjectPopup() {
 	std::vector<std::filesystem::directory_entry> projectList;
 	if (isOpenProjectOpen) {
 		try {
-			for (auto &directoryEntry : std::filesystem::directory_iterator(projectsDirectory)) {
+			for (auto &directoryEntry :
+				 std::filesystem::directory_iterator(projectsDirectory)) {
 				if (directoryEntry.is_directory())
 					projectList.push_back(directoryEntry);
 			}
@@ -696,7 +692,7 @@ void DrawNewProjectPopup() {
 				switch (projectType) {
 				case 1: {
 					std::filesystem::path blankDir =
-						executingDirectory / "res/.templates/Blank";
+						executingDirectory / ".res/templates/Blank";
 					if (!CopyTemplate(blankDir, projectName)) {
 						userError = MISSING_PROJECTS;
 						isErrorOpen = true;
@@ -704,7 +700,8 @@ void DrawNewProjectPopup() {
 					break;
 				}
 				case 2: {
-					std::filesystem::path projectPath = projectsDirectory / projectName;
+					std::filesystem::path projectPath =
+						projectsDirectory / projectName;
 
 					// Create the destination directory if it does not exist
 					if (!std::filesystem::exists(projectPath)) {
@@ -727,14 +724,14 @@ void DrawNewProjectPopup() {
 					srcDir += "/src";
 					if (codebaseType == 0) {
 						std::filesystem::path quakeCodebase =
-							executingDirectory / "res/.templates/Shareware/src";
+							executingDirectory / ".res/templates/Shareware/src";
 						if (!CopyTemplate(quakeCodebase, srcDir.c_str())) {
 							userError = MISSING_PROJECTS;
 							isErrorOpen = true;
 						}
 					} else {
 						std::filesystem::path blankCodebase =
-							executingDirectory / "res/.templates/Blank/src";
+							executingDirectory / ".res/templates/Blank/src";
 						if (!CopyTemplate(blankCodebase, srcDir.c_str())) {
 							userError = MISSING_PROJECTS;
 							isErrorOpen = true;
@@ -745,7 +742,7 @@ void DrawNewProjectPopup() {
 				}
 				case 3: {
 					std::filesystem::path sharewareDir =
-						executingDirectory / "res/.templates/Shareware";
+						executingDirectory / ".res/templates/Shareware";
 					if (!CopyTemplate(sharewareDir, projectName)) {
 						userError = MISSING_PROJECTS;
 						isErrorOpen = true;
@@ -754,7 +751,7 @@ void DrawNewProjectPopup() {
 				}
 				case 4: {
 					std::filesystem::path libreQuakeDir =
-						executingDirectory / "res/.templates/LibreQuake";
+						executingDirectory / ".res/templates/LibreQuake";
 					if (!CopyTemplate(libreQuakeDir, projectName)) {
 						userError = MISSING_PROJECTS;
 						isErrorOpen = true;
@@ -796,7 +793,7 @@ void DrawNewProjectPopup() {
 				ImGui::Dummy(ImVec2(1, 20));
 				ImGui::TextUnformatted("Loaded pak files:");
 				for (const auto &pak : paks) {
-					ImGui::TextUnformatted(pak.filename().c_str());
+					ImGui::TextUnformatted(pak.filename().string().c_str());
 				}
 			}
 
@@ -821,7 +818,8 @@ void DrawLauncherPopup() {
 	}
 
 	ImGui::OpenPopup("Welcome to QuakePrism");
-	isLauncherOpen = ImGui::BeginPopupModal("Welcome to QuakePrism", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	isLauncherOpen = ImGui::BeginPopupModal("Welcome to QuakePrism", nullptr,
+											ImGuiWindowFlags_AlwaysAutoResize);
 
 	if (isLauncherOpen) {
 		ImGui::Image((ImTextureID)(intptr_t)appIcon, {48, 48});
@@ -831,9 +829,11 @@ void DrawLauncherPopup() {
 		ImGui::SetWindowFontScale(1.2f);
 		ImGui::Text("Welcome to QuakePrism");
 		ImGui::SetWindowFontScale(1.0f);
-		ImGui::Text("To get started choose a location\n for the projects directory");
+		ImGui::Text(
+			"To get started choose a location\n for the projects directory");
 		ImGui::EndGroup();
-		static ImGui::FileBrowser projectBrowser(ImGuiFileBrowserFlags_SelectDirectory);
+		static ImGui::FileBrowser projectBrowser(
+			ImGuiFileBrowserFlags_SelectDirectory);
 		projectBrowser.SetTitle("Select Location For Projects Folder");
 
 		if (ButtonCentered("Choose Projects Directory")) {
@@ -852,40 +852,41 @@ void DrawLauncherPopup() {
 			}
 
 			// Copy the correct executable into the projects directory
-		#ifdef _WIN32
+#ifdef _WIN32
 			for (const auto &entry :
-					 std::filesystem::recursive_directory_iterator(executingDirectory / "res/.templates/Windows")) {
-		#else
+				 std::filesystem::recursive_directory_iterator(
+					 executingDirectory / ".res/templates/Windows")) {
+#else
 			for (const auto &entry :
-					 std::filesystem::recursive_directory_iterator(executingDirectory / "res/.templates/Linux")) {
-		#endif
+				 std::filesystem::recursive_directory_iterator(
+					 executingDirectory / ".res/templates/Linux")) {
+#endif
 				const auto &path = entry.path();
-			#ifdef _WIN32
-				auto relative_path = std::filesystem::relative(path, (executingDirectory / "res/.templates/Windows"));
-			#else
-				auto relative_path = std::filesystem::relative(path, (executingDirectory / "res/.templates/Linux"));
-			#endif
+#ifdef _WIN32
+				auto relative_path = std::filesystem::relative(
+					path, (executingDirectory / ".res/templates/Windows"));
+#else
+				auto relative_path = std::filesystem::relative(
+					path, (executingDirectory / ".res/templates/Linux"));
+#endif
 				auto dest = projectsDirectory / relative_path;
 
 				if (std::filesystem::is_directory(path)) {
 					std::filesystem::create_directories(dest);
 				} else if (std::filesystem::is_regular_file(path) ||
-					   std::filesystem::is_symlink(path)) {
+						   std::filesystem::is_symlink(path)) {
 					std::filesystem::copy(
 						path, dest,
 						std::filesystem::copy_options::overwrite_existing);
 				}
-		    }
-
+			}
 
 			isLauncherOpen = false;
 			ImGui::CloseCurrentPopup();
-
 		}
 
 		ImGui::EndPopup();
 	}
-
 }
 
 void DrawAboutPopup() {
