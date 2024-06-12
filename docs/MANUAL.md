@@ -65,7 +65,7 @@ In order to access some of the functionality of the Quake Prism editor the menu 
 insert screenshot here of menu bar
 ```
 
-The File menu has options for [New Project](###new-project) and [Open Project](###open-project). These function the same as the buttons presented upon startup. There is also a **Containing Folder** option which opens the current project directory in your system default file explorer to give quick acess to the directory for use with other programs. Lastly, there is an **Exit** option which is an alternate way to close the application.
+The File menu has options for [New Project](###new-project) and [Open Project](###open-project). These function the same as the buttons presented upon startup. There is also a **Containing Folder** option which opens the current project directory in your system default file explorer to give quick access to the directory for use with other programs. Lastly, there is an **Exit** option which is an alternate way to close the application.
 
 The Run menu has two options within it. The first option is **Compile**. This option launches fteqcc as a background process and compiles the code in the src directory of your mod. If your mod does not contain a src folder with the fteqcc command line interface executable you will be unable to utilize this feature. The second option is **Run**. This option launches the Quake engine executable in the root of your Quake Prism projects folder with the selected game being the project currently loaded in the editor. By default the Qauke engine source port used is vkQuake but can be changed by bringing in a new executable named quake.AppImage for Linux and quake.exe for Windows.
 
@@ -85,9 +85,11 @@ insert screenshot here of model viewer
 
 The model viewer is split into two panes. The top pane is the Model View pane which displays the model and accepts input for manipulation the model's position, rotation, and scale. Use the left mouse button to rotate the model, the right mouse button to move the model, and the scroll wheel to scale the model.
 
-The Model Tools pane contains a suite of options to further manipulate the model view. In the left column (top-to-bottom) there is an animation slider that displays the progress of the animation. There is also a pause/play toggle along with buttons to manually move forward and backward through the animation when it is paused. The render scale option allows you to set the render scale of the model between 1/8, 1/4, 1/2, and 1. Texture mode allows you to choose between Textured, Untextured, or Wireframe to get different views of your model. In the right column (top-to-bottom) there is a skin
+The Model Tools pane contains a suite of options to further manipulate the model view. In the left column (top-to-bottom) there is an animation slider that displays the progress of the animation. There is also a pause/play toggle along with buttons to manually move forward and backward through the animation when it is paused. The render scale option allows you to set the render scale of the model between 1/8, 1/4, 1/2, and 1. Texture mode allows you to choose between Textured, Untextured, or Wireframe to get different views of your model. In the right column (top-to-bottom) there is a skin selection slider to change the active skin for the current model. The next two options are toggles for animation interpolation and texture filtering view settings. The Export Texture button exports the current skin as a tga file to the progs directory. The Import Texture button will open a file prompt and then upon selecting a tga file it will be imported to the currently selected skin.
 
 ### Texture Viewer
+
+The texture viewer is a simple pane that just renders any of the tga files that you may select in the file tree.
 
 ## Templates
 
