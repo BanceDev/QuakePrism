@@ -12,7 +12,7 @@ Quake Prism will not come packaged with tooling for 3D modeling see this [Quake 
 ## Features
 - [x] Model Viewer
 - [x] Texture Viewer
-- [x] PAK Import/Export
+- [x] PAK Import
 - [x] File Explorer
 - [x] QuakeC Editor
 - [x] QuakeC Project Templates
