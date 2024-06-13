@@ -585,6 +585,39 @@ void DrawFileExplorer(TextEditor &editor) {
 	ImGui::End();
 }
 
+void DrawPalletteTool() {
+	static float colors[256][3];
+	static bool loaded = false;
+	if (!loaded) {
+		for (int i = 0; i < 256; ++i) {
+			colors[i][0] = MDL::colormap[i][0] / (float)256;
+			colors[i][1] = MDL::colormap[i][1] / (float)256;
+			colors[i][2] = MDL::colormap[i][2] / (float)256;
+		}
+		loaded = true;
+	}
+	ImGui::Begin("Pallette Editor");
+	if (ImGui::Button("Export Palette")) {
+		// write code to make palette.lmp here
+		for (int i = 0; i < 256; ++i) {
+			MDL::colormap[i][0] = colors[i][0] * 256;
+			MDL::colormap[i][1] = colors[i][1] * 256;
+			MDL::colormap[i][2] = colors[i][2] * 256;
+		}
+	}
+	for (int i = 0; i < 256; ++i) {
+		ImGui::PushID(i);
+		ImGui::ColorEdit3("##coloredit", colors[i],
+						  ImGuiColorEditFlags_NoInputs |
+							  ImGuiColorEditFlags_NoLabel);
+		ImGui::PopID();
+		if ((i + 1) % 16 != 0)
+			ImGui::SameLine();
+	}
+
+	ImGui::End();
+}
+
 void DrawOpenProjectPopup() {
 	if (!isOpenProjectOpen)
 		return;

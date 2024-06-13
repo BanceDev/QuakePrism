@@ -195,6 +195,7 @@ int main(int, char **) {
 
 		QuakePrism::DrawModelViewer(texture_id, RBO, FBO);
 		QuakePrism::DrawTextureViewer();
+		QuakePrism::DrawPalletteTool();
 		ImGui::PopFont();
 
 		ImGui::PushFont(QuakePrism::ubuntuMonoFont);

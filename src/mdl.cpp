@@ -29,11 +29,6 @@ vec3_t anorms_table[162] = {
 #include "anorms.h"
 };
 
-/* Palette */
-unsigned char colormap[256][3] = {
-#include "colormap.h"
-};
-
 /* MDL header */
 struct mdl_header_t {
 	int ident;	 /* magic number: "IDPO" */
@@ -131,6 +126,11 @@ struct tga_header_t {
 mdl_model_t mdlfile;
 
 namespace QuakePrism::MDL {
+/* Palette */
+unsigned char colormap[256][3] = {
+#include "colormap.h"
+};
+
 // Init namespace variables from header
 float interpAmt = 1.0f;
 int currentFrame = 0;
