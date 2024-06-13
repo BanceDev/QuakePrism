@@ -65,17 +65,19 @@ In order to access some of the functionality of the Quake Prism editor the menu 
 insert screenshot here of menu bar
 ```
 
-The File menu has options for [New Project](###new-project) and [Open Project](###open-project). These function the same as the buttons presented upon startup. There is also a **Containing Folder** option which opens the current project directory in your system default file explorer to give quick access to the directory for use with other programs. Lastly, there is an **Exit** option which is an alternate way to close the application.
+The File menu has options for creating a new project or creating a new file/folder in the src directory. Due to the Quake engine having a pre-defined folder structure, Quake Prism is only focused on aiding with the creation of new source files. Additionally there is an **Open** button for opening a different project. This functions the same as the buttons presented upon startup. There is also a **Containing Folder** option which opens the current project directory in your system default file explorer to give quick access to the directory for use with other programs. Lastly, there is an **Exit** option which is an alternate way to close the application.
 
 The Run menu has two options within it. The first option is **Compile**. This option launches fteqcc as a background process and compiles the code in the src directory of your mod. If your mod does not contain a src folder with the fteqcc command line interface executable you will be unable to utilize this feature. The second option is **Run**. This option launches the Quake engine executable in the root of your Quake Prism projects folder with the selected game being the project currently loaded in the editor. By default the Qauke engine source port used is vkQuake but can be changed by bringing in a new executable named quake.AppImage for Linux and quake.exe for Windows.
 
-The Help menu has two options as well. The **About** option presents a popup with a short blurb about the Quake Prism project. The **Manual** option will open a link to this manual in your default web browser.
+The Help menu has two options as well. The **About** option presents a popup with a short blurb about the Quake Prism project. The **Documentation** option will open a link to this manual in your default web browser.
 
 ### QuakeC Editor
 
 ```
-insert screenshot here of Quake C editor
+insert screenshot here of QuakeC editor
 ```
+
+The QuakeC editor is a simple text editor that will open .qc/.src/.cfg/.rc files from your project for editing. It's primarily focused on support for the QuakeC language however. There is a menu bar with most standard file editing utilities along with the ability to change the theme of the editor between dark, light, and retro modes. The editor also comes fully featured with syntax highlighting for QuakeC as well as embedded warning and error checking using fteqcc in the background. This process will automatically compile and analyze your code after the program detects the user is no longer presently typing in the file. Due to the limitations of fteqcc and the way that QuakeC compiles this process will need to save your files before each compile. You will still have acess to undo of course if you want to reverse changes.
 
 ### Model Viewer
 
