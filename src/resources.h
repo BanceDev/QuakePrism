@@ -28,6 +28,9 @@ namespace QuakePrism {
 extern ImFont *ubuntuMonoFont;
 extern ImFont *ubuntuFont;
 
+// Colormap
+extern unsigned char colormap[256][3];
+
 // Image Assets
 extern GLuint fileIcon;
 extern GLuint directoryIcon;
@@ -50,13 +53,14 @@ extern std::filesystem::path projectsDirectory;
 extern std::filesystem::path currentQCFileName;
 extern std::filesystem::path currentModelName;
 extern std::filesystem::path currentTextureName;
-extern std::filesystem::path currentDirectory;
 extern std::filesystem::path baseDirectory;
 extern std::filesystem::path executingDirectory;
 
 void loadIcons();
 
 void loadFonts();
+
+void loadColormap();
 
 bool configFound();
 

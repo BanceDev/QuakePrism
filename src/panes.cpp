@@ -52,6 +52,7 @@ bool isErrorOpen = false;
 bool isOpenProjectOpen = false;
 bool isNewProjectOpen = false;
 bool isLauncherOpen = true;
+bool palLoaded = false;
 
 namespace QuakePrism {
 
@@ -114,6 +115,10 @@ void DrawMenuBar() {
 				CompileProject();
 			}
 			if (ImGui::MenuItem("Run")) {
+				RunProject();
+			}
+			if (ImGui::MenuItem("Compile and Run")) {
+				CompileProject();
 				RunProject();
 			}
 			ImGui::EndMenu();
@@ -587,23 +592,37 @@ void DrawFileExplorer(TextEditor &editor) {
 
 void DrawPalletteTool() {
 	static float colors[256][3];
-	static bool loaded = false;
-	if (!loaded) {
+	if (!palLoaded) {
 		for (int i = 0; i < 256; ++i) {
-			colors[i][0] = MDL::colormap[i][0] / (float)256;
-			colors[i][1] = MDL::colormap[i][1] / (float)256;
-			colors[i][2] = MDL::colormap[i][2] / (float)256;
+			for (int j = 0; j < 3; ++j) {
+				colors[i][j] = colormap[i][j] / (float)256;
+			}
 		}
-		loaded = true;
+		palLoaded = true;
 	}
 	ImGui::Begin("Pallette Editor");
 	if (ImGui::Button("Export Palette")) {
-		// write code to make palette.lmp here
+		// first expor the colors from the widgets to the colormap
 		for (int i = 0; i < 256; ++i) {
-			MDL::colormap[i][0] = colors[i][0] * 256;
-			MDL::colormap[i][1] = colors[i][1] * 256;
-			MDL::colormap[i][2] = colors[i][2] * 256;
+			for (int j = 0; j < 3; ++j) {
+				colormap[i][j] = colors[i][j] * 256;
+			}
 		}
+
+		// then write the palette to the lmp file
+		FILE *fp;
+
+		fp = fopen((baseDirectory / "gfx/palette.lmp").string().c_str(), "wb");
+		if (!fp) {
+			return;
+		}
+
+		for (int i = 0; i < 256; ++i) {
+			for (int j = 0; j < 3; ++j) {
+				fwrite(&colormap[i][j], 1, sizeof(unsigned char), fp);
+			}
+		}
+		fclose(fp);
 	}
 	for (int i = 0; i < 256; ++i) {
 		ImGui::PushID(i);
@@ -666,8 +685,10 @@ void DrawOpenProjectPopup() {
 				currentQCFileName.clear();
 				currentModelName.clear();
 				currentTextureName.clear();
+				loadColormap();
+				palLoaded = false;
 			} catch (const std::out_of_range) {
-				// Go to new project Menu
+				isNewProjectOpen = true;
 			}
 			isOpenProjectOpen = false;
 			ImGui::CloseCurrentPopup();

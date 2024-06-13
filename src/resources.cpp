@@ -19,6 +19,7 @@ along with this program.
 
 #include "resources.h"
 #include "util.h"
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <string>
@@ -28,6 +29,11 @@ namespace QuakePrism {
 // Fonts
 ImFont *ubuntuFont;
 ImFont *ubuntuMonoFont;
+
+// Colormap
+unsigned char colormap[256][3] = {
+#include "colormap.h"
+};
 
 // Images
 GLuint fileIcon;
@@ -52,7 +58,6 @@ std::filesystem::path projectsDirectory;
 std::filesystem::path currentQCFileName;
 std::filesystem::path currentModelName;
 std::filesystem::path currentTextureName;
-std::filesystem::path currentDirectory;
 std::filesystem::path baseDirectory;
 std::filesystem::path executingDirectory = std::filesystem::current_path();
 
@@ -68,28 +73,35 @@ void loadFonts() {
 }
 
 void loadIcons() {
-	QuakePrism::LoadTextureFromFile(".res/FileIcon.png", &fileIcon, nullptr,
-									nullptr);
-	QuakePrism::LoadTextureFromFile(".res/DirectoryIcon.png", &directoryIcon,
-									nullptr, nullptr);
-	QuakePrism::LoadTextureFromFile(".res/ModelIcon.png", &modelIcon, nullptr,
-									nullptr);
-	QuakePrism::LoadTextureFromFile(".res/ImageIcon.png", &imageIcon, nullptr,
-									nullptr);
-	QuakePrism::LoadTextureFromFile(".res/play.png", &playButton, nullptr,
-									nullptr);
-	QuakePrism::LoadTextureFromFile(".res/forward.png", &forwardButton, nullptr,
-									nullptr);
-	QuakePrism::LoadTextureFromFile(".res/back.png", &backButton, nullptr,
-									nullptr);
-	QuakePrism::LoadTextureFromFile(".res/prism_small.png", &appIcon, nullptr,
-									nullptr);
-	QuakePrism::LoadTextureFromFile(".res/NewCard.png", &newCard, nullptr,
-									nullptr);
-	QuakePrism::LoadTextureFromFile(".res/ImportCard.png", &importCard, nullptr,
-									nullptr);
-	QuakePrism::LoadTextureFromFile(".res/LibreCard.png", &libreCard, nullptr,
-									nullptr);
+	LoadTextureFromFile(".res/FileIcon.png", &fileIcon, nullptr, nullptr);
+	LoadTextureFromFile(".res/DirectoryIcon.png", &directoryIcon, nullptr,
+						nullptr);
+	LoadTextureFromFile(".res/ModelIcon.png", &modelIcon, nullptr, nullptr);
+	LoadTextureFromFile(".res/ImageIcon.png", &imageIcon, nullptr, nullptr);
+	LoadTextureFromFile(".res/play.png", &playButton, nullptr, nullptr);
+	LoadTextureFromFile(".res/forward.png", &forwardButton, nullptr, nullptr);
+	LoadTextureFromFile(".res/back.png", &backButton, nullptr, nullptr);
+	LoadTextureFromFile(".res/prism_small.png", &appIcon, nullptr, nullptr);
+	LoadTextureFromFile(".res/NewCard.png", &newCard, nullptr, nullptr);
+	LoadTextureFromFile(".res/ImportCard.png", &importCard, nullptr, nullptr);
+	LoadTextureFromFile(".res/LibreCard.png", &libreCard, nullptr, nullptr);
+}
+
+void loadColormap() {
+	FILE *fp;
+
+	fp = fopen((baseDirectory / "gfx/palette.lmp").string().c_str(), "rb");
+	if (!fp) {
+		return;
+	}
+
+	for (int i = 0; i < 256; ++i) {
+		for (int j = 0; j < 3; ++j) {
+			fread(&colormap[i][j], 1, sizeof(unsigned char), fp);
+		}
+	}
+
+	fclose(fp);
 }
 
 bool configFound() {

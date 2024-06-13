@@ -18,6 +18,7 @@ along with this program.
 */
 
 #include "mdl.h"
+#include "resources.h"
 #include "util.h"
 #include <cstdio>
 #include <fstream>
@@ -126,11 +127,6 @@ struct tga_header_t {
 mdl_model_t mdlfile;
 
 namespace QuakePrism::MDL {
-/* Palette */
-unsigned char colormap[256][3] = {
-#include "colormap.h"
-};
-
 // Init namespace variables from header
 float interpAmt = 1.0f;
 int currentFrame = 0;

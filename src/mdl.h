@@ -46,8 +46,6 @@ struct tga_header_t;
 
 namespace QuakePrism::MDL {
 
-extern unsigned char colormap[256][3];
-
 enum { TEXTURED_MODE, TEXTURELESS_MODE, WIREFRAME_MODE };
 
 extern float interpAmt;
