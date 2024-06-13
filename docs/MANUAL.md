@@ -43,7 +43,7 @@ Upon pressing the open project button you will be presented with a popup that sh
 insert screenshot here of new project popup
 ```
 
-Upon pressing the new project button you will be presented with a popup that allows for you to select one of four project templates. The currently selected template can be seen above the text prompt for the new project name. In order to make a new project select the desired template by clicking on it, name your project using the prompt, and then select the make project button.
+Upon pressing the new project button you will be presented with a popup that allows for you to select one of three project templates. The currently selected template can be seen above the text prompt for the new project name. In order to make a new project select the desired template by clicking on it, name your project using the prompt, and then select the make project button.
 
 If you choose the Import PAK option then you will additionally need to import any number of Quake PAK files and then select a codebase between either the Quake Prism blank template or the id1 template from the original Quake game.
 
@@ -95,4 +95,4 @@ The texture viewer is a simple pane that just renders any of the tga files that 
 
 ## Templates
 
-As mentioned in the [Getting Started](#getting-started) section there are four project templates presently included with Quake Prism. 
+As mentioned in the [Getting Started](#getting-started) section there are three project templates presently included with Quake Prism. 
