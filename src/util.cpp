@@ -189,18 +189,17 @@ bool RunProject() {
 }
 
 void CreateFile(const char *filename) {
-	if(!std::filesystem::exists(baseDirectory/"src"/filename)) {
-		chdir((baseDirectory/"src").string().c_str());
+	if (!std::filesystem::exists(baseDirectory / "src" / filename)) {
+		chdir((baseDirectory / "src").string().c_str());
 		std::string s = filename;
 		s += ".qc";
-		std::ofstream { s };
+		std::ofstream{s};
 	}
-		
 }
 
 void CreateFolder(const char *dirname) {
-	if (!std::filesystem::exists(baseDirectory/"src"/dirname))
-		std::filesystem::create_directory(baseDirectory/"src"/dirname);
+	if (!std::filesystem::exists(baseDirectory / "src" / dirname))
+		std::filesystem::create_directory(baseDirectory / "src" / dirname);
 }
 
 } // namespace QuakePrism
