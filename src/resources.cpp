@@ -41,7 +41,6 @@ GLuint appIcon;
 
 GLuint newCard;
 GLuint importCard;
-GLuint sharewareCard;
 GLuint libreCard;
 
 // Config Files
@@ -89,8 +88,6 @@ void loadIcons() {
 									nullptr);
 	QuakePrism::LoadTextureFromFile(".res/ImportCard.png", &importCard, nullptr,
 									nullptr);
-	QuakePrism::LoadTextureFromFile(".res/SharewareCard.png", &sharewareCard,
-									nullptr, nullptr);
 	QuakePrism::LoadTextureFromFile(".res/LibreCard.png", &libreCard, nullptr,
 									nullptr);
 }

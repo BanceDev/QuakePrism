@@ -40,7 +40,6 @@ extern GLuint appIcon;
 
 extern GLuint newCard;
 extern GLuint importCard;
-extern GLuint sharewareCard;
 extern GLuint libreCard;
 
 // Config Assets

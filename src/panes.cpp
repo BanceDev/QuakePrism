@@ -423,69 +423,78 @@ bool AlphabeticalComparator(const std::filesystem::directory_entry &a,
 	return a.path().filename().string() < b.path().filename().string();
 }
 
-void DrawFileTree(const std::filesystem::path &currentPath, TextEditor &editor) {
-    if (!currentPath.empty()) {
-        std::vector<std::filesystem::directory_entry> directoryEntries;
+void DrawFileTree(const std::filesystem::path &currentPath,
+				  TextEditor &editor) {
+	if (!currentPath.empty()) {
+		std::vector<std::filesystem::directory_entry> directoryEntries;
 
-        // Collect all entries (both directories and files) in the current path
-        for (auto &directoryEntry : std::filesystem::directory_iterator(currentPath)) {
-            directoryEntries.push_back(directoryEntry);
-        }
+		// Collect all entries (both directories and files) in the current path
+		for (auto &directoryEntry :
+			 std::filesystem::directory_iterator(currentPath)) {
+			directoryEntries.push_back(directoryEntry);
+		}
 
-        // Sort entries alphabetically
-        std::sort(directoryEntries.begin(), directoryEntries.end(), AlphabeticalComparator);
+		// Sort entries alphabetically
+		std::sort(directoryEntries.begin(), directoryEntries.end(),
+				  AlphabeticalComparator);
 
-        // Separate directories and files
-        std::vector<std::filesystem::directory_entry> directories;
-        std::vector<std::filesystem::directory_entry> files;
+		// Separate directories and files
+		std::vector<std::filesystem::directory_entry> directories;
+		std::vector<std::filesystem::directory_entry> files;
 
-        for (const auto &entry : directoryEntries) {
-            if (entry.is_directory()) {
-                directories.push_back(entry);
-            } else {
-                files.push_back(entry);
-            }
-        }
+		for (const auto &entry : directoryEntries) {
+			if (entry.is_directory()) {
+				directories.push_back(entry);
+			} else {
+				files.push_back(entry);
+			}
+		}
 
-        // Merge directories and files back into the entryList
-        directoryEntries.clear();
-        directoryEntries.insert(directoryEntries.end(), directories.begin(), directories.end());
-        directoryEntries.insert(directoryEntries.end(), files.begin(), files.end());
+		// Merge directories and files back into the entryList
+		directoryEntries.clear();
+		directoryEntries.insert(directoryEntries.end(), directories.begin(),
+								directories.end());
+		directoryEntries.insert(directoryEntries.end(), files.begin(),
+								files.end());
 
-        for (auto &directoryEntry : directoryEntries) {
-            const auto &path = directoryEntry.path();
-            std::string filenameString = path.filename().string();
+		for (auto &directoryEntry : directoryEntries) {
+			const auto &path = directoryEntry.path();
+			std::string filenameString = path.filename().string();
 
-            ImGui::PushID(filenameString.c_str());
-            GLuint icon;
+			ImGui::PushID(filenameString.c_str());
+			GLuint icon;
 
-            if (directoryEntry.is_directory()) {
-                icon = directoryIcon;
-            } else {
-                if (directoryEntry.path().extension() == ".mdl") {
-                    icon = modelIcon;
-                } else if (directoryEntry.path().extension() == ".tga") {
-                    icon = imageIcon;
-                } else {
-                    icon = fileIcon;
-                }
-            }
+			if (directoryEntry.is_directory()) {
+				icon = directoryIcon;
+			} else {
+				if (directoryEntry.path().extension() == ".mdl") {
+					icon = modelIcon;
+				} else if (directoryEntry.path().extension() == ".tga") {
+					icon = imageIcon;
+				} else {
+					icon = fileIcon;
+				}
+			}
 
-            bool node_open = QuakePrism::ImageTreeNode(filenameString.c_str(), icon);
+			bool node_open =
+				QuakePrism::ImageTreeNode(filenameString.c_str(), icon);
 
-            if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
-                ImGui::OpenPopup("ContextMenu");
-            }
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
+				ImGui::OpenPopup("ContextMenu");
+			}
 
-            if (ImGui::BeginPopup("ContextMenu")) {
-                if (ImGui::BeginMenu("Rename")) {
+			if (ImGui::BeginPopup("ContextMenu")) {
+				if (ImGui::BeginMenu("Rename")) {
 					static char rename[32] = "";
 					ImGui::InputText("##rename", rename, IM_ARRAYSIZE(rename));
 					if (ImGui::IsKeyPressed(ImGuiKey_Enter)) {
 						// Extract the original file extension
-						std::string originalExtension = path.extension().string();
+						std::string originalExtension =
+							path.extension().string();
 						// Append the original file extension to the new name
-						std::filesystem::path newPath = path.parent_path() / (std::string(rename) + originalExtension);
+						std::filesystem::path newPath =
+							path.parent_path() /
+							(std::string(rename) + originalExtension);
 						// Perform rename operation
 						std::filesystem::rename(path, newPath);
 						// Clear rename input
@@ -494,68 +503,69 @@ void DrawFileTree(const std::filesystem::path &currentPath, TextEditor &editor) 
 					}
 					ImGui::EndMenu();
 				}
-                if (ImGui::MenuItem("Delete")) {
-                    std::filesystem::remove(path);
-                }
-                ImGui::EndPopup();
-            }
+				if (ImGui::MenuItem("Delete")) {
+					std::filesystem::remove(path);
+				}
+				ImGui::EndPopup();
+			}
 
-            if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-                // Handle file loading based on extension
-                if (path.extension() == ".qc" || path.extension() == ".src" || path.extension() == ".rc" || path.extension() == ".cfg") {
-                    std::ifstream input(path);
-                    if (input.good()) {
-                        currentQCFileName = path;
-                        std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-                        editor.SetText(str);
-                    } else {
-                        isErrorOpen = true;
-                        userError = LOAD_FAILED;
-                    }
-                    input.close();
-                    ImGui::SetWindowFocus("QuakeC Editor");
-                } else if (path.extension() == ".mdl") {
-                    std::ifstream input(path);
-                    if (input.good()) {
-                        currentModelName = path;
-                        MDL::currentFrame = 0;
-                        MDL::currentSkin = 1;
-                        MDL::modelAngles[0] = -90.0f;
-                        MDL::modelAngles[1] = 0.0f;
-                        MDL::modelAngles[2] = -90.0f;
-                        MDL::modelPosition[0] = 0.0f;
-                        MDL::modelPosition[1] = 0.0f;
-                        MDL::modelPosition[2] = -100.0f;
-                        MDL::modelScale = 1.0f;
-                    } else {
-                        isErrorOpen = true;
-                        userError = LOAD_FAILED;
-                    }
-                    ImGui::SetWindowFocus("Model Viewer");
-                } else if (path.extension() == ".tga") {
-                    std::ifstream input(path);
-                    if (input.good()) {
-                        currentTextureName = path;
-                    } else {
-                        isErrorOpen = true;
-                        userError = LOAD_FAILED;
-                    }
-                    ImGui::SetWindowFocus("Texture Viewer");
-                }
-            }
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+				// Handle file loading based on extension
+				if (path.extension() == ".qc" || path.extension() == ".src" ||
+					path.extension() == ".rc" || path.extension() == ".cfg") {
+					std::ifstream input(path);
+					if (input.good()) {
+						currentQCFileName = path;
+						std::string str((std::istreambuf_iterator<char>(input)),
+										std::istreambuf_iterator<char>());
+						editor.SetText(str);
+					} else {
+						isErrorOpen = true;
+						userError = LOAD_FAILED;
+					}
+					input.close();
+					ImGui::SetWindowFocus("QuakeC Editor");
+				} else if (path.extension() == ".mdl") {
+					std::ifstream input(path);
+					if (input.good()) {
+						currentModelName = path;
+						MDL::currentFrame = 0;
+						MDL::currentSkin = 1;
+						MDL::modelAngles[0] = -90.0f;
+						MDL::modelAngles[1] = 0.0f;
+						MDL::modelAngles[2] = -90.0f;
+						MDL::modelPosition[0] = 0.0f;
+						MDL::modelPosition[1] = 0.0f;
+						MDL::modelPosition[2] = -100.0f;
+						MDL::modelScale = 1.0f;
+					} else {
+						isErrorOpen = true;
+						userError = LOAD_FAILED;
+					}
+					ImGui::SetWindowFocus("Model Viewer");
+				} else if (path.extension() == ".tga") {
+					std::ifstream input(path);
+					if (input.good()) {
+						currentTextureName = path;
+					} else {
+						isErrorOpen = true;
+						userError = LOAD_FAILED;
+					}
+					ImGui::SetWindowFocus("Texture Viewer");
+				}
+			}
 
-            if (node_open) {
-                if (directoryEntry.is_directory()) {
-                    DrawFileTree(directoryEntry.path(), editor);
-                }
-                ImGui::TreePop();
-            }
+			if (node_open) {
+				if (directoryEntry.is_directory()) {
+					DrawFileTree(directoryEntry.path(), editor);
+				}
+				ImGui::TreePop();
+			}
 
-            ImGui::PopID();
-        }
-    }
+			ImGui::PopID();
+		}
+	}
 }
-
 
 void DrawFileExplorer(TextEditor &editor) {
 
@@ -679,6 +689,10 @@ void DrawNewProjectPopup() {
 	if (!isNewProjectOpen)
 		return;
 
+	// These variables only used by the second case
+	static std::vector<std::filesystem::path> paks;
+	static int codebaseType = 0;
+
 	ImGui::OpenPopup("New Project");
 	isNewProjectOpen = ImGui::BeginPopupModal(
 		"New Project", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
@@ -705,8 +719,8 @@ void DrawNewProjectPopup() {
 					projectType = 1;
 				}
 				ImGui::TableSetColumnIndex(1);
-				HelpMarker("Template for modding the full version of Quake,\n"
-						   "requires pak1.pak");
+				HelpMarker("Template for modding Quake or a Quake mod using\n"
+						   "pak files.");
 				if (ImGui::ImageButton((ImTextureID)(intptr_t)importCard,
 									   ImVec2(128, 160))) {
 					projectType = 2;
@@ -714,17 +728,10 @@ void DrawNewProjectPopup() {
 
 				ImGui::TableNextRow();
 				ImGui::TableSetColumnIndex(0);
-				HelpMarker(
-					"Template for modding the shareware version of Quake");
-				if (ImGui::ImageButton((ImTextureID)(intptr_t)sharewareCard,
-									   ImVec2(128, 160))) {
-					projectType = 3;
-				}
-				ImGui::TableSetColumnIndex(1);
 				HelpMarker("Template for modding Libre Quake");
 				if (ImGui::ImageButton((ImTextureID)(intptr_t)libreCard,
 									   ImVec2(128, 160))) {
-					projectType = 4;
+					projectType = 3;
 				}
 
 				ImGui::EndTable();
@@ -732,9 +739,8 @@ void DrawNewProjectPopup() {
 			ImGui::TableSetColumnIndex(1);
 			ImGui::TextUnformatted("Settings: ");
 			ImGui::SameLine();
-			const std::string projectTypeList[5] = {"None Selected",
-													"Blank Game", "Import PAK",
-													"Shareware", "LibreQuake"};
+			const std::string projectTypeList[4] = {
+				"None Selected", "Blank Game", "Import PAK", "LibreQuake"};
 			ImGui::TextUnformatted(projectTypeList[projectType].c_str());
 			ImGui::Dummy(ImVec2(1, 20));
 			static char projectName[32] = "";
@@ -743,9 +749,6 @@ void DrawNewProjectPopup() {
 			ImGui::InputText("##projectname", projectName,
 							 IM_ARRAYSIZE(projectName));
 
-			// These variables only used by the second case
-			static std::vector<std::filesystem::path> paks;
-			static int codebaseType = 0;
 			if (ImGui::Button("Make Project") && strcmp(projectName, "") != 0) {
 				switch (projectType) {
 				case 1: {
@@ -782,7 +785,7 @@ void DrawNewProjectPopup() {
 					srcDir += "/src";
 					if (codebaseType == 0) {
 						std::filesystem::path quakeCodebase =
-							executingDirectory / ".res/templates/Shareware/src";
+							executingDirectory / ".res/templates/Id1/src";
 						if (!CopyTemplate(quakeCodebase, srcDir.c_str())) {
 							userError = MISSING_PROJECTS;
 							isErrorOpen = true;
@@ -799,15 +802,6 @@ void DrawNewProjectPopup() {
 					break;
 				}
 				case 3: {
-					std::filesystem::path sharewareDir =
-						executingDirectory / ".res/templates/Shareware";
-					if (!CopyTemplate(sharewareDir, projectName)) {
-						userError = MISSING_PROJECTS;
-						isErrorOpen = true;
-					}
-					break;
-				}
-				case 4: {
 					std::filesystem::path libreQuakeDir =
 						executingDirectory / ".res/templates/LibreQuake";
 					if (!CopyTemplate(libreQuakeDir, projectName)) {
@@ -827,6 +821,7 @@ void DrawNewProjectPopup() {
 				projectName[0] = '\0';
 
 				isNewProjectOpen = false;
+				paks.clear();
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -859,6 +854,7 @@ void DrawNewProjectPopup() {
 		}
 
 		if (ImGui::Button("Cancel")) {
+			paks.clear();
 			isNewProjectOpen = false;
 			ImGui::CloseCurrentPopup();
 		}
