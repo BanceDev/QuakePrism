@@ -1,10 +1,8 @@
-
-# Quake Prism
-
 <p align="center">
-    <img src="https://github.com/BanceDev/QuakePrism/blob/main/logo.png" alt="Logo for Quake Prism" />
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/logo.png" alt="Logo for Quake Prism" width="256" height="256"/>
 </p>
 
+# Quake Prism
 
 Quake Prism is an all in one development solution for vanilla Quake engine games and mods based on modern game engine tools.
 The primary focus of this project is to enable not only modders but also those interested in making fully original games with the Quake engine. Most of the tooling is basic asset manipulation along with a QuakeC editor.
