@@ -55,11 +55,42 @@ void DrawMenuBar() {
 	if (ImGui::BeginMainMenuBar()) {
 
 		if (ImGui::BeginMenu("File")) {
-			if (ImGui::MenuItem("New")) {
-				isNewProjectOpen = true;
+			const bool newEnabled = !baseDirectory.empty();
+			if (ImGui::BeginMenu("New")) {
+				if (ImGui::BeginMenu("QC File", newEnabled)) {
+					static char filename[32] = "";
+					ImGui::InputText("file name", filename, IM_ARRAYSIZE(filename));
+					if (ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+						CreateFile(filename);
+						filename[0] = '\0';
+					}
+					ImGui::EndMenu();
+				}
+				if (ImGui::BeginMenu("Src Folder", newEnabled)) {
+					static char dirname[32] = "";
+					ImGui::InputText("folder name", dirname, IM_ARRAYSIZE(dirname));
+					if (ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+						CreateFolder(dirname);
+						dirname[0] = '\0';
+					}
+					ImGui::EndMenu();
+				}
+				if (ImGui::MenuItem("Project")) {
+					isNewProjectOpen = true;
+				}
+				ImGui::EndMenu();
 			}
+			
 			if (ImGui::MenuItem("Open")) {
 				isOpenProjectOpen = true;
+			}
+			if (ImGui::MenuItem("Containing Folder") && !baseDirectory.empty()) {
+			#ifdef _WIN32
+				ShellExecuteA(NULL, "open", baseDirectory.string().c_str(), NULL, NULL, SW_SHOWDEFAULT);
+			#else
+				std::string command = "xdg-open " + baseDirectory.string();
+				system(command.c_str());
+			#endif
 			}
 			if (ImGui::MenuItem("Exit")) {
 
@@ -226,7 +257,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	texImportBrowser.SetTitle("Select Texture");
 	texImportBrowser.SetTypeFilters({".tga"});
 	if (!texImportBrowser.IsOpened())
-		texImportBrowser.SetPwd(currentDirectory);
+		texImportBrowser.SetPwd(baseDirectory);
 
 	// Texture Export Button
 	if (ImGui::Button("Export Texture")) {
@@ -367,7 +398,7 @@ void DrawTextEditor(TextEditor &editor) {
 	ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s ", cpos.mLine + 1,
 				cpos.mColumn + 1, editor.GetTotalLines(),
 				editor.IsOverwrite() ? "Ovr" : "Ins",
-				editor.CanUndo() ? "*" : " ",
+				editor.IsUnsaved() ? "*" : " ",
 				editor.GetLanguageDefinition().mName.c_str());
 
 	editor.Render("TextEditor");
@@ -436,7 +467,9 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 			if (QuakePrism::ImageTreeNode(filenameString.c_str(), icon)) {
 				if (ImGui::IsItemClicked()) {
 					if (path.extension() == ".qc" ||
-						path.extension() == ".src") {
+						path.extension() == ".src" ||
+						path.extension() == ".rc" ||
+						path.extension() == ".cfg") {
 						// Now load in the new file
 						std::ifstream input(path);
 						if (input.good()) {
@@ -566,7 +599,6 @@ void DrawOpenProjectPopup() {
 		if (ImGui::Button("Open")) {
 			try {
 				baseDirectory = projectList.at(item_current_idx).path();
-				currentDirectory = projectList.at(item_current_idx).path();
 				currentQCFileName.clear();
 				currentModelName.clear();
 				currentTextureName.clear();
@@ -768,10 +800,10 @@ void DrawNewProjectPopup() {
 				}
 
 				baseDirectory = projectsDirectory / projectName;
-				currentDirectory = baseDirectory;
 				currentQCFileName.clear();
 				currentModelName.clear();
 				currentTextureName.clear();
+				projectName[0] = '\0';
 
 				isNewProjectOpen = false;
 				ImGui::CloseCurrentPopup();

@@ -20,6 +20,8 @@ along with this program.
 #include "util.h"
 #include "imgui.h"
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "resources.h"
 #include "stb_image.h"
@@ -185,4 +187,20 @@ bool RunProject() {
 	chdir(baseDirectory.string().c_str());
 	return result;
 }
+
+void CreateFile(const char *filename) {
+	if(!std::filesystem::exists(baseDirectory/"src"/filename)) {
+		chdir((baseDirectory/"src").string().c_str());
+		std::string s = filename;
+		s += ".qc";
+		std::ofstream { s };
+	}
+		
+}
+
+void CreateFolder(const char *dirname) {
+	if (!std::filesystem::exists(baseDirectory/"src"/dirname))
+		std::filesystem::create_directory(baseDirectory/"src"/dirname);
+}
+
 } // namespace QuakePrism

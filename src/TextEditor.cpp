@@ -217,6 +217,7 @@ void TextEditor::DeleteRange(const Coordinates &aStart,
 	}
 
 	mTextChanged = true;
+	mUnsaved = true;
 }
 
 int TextEditor::InsertTextAt(Coordinates & /* inout */ aWhere,
@@ -256,6 +257,7 @@ int TextEditor::InsertTextAt(Coordinates & /* inout */ aWhere,
 		}
 
 		mTextChanged = true;
+		mUnsaved = true;
 	}
 
 	return totalLines;
@@ -544,6 +546,7 @@ void TextEditor::RemoveLine(int aStart, int aEnd) {
 	assert(!mLines.empty());
 
 	mTextChanged = true;
+	mUnsaved = true;
 }
 
 void TextEditor::RemoveLine(int aIndex) {
@@ -572,6 +575,7 @@ void TextEditor::RemoveLine(int aIndex) {
 	assert(!mLines.empty());
 
 	mTextChanged = true;
+	mUnsaved = true;
 }
 
 TextEditor::Line &TextEditor::InsertLine(int aIndex) {
@@ -712,8 +716,10 @@ void TextEditor::HandleKeyboardInputs() {
 		else if (!ctrl && shift && !alt &&
 				 ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
 			Cut();
-		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGuiKey_S))
-			QuakePrism::SaveQuakeCFile(this->GetText());
+		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGuiKey_S)) {
+			QuakePrism::SaveQuakeCFile(GetText());
+			mUnsaved = false;
+		}
 		else if (ctrl && !shift && !alt &&
 				 ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A)))
 			SelectAll();
@@ -1295,6 +1301,7 @@ void TextEditor::EnterCharacter(ImWchar aChar, bool aShift) {
 				AddUndo(u);
 
 				mTextChanged = true;
+				mUnsaved = true;
 
 				EnsureCursorVisible();
 			}
@@ -1366,6 +1373,7 @@ void TextEditor::EnterCharacter(ImWchar aChar, bool aShift) {
 	}
 
 	mTextChanged = true;
+	mUnsaved = true;
 
 	u.mAddedEnd = GetActualCursorCoordinates();
 	u.mAfter = mState;
@@ -1737,6 +1745,7 @@ void TextEditor::Delete() {
 		}
 
 		mTextChanged = true;
+		mUnsaved = true;
 
 		Colorize(pos.mLine, 1);
 	}
@@ -1810,6 +1819,7 @@ void TextEditor::Backspace() {
 		}
 
 		mTextChanged = true;
+		mUnsaved = true;
 
 		EnsureCursorVisible();
 		Colorize(mState.mCursorPosition.mLine, 1);

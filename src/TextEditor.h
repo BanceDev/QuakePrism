@@ -199,6 +199,7 @@ class TextEditor {
 	void SetReadOnly(bool aValue);
 	bool IsReadOnly() const { return mReadOnly; }
 	bool IsTextChanged() const { return mTextChanged; }
+	bool IsUnsaved() const { return mUnsaved; }
 	bool IsCursorPositionChanged() const { return mCursorPositionChanged; }
 
 	bool IsColorizerEnabled() const { return mColorizerEnabled; }
@@ -389,4 +390,6 @@ class TextEditor {
 	uint64_t mStartTime;
 
 	float mLastClick;
+
+	bool mUnsaved;
 };

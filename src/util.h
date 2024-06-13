@@ -37,4 +37,9 @@ bool ButtonCentered(const char* label);
 bool CompileProject();
 
 bool RunProject();
+
+void CreateFile(const char *filename);
+
+void CreateFolder(const char *dirname);
+
 } // namespace QuakePrism
