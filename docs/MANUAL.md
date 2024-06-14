@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Quake Prism is an all in one development solution for vanilla Quake engine games and mods based on modern game engine tools. The primary focus of this project is to enable not only modders but also those interested in making fully original games with the Quake engine. Most of the tooling is basic asset manipulation along with a QuakeC editor. 
+Quake Prism is an all in one development solution for vanilla Quake engine games and mods based on modern game engine tools. The primary focus of this project is to enable not only modders but also those interested in making fully original games with the Quake engine. Most of this apps tooling is Quake related asset manipulation along with a QuakeC editor and launcher for mods. 
 
 ## About this Document
 
@@ -10,7 +10,7 @@ This manual will act as a guide for two purposes. The first of which is to cover
 
 ## Getting Started
 
-In this section we will cover the basics of beginning to use Quake Prism. This will include understanding the startup and initial project creation, along with an introduction to each of the project templates so that you can make the correct decision for your mod or game.
+In this section we will cover the basics of beginning to use Quake Prism. This will include understanding the startup and initial project creation, along with covering the layout and basic utilities of the editor.
 
 ### Startup
 
@@ -55,7 +55,7 @@ If you choose the Import PAK option then you will additionally need to import an
 insert screenshot here of file explorer
 ```
 
-After opening or creating a new project the first thing the editor will do is load your project into the file explorer panel. This functions as a file tree structure where folders can be expanded by being clicked and files can be opened by their respective tooling with a double click. Files can also be moved by using drag and drop functionality. **NOTE: Quake Prism expects certain files to be in preconfigured locations, thus relocating certain files my lead to problems with compilation and execution of your mod/game**
+After opening or creating a new project the first thing the editor will do is load your project into the file explorer panel. This functions as a file tree structure where folders can be expanded by being clicked and files can be opened by their respective tooling with a double click. Right clicking on a file will give you the options to rename or delete the file. **NOTE: Quake Prism expects certain files to be in preconfigured locations, thus relocating certain files my lead to problems with compilation and execution of your mod/game**
 
 ### Menu Bar
 
@@ -65,11 +65,17 @@ In order to access some of the functionality of the Quake Prism editor the menu 
 insert screenshot here of menu bar
 ```
 
-The File menu has options for creating a new project or creating a new file/folder in the src directory. Due to the Quake engine having a pre-defined folder structure, Quake Prism is only focused on aiding with the creation of new source files. Additionally there is an **Open** button for opening a different project. This functions the same as the buttons presented upon startup. There is also a **Containing Folder** option which opens the current project directory in your system default file explorer to give quick access to the directory for use with other programs. Lastly, there is an **Exit** option which is an alternate way to close the application.
+The File menu has options for creating a new project or creating a new file/folder in the src directory. **NOTE: Due to the Quake engine having a pre-defined folder structure, Quake Prism is only focused on aiding with the creation of new source files.** If you want to create a new QuakeC file within a subdirectory you can do it using the following format "<subdirectory>/<filename>" which can be seen below.
 
-The Run menu has two options within it. The first option is **Compile**. This option launches fteqcc as a background process and compiles the code in the src directory of your mod. If your mod does not contain a src folder with the fteqcc command line interface executable you will be unable to utilize this feature. The second option is **Run**. This option launches the Quake engine executable in the root of your Quake Prism projects folder with the selected game being the project currently loaded in the editor. By default the Qauke engine source port used is vkQuake but can be changed by bringing in a new executable named quake.AppImage for Linux and quake.exe for Windows.
+```
+insert screenshot of file creation using subdirectory
+```
 
-The Help menu has two options as well. The **About** option presents a popup with a short blurb about the Quake Prism project. The **Documentation** option will open a link to this manual in your default web browser.
+Additionally there is an **Open** button for opening a different project. This functions the same as the startup open project button. There is also a **Containing Folder** option which opens the current project directory in your system default file explorer to give quick access to the directory for use with other programs. Lastly, there is an **Exit** option which is an alternate way to close the application.
+
+The Run menu has three options within it. The first option is **Compile**. This option launches fteqcc as a background process and compiles the code in the src directory of your mod. If your mod does not contain a src folder with the fteqcc command line interface executable you will be unable to utilize this feature. The second option is **Run**. This option launches the Quake engine executable in the root of your Quake Prism projects folder with the selected game being the project currently loaded in the editor. By default the Qauke engine source port used is vkQuake but can be changed by bringing in a new executable named quake.AppImage for Linux and quake.exe for Windows. The final option is **Compile and Run** which does the compile and run functions one after the other for a quick way to update your progs and launch your mod.
+
+The Help menu has two options for quick info about the editor. The **About** option presents a popup with a short blurb about the Quake Prism project. The **Documentation** option will open a link to this manual in your default web browser.
 
 ### QuakeC Editor
 
@@ -93,6 +99,24 @@ The Model Tools pane contains a suite of options to further manipulate the model
 
 The texture viewer is a simple pane that just renders any of the tga files that you may select in the file tree.
 
+### Palette Editor
+
+The palette editor is composed of an array of colors that loads in the palette.lmp file from your projects gfx directory on startup. To edit the palette click on one of the colors and a popup will apear that allows you to change the color. To save your palette to your project's palette.lmp file press the export button at the top of the pane.
+
 ## Templates
 
-As mentioned in the [Getting Started](#getting-started) section there are three project templates presently included with Quake Prism. 
+As mentioned in the [Getting Started](#getting-started) section there are three project templates presently included with Quake Prism. Each template is designed to fulfill a slightly different purpose and will ideally be a great starting point for any Quake mod/game.
+
+### Blank Game
+
+This project template is designed for those seeking to have a clean slate for making a wholly original game using the vanilla Quake engine. Thus this project includes the bare minimum, all the essential gfx for the menu are from (LibreQuake)[https://github.com/lavenderdotpet/LibreQuake] and the gfx.wad is from the prototype pack made by (Kebby-Quake)[https://github.com/Kebby-Quake]. There is a single map, start.bsp, which is just a box with prototype textures on it. The only other asset is the player.mdl also borrowed from LibreQuake. 
+
+The QuakeC is designed to be very minimal, the only functionality in the code is the ability to spawn in the player and allow them to move around. Only the essential functions required by the engine are supplied. This means an entirely clean starting point but also no out of the box functionality for the likes of enemies, weapons, items, etc.
+
+### Import PAK
+
+This project template is the ideal template for those seeking to mod the original Quake game or expand upon other already existing mods. As mentioned in the Getting Started section you need to select any number of pak files and a QuakeC codebase to create this project. Thus this templates acts more as a do-it-yourself sort of option that should get you set up for making a mod with nothing more than a copy of Quake in no time.
+
+### LibreQuake
+
+This project template contains the source code and assets of the (LibreQuake)[https://github.com/lavenderdotpet/LibreQuake] project. This project is a fully free and open source asset conversion of Quake. This template is here if you desire to either mod LibreQuake or do not own Quake but want to get into making mods on the engine without having to start with something like the **Blank Game** template.
