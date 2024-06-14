@@ -16,7 +16,7 @@ Quake Prism will not come packaged with tooling for 3D modeling see this [Quake 
 - [x] PAK Import
 - [x] File Explorer
 - [x] QuakeC Editor
-- [x] QuakeC Project Templates
+- [x] Mod/Game Project Templates
 - [x] Color Palette Editor 
 - [ ] Project Template Docs
 - [ ] WAD Editor
@@ -49,3 +49,4 @@ Run the make command in the QuakePrism directory and it will output to a build d
 - [Ubuntu Font](https://design.ubuntu.com/font)
 - [YamagiQ2 PakExtract](https://github.com/yquake2/pakextract)
 - [Libre Quake](https://github.com/MissLavender-LQ/LibreQuake)
+- [Kebby-Quake](https://github.com/Kebby-Quake)
