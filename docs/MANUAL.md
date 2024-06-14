@@ -110,7 +110,7 @@ As mentioned in the [Getting Started](#getting-started) section there are three 
 
 ### Blank Game
 
-This project template is designed for those seeking to have a clean slate for making a wholly original game using the vanilla Quake engine. Thus this project includes the bare minimum, all the essential gfx for the menu are from (LibreQuake)[https://github.com/lavenderdotpet/LibreQuake] and the gfx.wad is from the prototype pack made by (Kebby-Quake)[https://github.com/Kebby-Quake]. There is a single map, start.bsp, which is just a box with prototype textures on it. The only other asset is the player.mdl also borrowed from LibreQuake. 
+This project template is designed for those seeking to have a clean slate for making a wholly original game using the vanilla Quake engine. Thus this project includes the bare minimum, all the essential gfx for the menu are from [LibreQuake](https://github.com/lavenderdotpet/LibreQuake) and the gfx.wad is from the prototype pack made by [Kebby-Quake](https://github.com/Kebby-Quake). There is a single map, start.bsp, which is just a box with prototype textures on it. The only other asset is the player.mdl also borrowed from LibreQuake. 
 
 The QuakeC is designed to be very minimal, the only functionality in the code is the ability to spawn in the player and allow them to move around. Only the essential functions required by the engine are supplied. This means an entirely clean starting point but also no out of the box functionality for the likes of enemies, weapons, items, etc.
 
@@ -120,4 +120,4 @@ This project template is the ideal template for those seeking to mod the origina
 
 ### LibreQuake
 
-This project template contains the source code and assets of the (LibreQuake)[https://github.com/lavenderdotpet/LibreQuake] project. This project is a fully free and open source asset conversion of Quake. This template is here if you desire to either mod LibreQuake or do not own Quake but want to get into making mods on the engine without having to start with something like the **Blank Game** template.
+This project template contains the source code and assets of the [LibreQuake](https://github.com/lavenderdotpet/LibreQuake) project. This project is a fully free and open source asset conversion of Quake. This template is here if you desire to either mod LibreQuake or do not own Quake but want to get into making mods on the engine without having to start with something like the **Blank Game** template.
