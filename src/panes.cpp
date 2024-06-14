@@ -26,6 +26,7 @@ along with this program.
 #include "mdl.h"
 #include "pak.h"
 #include "resources.h"
+#include "unistd.h"
 #include "util.h"
 #include <cstdint>
 #include <cstdio>
@@ -52,15 +53,16 @@ bool isErrorOpen = false;
 bool isOpenProjectOpen = false;
 bool isNewProjectOpen = false;
 bool isLauncherOpen = true;
+bool isCompiling = false;
 bool palLoaded = false;
 
 namespace QuakePrism {
 
 void DrawMenuBar() {
 	if (ImGui::BeginMainMenuBar()) {
+		const bool newEnabled = !baseDirectory.empty();
 
 		if (ImGui::BeginMenu("File")) {
-			const bool newEnabled = !baseDirectory.empty();
 			if (ImGui::BeginMenu("New")) {
 				if (ImGui::BeginMenu("QC File", newEnabled)) {
 					static char filename[32] = "";
@@ -91,7 +93,7 @@ void DrawMenuBar() {
 			if (ImGui::MenuItem("Open")) {
 				isOpenProjectOpen = true;
 			}
-			if (ImGui::MenuItem("Containing Folder") &&
+			if (ImGui::MenuItem("Containing Folder", NULL, false, newEnabled) &&
 				!baseDirectory.empty()) {
 #ifdef _WIN32
 				ShellExecute(NULL, L"open", baseDirectory.c_str(), NULL, NULL,
@@ -111,14 +113,18 @@ void DrawMenuBar() {
 		}
 
 		if (ImGui::BeginMenu("Run")) {
-			if (ImGui::MenuItem("Compile")) {
-				CompileProject();
+			if (ImGui::MenuItem("Compile", NULL, false, newEnabled)) {
+				isCompiling = true;
 			}
-			if (ImGui::MenuItem("Run")) {
+			if (ImGui::MenuItem("Run", NULL, false, newEnabled)) {
 				RunProject();
 			}
-			if (ImGui::MenuItem("Compile and Run")) {
-				CompileProject();
+			if (ImGui::MenuItem("Compile and Run", NULL, false, newEnabled)) {
+				isCompiling = true;
+				if (!CompileProject()) {
+					isErrorOpen = true;
+					userError = MISSING_COMPILER;
+				}
 				RunProject();
 			}
 			ImGui::EndMenu();
@@ -329,6 +335,34 @@ void DrawTextureViewer() {
 	ImGui::End();
 }
 
+void DrawDebugConsole() {
+	ImGui::Begin("Console");
+	static std::string consoleText = "";
+	if (isCompiling) {
+		consoleText.clear();
+		chdir((baseDirectory / "src").string().c_str());
+#ifdef _WIN32
+		std::string command = "./fteqcc64.exe 2>&1";
+#else
+		std::string command = "./fteqcc64 2>&1";
+#endif
+
+		FILE *pipe = popen(command.c_str(), "r");
+		if (!pipe)
+			return;
+		char buffer[128];
+		while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+			consoleText += buffer;
+		}
+		pclose(pipe);
+		chdir(baseDirectory.string().c_str());
+		isCompiling = false;
+	}
+	ImGui::TextUnformatted(consoleText.c_str());
+
+	ImGui::End();
+}
+
 void SaveQuakeCFile(std::string textToSave) {
 	// had issue with extra whitespace so this cleans that
 	size_t end = textToSave.find_last_not_of(" \t\n\r");
@@ -347,14 +381,36 @@ void SaveQuakeCFile(std::string textToSave) {
 }
 
 void DrawTextEditor(TextEditor &editor) {
+	ImGui::Begin("QuakeC Editor");
+	ImGuiID dockspace_id = ImGui::GetID("Editor DockSpace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+	static bool first_time = true;
+	if (first_time) {
+		first_time = false;
+		ImGui::DockBuilderRemoveNode(dockspace_id);
+		ImGui::DockBuilderAddNode(dockspace_id);
+		ImGui::DockBuilderSetNodeSize(dockspace_id,
+									  ImGui::GetMainViewport()->Size);
+
+		auto dock_id_up = ImGui::DockBuilderSplitNode(
+			dockspace_id, ImGuiDir_Up, 0.85f, nullptr, &dockspace_id);
+		auto dock_id_down = ImGui::DockBuilderSplitNode(
+			dockspace_id, ImGuiDir_Down, 0.15f, nullptr, &dockspace_id);
+		ImGui::DockBuilderDockWindow("Editor", dock_id_up);
+		ImGui::DockBuilderDockWindow("Console", dock_id_down);
+
+		ImGui::DockBuilderFinish(dockspace_id);
+	}
+	ImGui::End();
 
 	auto lang = TextEditor::LanguageDefinition::QuakeC();
 	editor.SetLanguageDefinition(lang);
 
 	auto cpos = editor.GetCursorPosition();
-	ImGui::Begin("QuakeC Editor", nullptr,
+	ImGui::Begin("Editor", nullptr,
 				 ImGuiWindowFlags_HorizontalScrollbar |
 					 ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
+
 	if (ImGui::BeginMenuBar()) {
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("Save", "Ctrl-S", nullptr)) {
@@ -421,6 +477,7 @@ void DrawTextEditor(TextEditor &editor) {
 
 	editor.Render("TextEditor");
 	ImGui::End();
+	DrawDebugConsole();
 }
 
 bool AlphabeticalComparator(const std::filesystem::directory_entry &a,
@@ -590,7 +647,7 @@ void DrawFileExplorer(TextEditor &editor) {
 	ImGui::End();
 }
 
-void DrawPalletteTool() {
+void DrawPaletteTool() {
 	static float colors[256][3];
 	if (!palLoaded) {
 		for (int i = 0; i < 256; ++i) {
@@ -600,7 +657,7 @@ void DrawPalletteTool() {
 		}
 		palLoaded = true;
 	}
-	ImGui::Begin("Pallette Editor");
+	ImGui::Begin("Palette Editor", nullptr, ImGuiWindowFlags_NoMove);
 	if (ImGui::Button("Export Palette")) {
 		// first expor the colors from the widgets to the colormap
 		for (int i = 0; i < 256; ++i) {
@@ -658,18 +715,18 @@ void DrawOpenProjectPopup() {
 			userError = MISSING_PROJECTS;
 		}
 
-		static int item_current_idx = 0;
+		static int itemCurrentIdx = 0;
 		if (ImGui::BeginListBox("Projects")) {
 			for (int n = 0; n < projectList.size(); n++) {
-				const bool is_selected = (item_current_idx == n);
+				const bool isSelected = (itemCurrentIdx == n);
 				if (ImGui::Selectable(
 						projectList.at(n).path().filename().string().c_str(),
-						is_selected))
-					item_current_idx = n;
+						isSelected))
+					itemCurrentIdx = n;
 
 				// Set the initial focus when opening the combo
 				// (scrolling + keyboard navigation focus)
-				if (is_selected)
+				if (isSelected)
 					ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndListBox();
@@ -681,7 +738,7 @@ void DrawOpenProjectPopup() {
 		ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
 		if (ImGui::Button("Open")) {
 			try {
-				baseDirectory = projectList.at(item_current_idx).path();
+				baseDirectory = projectList.at(itemCurrentIdx).path();
 				currentQCFileName.clear();
 				currentModelName.clear();
 				currentTextureName.clear();

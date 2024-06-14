@@ -31,6 +31,8 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO);
 
 void DrawTextureViewer();
 
+void DrawDebugConsole();
+
 void DrawTextEditor(TextEditor &editor);
 
 void DrawErrorPopup();
@@ -41,7 +43,7 @@ void DrawFileTree(const std::filesystem::path &currentPath, TextEditor &editor);
 
 void DrawFileExplorer(TextEditor &editor);
 
-void DrawPalletteTool();
+void DrawPaletteTool();
 
 void DrawOpenProjectPopup();
 
