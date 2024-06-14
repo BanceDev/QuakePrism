@@ -18,7 +18,6 @@ Quake Prism will not come packaged with tooling for 3D modeling see this [Quake 
 - [x] QuakeC Editor
 - [x] Mod/Game Project Templates
 - [x] Color Palette Editor 
-- [ ] Project Template Docs
 - [ ] WAD Editor
 - [ ] QuakeC Error/Warning Checking
 - [ ] SPR and LMP Tools
