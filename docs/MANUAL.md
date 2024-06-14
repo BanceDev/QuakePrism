@@ -14,9 +14,10 @@ In this section we will cover the basics of beginning to use Quake Prism. This w
 
 ### Startup
 
-```
-insert screenshot here of startup
-```
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/start.png" alt="Start Screen"/>
+</p>
+
 
 When you launch Quake Prism for the first time it will require that you select a location for it to create a Quake Prism projects directory. Quake Prism will automatically create the directory upon selection of a location for projects. If the projects directory is ever moved or deleted Quake Prism will ask you to make a new one.
 
@@ -25,23 +26,23 @@ When you launch Quake Prism for the first time it will require that you select a
 After setting a projects directory or opening Quake Prism in future instances you will be met with the screen below. 
 In order to begin using the toolset of the editor you will need to either select the new project or open project button.
 
-```
-insert screenshot here of initial startup view
-```
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/main.png" alt="Start Screen"/>
+</p>
 
 ### Open Project
 
-```
-insert screenshot here of open project popup
-```
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/open.png" alt="Start Screen"/>
+</p>
 
 Upon pressing the open project button you will be presented with a popup that shows all viable projects by scanning for directories in your Quake Prism projects folder. Select which project you would like to open by clicking on its name and then pressing the open button. 
 
 ### New Project
 
-```
-insert screenshot here of new project popup
-```
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/new.png" alt="Start Screen"/>
+</p>
 
 Upon pressing the new project button you will be presented with a popup that allows for you to select one of three project templates. The currently selected template can be seen above the text prompt for the new project name. In order to make a new project select the desired template by clicking on it, name your project using the prompt, and then select the make project button.
 
@@ -51,9 +52,9 @@ If you choose the Import PAK option then you will additionally need to import an
 
 ### File Explorer
 
-```
-insert screenshot here of file explorer
-```
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/explorer.png" alt="Start Screen"/>
+</p>
 
 After opening or creating a new project the first thing the editor will do is load your project into the file explorer panel. This functions as a file tree structure where folders can be expanded by being clicked and files can be opened by their respective tooling with a double click. Right clicking on a file will give you the options to rename or delete the file. **NOTE: Quake Prism expects certain files to be in preconfigured locations, thus relocating certain files my lead to problems with compilation and execution of your mod/game**
 
@@ -61,15 +62,11 @@ After opening or creating a new project the first thing the editor will do is lo
 
 In order to access some of the functionality of the Quake Prism editor the menu bar is used.
 
-```
-insert screenshot here of menu bar
-```
-
 The File menu has options for creating a new project or creating a new file/folder in the src directory. **NOTE: Due to the Quake engine having a pre-defined folder structure, Quake Prism is only focused on aiding with the creation of new source files.** If you want to create a new QuakeC file within a subdirectory you can do it using the following format "<subdirectory>/<filename>" which can be seen below.
 
-```
-insert screenshot of file creation using subdirectory
-```
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/rename.png" alt="Start Screen"/>
+</p>
 
 Additionally there is an **Open** button for opening a different project. This functions the same as the startup open project button. There is also a **Containing Folder** option which opens the current project directory in your system default file explorer to give quick access to the directory for use with other programs. Lastly, there is an **Exit** option which is an alternate way to close the application.
 
@@ -79,17 +76,17 @@ The Help menu has two options for quick info about the editor. The **About** opt
 
 ### QuakeC Editor
 
-```
-insert screenshot here of QuakeC editor
-```
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/editor.png" alt="Start Screen"/>
+</p>
 
 The QuakeC editor is a simple text editor that will open .qc/.src/.cfg/.rc files from your project for editing. It's primarily focused on support for the QuakeC language however. There is a menu bar with most standard file editing utilities along with the ability to change the theme of the editor between dark, light, and retro modes. The editor also comes fully featured with syntax highlighting for QuakeC as well as embedded warning and error checking using fteqcc in the background. This process will automatically compile and analyze your code after the program detects the user is no longer presently typing in the file. Due to the limitations of fteqcc and the way that QuakeC compiles this process will need to save your files before each compile. You will still have acess to undo of course if you want to reverse changes.
 
 ### Model Viewer
 
-```
-insert screenshot here of model viewer
-```
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/mdlview.png" alt="Start Screen"/>
+</p>
 
 The model viewer is split into two panes. The top pane is the Model View pane which displays the model and accepts input for manipulation the model's position, rotation, and scale. Use the left mouse button to rotate the model, the right mouse button to move the model, and the scroll wheel to scale the model.
 
@@ -100,6 +97,10 @@ The Model Tools pane contains a suite of options to further manipulate the model
 The texture viewer is a simple pane that just renders any of the tga files that you may select in the file tree.
 
 ### Palette Editor
+
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/palette.png" alt="Start Screen"/>
+</p>
 
 The palette editor is composed of an array of colors that loads in the palette.lmp file from your projects gfx directory on startup. To edit the palette click on one of the colors and a popup will apear that allows you to change the color. To save your palette to your project's palette.lmp file press the export button at the top of the pane.
 
