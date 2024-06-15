@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+TryExec=QuakePrism
+Exec=QuakePrism
+Icon=/usr/share/icons/QuakePrism/logo.png
+Terminal=false
+Categories=Games;Programming;
+
+Name=QuakePrism
+GenericName=Quake Engine Editor
+Comment=A modern Quake engine editor
