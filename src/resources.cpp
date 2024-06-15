@@ -65,26 +65,26 @@ void loadFonts() {
 	ImGuiIO &io = ImGui::GetIO();
 	(void)io;
 
-	ubuntuFont = io.Fonts->AddFontFromFileTTF(".res/Ubuntu-M.ttf", 21.0f);
+	ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 21.0f);
 	IM_ASSERT(ubuntuFont != nullptr);
 	ubuntuMonoFont = io.Fonts->AddFontFromFileTTF(
-		".res/UbuntuMonoNerdFontMono-Regular.ttf", 21.0f);
+		"res/UbuntuMonoNerdFontMono-Regular.ttf", 21.0f);
 	IM_ASSERT(ubuntuMonoFont != nullptr);
 }
 
 void loadIcons() {
-	LoadTextureFromFile(".res/FileIcon.png", &fileIcon, nullptr, nullptr);
-	LoadTextureFromFile(".res/DirectoryIcon.png", &directoryIcon, nullptr,
+	LoadTextureFromFile("res/FileIcon.png", &fileIcon, nullptr, nullptr);
+	LoadTextureFromFile("res/DirectoryIcon.png", &directoryIcon, nullptr,
 						nullptr);
-	LoadTextureFromFile(".res/ModelIcon.png", &modelIcon, nullptr, nullptr);
-	LoadTextureFromFile(".res/ImageIcon.png", &imageIcon, nullptr, nullptr);
-	LoadTextureFromFile(".res/play.png", &playButton, nullptr, nullptr);
-	LoadTextureFromFile(".res/forward.png", &forwardButton, nullptr, nullptr);
-	LoadTextureFromFile(".res/back.png", &backButton, nullptr, nullptr);
-	LoadTextureFromFile(".res/prism_small.png", &appIcon, nullptr, nullptr);
-	LoadTextureFromFile(".res/NewCard.png", &newCard, nullptr, nullptr);
-	LoadTextureFromFile(".res/ImportCard.png", &importCard, nullptr, nullptr);
-	LoadTextureFromFile(".res/LibreCard.png", &libreCard, nullptr, nullptr);
+	LoadTextureFromFile("res/ModelIcon.png", &modelIcon, nullptr, nullptr);
+	LoadTextureFromFile("res/ImageIcon.png", &imageIcon, nullptr, nullptr);
+	LoadTextureFromFile("res/play.png", &playButton, nullptr, nullptr);
+	LoadTextureFromFile("res/forward.png", &forwardButton, nullptr, nullptr);
+	LoadTextureFromFile("res/back.png", &backButton, nullptr, nullptr);
+	LoadTextureFromFile("res/prism_small.png", &appIcon, nullptr, nullptr);
+	LoadTextureFromFile("res/NewCard.png", &newCard, nullptr, nullptr);
+	LoadTextureFromFile("res/ImportCard.png", &importCard, nullptr, nullptr);
+	LoadTextureFromFile("res/LibreCard.png", &libreCard, nullptr, nullptr);
 }
 
 void loadColormap() {

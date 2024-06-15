@@ -864,7 +864,7 @@ void DrawNewProjectPopup() {
 				switch (projectType) {
 				case 1: {
 					std::filesystem::path blankDir =
-						executingDirectory / ".res/templates/Blank";
+						executingDirectory / "res/templates/Blank";
 					if (!CopyTemplate(blankDir, projectName)) {
 						userError = MISSING_PROJECTS;
 						isErrorOpen = true;
@@ -896,14 +896,14 @@ void DrawNewProjectPopup() {
 					srcDir += "/src";
 					if (codebaseType == 0) {
 						std::filesystem::path quakeCodebase =
-							executingDirectory / ".res/templates/Id1/src";
+							executingDirectory / "res/templates/Id1/src";
 						if (!CopyTemplate(quakeCodebase, srcDir.c_str())) {
 							userError = MISSING_PROJECTS;
 							isErrorOpen = true;
 						}
 					} else {
 						std::filesystem::path blankCodebase =
-							executingDirectory / ".res/templates/Blank/src";
+							executingDirectory / "res/templates/Blank/src";
 						if (!CopyTemplate(blankCodebase, srcDir.c_str())) {
 							userError = MISSING_PROJECTS;
 							isErrorOpen = true;
@@ -914,7 +914,7 @@ void DrawNewProjectPopup() {
 				}
 				case 3: {
 					std::filesystem::path libreQuakeDir =
-						executingDirectory / ".res/templates/LibreQuake";
+						executingDirectory / "res/templates/LibreQuake";
 					if (!CopyTemplate(libreQuakeDir, projectName)) {
 						userError = MISSING_PROJECTS;
 						isErrorOpen = true;
@@ -1020,19 +1020,19 @@ void DrawLauncherPopup() {
 #ifdef _WIN32
 			for (const auto &entry :
 				 std::filesystem::recursive_directory_iterator(
-					 executingDirectory / ".res/templates/Windows")) {
+					 executingDirectory / "res/templates/Windows")) {
 #else
 			for (const auto &entry :
 				 std::filesystem::recursive_directory_iterator(
-					 executingDirectory / ".res/templates/Linux")) {
+					 executingDirectory / "res/templates/Linux")) {
 #endif
 				const auto &path = entry.path();
 #ifdef _WIN32
 				auto relative_path = std::filesystem::relative(
-					path, (executingDirectory / ".res/templates/Windows"));
+					path, (executingDirectory / "res/templates/Windows"));
 #else
 				auto relative_path = std::filesystem::relative(
-					path, (executingDirectory / ".res/templates/Linux"));
+					path, (executingDirectory / "res/templates/Linux"));
 #endif
 				auto dest = projectsDirectory / relative_path;
 

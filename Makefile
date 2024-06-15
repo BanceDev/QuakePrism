@@ -5,7 +5,7 @@ EXE := build/QuakePrism
 IMGUI_DIR := ./lib/imgui
 SRC_DIR := ./src
 BUILD_DIR := ./build
-RES_DIR := $(BUILD_DIR)/.res
+RES_DIR := $(BUILD_DIR)/res
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
@@ -73,7 +73,7 @@ $(EXE): $(OBJS)
 
 copy_resources:
 	@echo "Copying resources directory..."
-	@cp -r $(SRC_DIR)/.res $(BUILD_DIR)
+	@cp -r $(SRC_DIR)/res $(BUILD_DIR)
 ifeq ($(CROSS_COMPILE),1)
 	@cp -a $(SRC_DIR)/.dlls/* $(BUILD_DIR)/
 endif
