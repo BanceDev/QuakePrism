@@ -180,8 +180,7 @@ bool RunProject() {
 	std::string cmd = "./quake.exe -game " + baseDirectory.filename().string();
 	bool result = system(cmd.c_str()) != -1;
 #else
-	std::string cmd =
-		"./quake.AppImage -game " + baseDirectory.filename().string();
+	std::string cmd = "./quake -game " + baseDirectory.filename().string();
 	bool result = system(cmd.c_str()) != -1;
 #endif
 	chdir(baseDirectory.string().c_str());
