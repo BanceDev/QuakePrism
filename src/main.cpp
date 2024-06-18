@@ -141,7 +141,6 @@ int main(int, char **) {
 	// Set font to the Ubuntu font
 	QuakePrism::loadFonts();
 	// Our state
-	bool show_demo_window = true;
 	ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
 	// create the framebuffer right before the main loop
@@ -187,11 +186,6 @@ int main(int, char **) {
 		ImGui::PushFont(QuakePrism::ubuntuFont);
 		QuakePrism::DrawMenuBar();
 		ImGui::DockSpaceOverViewport();
-		// 1. Show the big demo window (Most of the sample code is in
-		// ImGui::ShowDemoWindow()! You can browse its code to learn more
-		// about Dear ImGui!).
-		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
 
 		QuakePrism::DrawModelViewer(texture_id, RBO, FBO);
 		QuakePrism::DrawTextureViewer();
