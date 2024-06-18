@@ -26,6 +26,9 @@ along with this program.
 
 #include <sys/stat.h>
 #include <unistd.h>
+#ifdef _WIN32
+#include <direct.h>
+#endif
 
 const int HDR_LEN = 64;
 
@@ -58,7 +61,7 @@ void mktree(const char *s) {
 			dir[i] = '\0'; // this ends the string at this point and allows
 						   // creating the directory up to here
 #ifdef _WIN32
-			mkdir(dir);
+			_mkdir(dir);
 #else
 			mkdir(dir, 0700);
 #endif
@@ -146,7 +149,7 @@ directory *read_directory(FILE *fd, int *num_entries) {
 }
 
 void extract_raw(FILE *in, directory *d) {
-	FILE *out = fopen(d->file_name, "w");
+	FILE *out = fopen(d->file_name, "wb");
 	if (out == NULL) {
 		return;
 	}
@@ -198,7 +201,7 @@ bool ExtractPAK(const std::filesystem::path filename,
 	int num_entries = 0;
 
 	/* Open the pak file */
-	fd = fopen(filename.string().c_str(), "r");
+	fd = fopen(filename.string().c_str(), "rb");
 	if (fd == NULL) {
 		return false;
 	}
