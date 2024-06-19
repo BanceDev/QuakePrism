@@ -20,7 +20,6 @@ along with this program.
 #include "resources.h"
 #include "util.h"
 #include <cstdio>
-#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -49,13 +48,15 @@ GLuint newCard;
 GLuint importCard;
 GLuint libreCard;
 
+std::vector<TextEditor> editorList;
+
 // Config Files
 std::filesystem::path configFile =
 	std::filesystem::current_path() / "quakeprism.cfg";
 std::filesystem::path projectsDirectory;
 
 // Essential Paths
-std::filesystem::path currentQCFileName;
+std::vector<std::filesystem::path> currentQCFileNames;
 std::filesystem::path currentModelName;
 std::filesystem::path currentTextureName;
 std::filesystem::path baseDirectory;

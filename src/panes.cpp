@@ -363,14 +363,15 @@ void DrawDebugConsole() {
 	ImGui::End();
 }
 
-void SaveQuakeCFile(std::string textToSave) {
+static void SaveQuakeCFile(std::string textToSave,
+						   const std::filesystem::path &currentFile) {
 	// had issue with extra whitespace so this cleans that
 	size_t end = textToSave.find_last_not_of(" \t\n\r");
 	if (end == std::string::npos) {
 		textToSave = ""; // All characters are whitespace or newlines
 	}
 	textToSave = textToSave.substr(0, end + 1);
-	std::ofstream output(currentQCFileName);
+	std::ofstream output(currentFile);
 	if (output.is_open()) {
 		output << textToSave;
 		output.close();
@@ -380,34 +381,24 @@ void SaveQuakeCFile(std::string textToSave) {
 	}
 }
 
-void DrawTextEditor(TextEditor &editor) {
-	ImGui::Begin("QuakeC Editor");
-	ImGuiID dockspace_id = ImGui::GetID("Editor DockSpace");
-	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
-	static bool first_time = true;
-	if (first_time) {
-		first_time = false;
-		ImGui::DockBuilderRemoveNode(dockspace_id);
-		ImGui::DockBuilderAddNode(dockspace_id);
-		ImGui::DockBuilderSetNodeSize(dockspace_id,
-									  ImGui::GetMainViewport()->Size);
-
-		auto dock_id_up = ImGui::DockBuilderSplitNode(
-			dockspace_id, ImGuiDir_Up, 0.85f, nullptr, &dockspace_id);
-		auto dock_id_down = ImGui::DockBuilderSplitNode(
-			dockspace_id, ImGuiDir_Down, 0.15f, nullptr, &dockspace_id);
-		ImGui::DockBuilderDockWindow("Editor", dock_id_up);
-		ImGui::DockBuilderDockWindow("Console", dock_id_down);
-
-		ImGui::DockBuilderFinish(dockspace_id);
+void SaveFromEditor(TextEditor *editor) {
+	std::string textToSave = editor->GetText();
+	for (int i = 0; i < editorList.size(); ++i) {
+		if (&editorList.at(i) == editor) {
+			SaveQuakeCFile(textToSave, currentQCFileNames.at(i));
+			break;
+		}
 	}
-	ImGui::End();
+}
 
+static void DrawTextTab(TextEditor &editor,
+						const std::filesystem::path &currentFile,
+						bool &tabOpen) {
 	auto lang = TextEditor::LanguageDefinition::QuakeC();
 	editor.SetLanguageDefinition(lang);
 
 	auto cpos = editor.GetCursorPosition();
-	ImGui::Begin("Editor", nullptr,
+	ImGui::Begin(currentFile.filename().string().c_str(), &tabOpen,
 				 ImGuiWindowFlags_HorizontalScrollbar |
 					 ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove);
 
@@ -415,7 +406,7 @@ void DrawTextEditor(TextEditor &editor) {
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::MenuItem("Save", "Ctrl-S", nullptr)) {
 				std::string textToSave = editor.GetText();
-				SaveQuakeCFile(textToSave);
+				SaveQuakeCFile(textToSave, currentFile);
 			}
 			ImGui::EndMenu();
 		}
@@ -477,16 +468,60 @@ void DrawTextEditor(TextEditor &editor) {
 
 	editor.Render("TextEditor");
 	ImGui::End();
+}
+
+static void RemoveEditorTab(int index) {
+	if (index >= 0 && index < editorList.size()) {
+		editorList.erase(editorList.begin() + index);
+		currentQCFileNames.erase(currentQCFileNames.begin() + index);
+	}
+}
+
+void DrawTextEditor() {
+	ImGui::Begin("QuakeC Editor");
+	ImGuiID dockspace_id = ImGui::GetID("Editor DockSpace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+	static bool first_time = true;
+	if (first_time) {
+		first_time = false;
+		ImGui::DockBuilderRemoveNode(dockspace_id);
+		ImGui::DockBuilderAddNode(dockspace_id);
+		ImGui::DockBuilderSetNodeSize(dockspace_id,
+									  ImGui::GetMainViewport()->Size);
+	}
+	static auto dock_id_up = ImGui::DockBuilderSplitNode(
+		dockspace_id, ImGuiDir_Up, 0.85f, nullptr, &dockspace_id);
+	static auto dock_id_down = ImGui::DockBuilderSplitNode(
+		dockspace_id, ImGuiDir_Down, 0.15f, nullptr, &dockspace_id);
+
+	for (auto &path : currentQCFileNames) {
+		ImGui::DockBuilderDockWindow(path.filename().string().c_str(),
+									 dock_id_up);
+	}
+	ImGui::DockBuilderDockWindow("Console", dock_id_down);
+
+	ImGui::DockBuilderFinish(dockspace_id);
+	//}
+	ImGui::End();
+
+	for (int i = 0; i < editorList.size(); ++i) {
+		bool tabOpen = true;
+		DrawTextTab(editorList.at(i), currentQCFileNames.at(i), tabOpen);
+		if (!tabOpen) {
+			RemoveEditorTab(i);
+			--i;
+		}
+	}
+
 	DrawDebugConsole();
 }
 
-bool AlphabeticalComparator(const std::filesystem::directory_entry &a,
-							const std::filesystem::directory_entry &b) {
+static bool AlphabeticalComparator(const std::filesystem::directory_entry &a,
+								   const std::filesystem::directory_entry &b) {
 	return a.path().filename().string() < b.path().filename().string();
 }
 
-void DrawFileTree(const std::filesystem::path &currentPath,
-				  TextEditor &editor) {
+void DrawFileTree(const std::filesystem::path &currentPath) {
 	if (!currentPath.empty()) {
 		std::vector<std::filesystem::directory_entry> directoryEntries;
 
@@ -577,10 +612,12 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 					path.extension() == ".rc" || path.extension() == ".cfg") {
 					std::ifstream input(path);
 					if (input.good()) {
-						currentQCFileName = path;
+						currentQCFileNames.push_back(path);
 						std::string str((std::istreambuf_iterator<char>(input)),
 										std::istreambuf_iterator<char>());
+						TextEditor editor;
 						editor.SetText(str);
+						editorList.push_back(editor);
 					} else {
 						isErrorOpen = true;
 						userError = LOAD_FAILED;
@@ -619,7 +656,7 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 
 			if (node_open) {
 				if (directoryEntry.is_directory()) {
-					DrawFileTree(directoryEntry.path(), editor);
+					DrawFileTree(directoryEntry.path());
 				}
 				ImGui::TreePop();
 			}
@@ -629,7 +666,7 @@ void DrawFileTree(const std::filesystem::path &currentPath,
 	}
 }
 
-void DrawFileExplorer(TextEditor &editor) {
+void DrawFileExplorer() {
 
 	ImGui::Begin("Project Browser", nullptr, ImGuiWindowFlags_NoMove);
 	if (baseDirectory.empty()) {
@@ -641,7 +678,7 @@ void DrawFileExplorer(TextEditor &editor) {
 		}
 	}
 	if (!baseDirectory.empty()) {
-		DrawFileTree(baseDirectory, editor);
+		DrawFileTree(baseDirectory);
 	}
 
 	ImGui::End();
@@ -739,7 +776,7 @@ void DrawOpenProjectPopup() {
 		if (ImGui::Button("Open")) {
 			try {
 				baseDirectory = projectList.at(itemCurrentIdx).path();
-				currentQCFileName.clear();
+				currentQCFileNames.clear();
 				currentModelName.clear();
 				currentTextureName.clear();
 				loadColormap();
@@ -926,7 +963,7 @@ void DrawNewProjectPopup() {
 				}
 
 				baseDirectory = projectsDirectory / projectName;
-				currentQCFileName.clear();
+				currentQCFileNames.clear();
 				currentModelName.clear();
 				currentTextureName.clear();
 				projectName[0] = '\0';

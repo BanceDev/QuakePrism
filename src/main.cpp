@@ -46,8 +46,6 @@ GLuint FBO;		   // frame buffer object
 GLuint RBO;		   // rendering buffer object
 GLuint texture_id; // the texture id we'll need later to create a texture
 
-TextEditor editor;
-
 // Main code
 int main(int, char **) {
 	// Setup SDL
@@ -193,11 +191,11 @@ int main(int, char **) {
 		ImGui::PopFont();
 
 		ImGui::PushFont(QuakePrism::ubuntuMonoFont);
-		QuakePrism::DrawTextEditor(editor);
+		QuakePrism::DrawTextEditor();
 		ImGui::PopFont();
 
 		ImGui::PushFont(QuakePrism::ubuntuFont);
-		QuakePrism::DrawFileExplorer(editor);
+		QuakePrism::DrawFileExplorer();
 
 		// Display all active popups
 		QuakePrism::DrawAboutPopup();

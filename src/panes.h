@@ -33,15 +33,15 @@ void DrawTextureViewer();
 
 void DrawDebugConsole();
 
-void DrawTextEditor(TextEditor &editor);
+void DrawTextEditor();
 
 void DrawErrorPopup();
 
 void DrawAboutPopup();
 
-void DrawFileTree(const std::filesystem::path &currentPath, TextEditor &editor);
+void DrawFileTree(const std::filesystem::path &currentPath);
 
-void DrawFileExplorer(TextEditor &editor);
+void DrawFileExplorer();
 
 void DrawPaletteTool();
 
@@ -51,6 +51,6 @@ void DrawNewProjectPopup();
 
 void DrawLauncherPopup();
 
-void SaveQuakeCFile(std::string textToSave);
+void SaveFromEditor(TextEditor *editor);
 
 } // namespace QuakePrism

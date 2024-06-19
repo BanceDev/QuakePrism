@@ -18,10 +18,12 @@ along with this program.
 */
 
 #pragma once
+#include "TextEditor.h"
 #include "imgui.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <filesystem>
+#include <vector>
 
 namespace QuakePrism {
 // Font Assets
@@ -45,12 +47,14 @@ extern GLuint newCard;
 extern GLuint importCard;
 extern GLuint libreCard;
 
+extern std::vector<TextEditor> editorList;
+
 // Config Assets
 extern std::filesystem::path configFile;
 extern std::filesystem::path projectsDirectory;
 
 // Essential Paths
-extern std::filesystem::path currentQCFileName;
+extern std::vector<std::filesystem::path> currentQCFileNames;
 extern std::filesystem::path currentModelName;
 extern std::filesystem::path currentTextureName;
 extern std::filesystem::path baseDirectory;

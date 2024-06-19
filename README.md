@@ -11,7 +11,7 @@ Quake Prism also ships with project templates to help you start development righ
 Quake Prism will not come packaged with tooling for 3D modeling see this [Quake blender plugin](https://github.com/victorfeitosa/quake-hexen2-mdl-export-import). Quake Prism also will not include mapping tools due largely to the complexity of the requirements for map tooling along with the fact that highly featured modern mapping software already exists in the form of [Trenchbroom](https://github.com/TrenchBroom/TrenchBroom).
 
 ## Community
-To stay in contact with developers and users check out the community discord for Quake Prism. https://discord.gg/pBQ7R4GGuX
+To stay in contact with developers and users check out the community [discord](https://discord.gg/pBQ7R4GGuX) for Quake Prism. 
 
 ## Features
 - [x] Model Viewer

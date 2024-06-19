@@ -717,11 +717,10 @@ void TextEditor::HandleKeyboardInputs() {
 				 ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
 			Cut();
 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGuiKey_S)) {
-			QuakePrism::SaveQuakeCFile(GetText());
+			QuakePrism::SaveFromEditor(this);
 			mUnsaved = false;
-		}
-		else if (ctrl && !shift && !alt &&
-				 ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A)))
+		} else if (ctrl && !shift && !alt &&
+				   ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_A)))
 			SelectAll();
 		else if (!IsReadOnly() && !ctrl && !shift && !alt &&
 				 ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)))
