@@ -175,7 +175,7 @@ bool CompileProject() {
 }
 
 bool RunProject() {
-	chdir(projectsDirectory.string().c_str());
+	chdir(baseDirectory.parent_path().string().c_str());
 #ifdef _WIN32
 	std::string cmd = "quake.exe -game " + baseDirectory.filename().string();
 	bool result = system(cmd.c_str()) != -1;

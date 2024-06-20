@@ -17,7 +17,6 @@ along with this program.
 
 */
 
-#include "TextEditor.h"
 #include "framebuffer.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
@@ -202,7 +201,6 @@ int main(int, char **) {
 		QuakePrism::DrawErrorPopup();
 		QuakePrism::DrawOpenProjectPopup();
 		QuakePrism::DrawNewProjectPopup();
-		QuakePrism::DrawLauncherPopup();
 
 		ImGui::PopFont();
 

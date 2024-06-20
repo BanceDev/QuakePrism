@@ -51,7 +51,7 @@ extern std::vector<TextEditor> editorList;
 
 // Config Assets
 extern std::filesystem::path configFile;
-extern std::filesystem::path projectsDirectory;
+extern std::vector<std::filesystem::path> projectsList;
 
 // Essential Paths
 extern std::vector<std::filesystem::path> currentQCFileNames;
@@ -65,7 +65,4 @@ void loadIcons();
 void loadFonts();
 
 void loadColormap();
-
-bool configFound();
-
 } // namespace QuakePrism
