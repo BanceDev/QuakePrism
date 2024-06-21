@@ -853,6 +853,18 @@ static bool CopyTemplate(const std::filesystem::path &source,
 	return true;
 }
 
+static int InputTextFilterWhitespace(ImGuiInputTextCallbackData* data)
+{
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackCharFilter)
+    {
+        if (isspace(data->EventChar))
+        {
+            return 1; // Ignore the character
+        }
+    }
+    return 0;
+}
+
 void DrawNewProjectPopup() {
 	if (!isNewProjectOpen)
 		return;
@@ -917,7 +929,7 @@ void DrawNewProjectPopup() {
 			ImGui::TextUnformatted("Project Name");
 			ImGui::SetNextItemWidth(360.0f);
 			ImGui::InputText("##projectname", projectName,
-							 IM_ARRAYSIZE(projectName));
+							 IM_ARRAYSIZE(projectName), ImGuiInputTextFlags_CallbackCharFilter, InputTextFilterWhitespace);
 
 			static ImGui::FileBrowser projectLocationBrowser(
 				ImGuiFileBrowserFlags_SelectDirectory);
