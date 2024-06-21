@@ -20,6 +20,7 @@ along with this program.
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#include <filesystem>
 
 namespace QuakePrism {
 
@@ -30,9 +31,9 @@ bool ImageTreeNode(const char *label, const GLuint icon);
 
 void HelpMarker(const char *desc);
 
-bool ButtonRight(const char* label, float offset_from_right);
+bool ButtonRight(const char *label, float offset_from_right);
 
-bool ButtonCentered(const char* label);
+bool ButtonCentered(const char *label);
 
 bool CompileProject();
 
@@ -41,5 +42,9 @@ bool RunProject();
 void CreateFile(const char *filename);
 
 void CreateFolder(const char *dirname);
+
+void AddProjectToRecents(const std::filesystem::path &projectPath);
+
+void InitializeRecentProjectsList();
 
 } // namespace QuakePrism

@@ -22,6 +22,8 @@ along with this program.
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <ostream>
+#include <string>
 #define STB_IMAGE_IMPLEMENTATION
 #include "resources.h"
 #include "stb_image.h"
@@ -177,10 +179,11 @@ bool CompileProject() {
 bool RunProject() {
 	chdir(baseDirectory.parent_path().string().c_str());
 #ifdef _WIN32
-	std::string cmd = "quake.exe -game " + baseDirectory.filename().string();
+	std::string cmd =
+		"quakespasm.exe -game " + baseDirectory.filename().string();
 	bool result = system(cmd.c_str()) != -1;
 #else
-	std::string cmd = "./quake -game " + baseDirectory.filename().string();
+	std::string cmd = "./quakespasm -game " + baseDirectory.filename().string();
 	bool result = system(cmd.c_str()) != -1;
 #endif
 	chdir(baseDirectory.string().c_str());
@@ -199,6 +202,36 @@ void CreateFile(const char *filename) {
 void CreateFolder(const char *dirname) {
 	if (!std::filesystem::exists(baseDirectory / "src" / dirname))
 		std::filesystem::create_directory(baseDirectory / "src" / dirname);
+}
+
+void AddProjectToRecents(const std::filesystem::path &projectPath) {
+	std::ofstream output(configFile, std::ios::app);
+
+	if (output.is_open()) {
+		output << projectPath.string() << std::endl;
+	}
+}
+
+void InitializeRecentProjectsList() {
+	std::string fileContent = "";
+	std::ifstream input(configFile);
+
+	if (input.is_open()) {
+		std::string line;
+		while (std::getline(input, line)) {
+			std::filesystem::path projectPath(line);
+			if (std::filesystem::exists(projectPath)) {
+				fileContent += line + "\n";
+				projectsList.push_back(projectPath);
+			}
+		}
+	}
+	input.close();
+
+	std::ofstream output(configFile);
+	if (output.is_open())
+		output << fileContent;
+	output.close();
 }
 
 } // namespace QuakePrism
