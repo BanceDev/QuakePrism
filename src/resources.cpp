@@ -21,6 +21,8 @@ along with this program.
 #include "util.h"
 #include <cstdio>
 #include <fstream>
+#include <iostream>
+#include <ostream>
 #include <string>
 
 namespace QuakePrism {
@@ -54,6 +56,7 @@ std::vector<TextEditor> editorList;
 std::filesystem::path configFile =
 	std::filesystem::current_path() / ".quakeprism.cfg";
 std::vector<std::filesystem::path> projectsList;
+std::filesystem::path projectSourcePort;
 
 // Essential Paths
 std::vector<std::filesystem::path> currentQCFileNames;
@@ -104,4 +107,39 @@ void loadColormap() {
 
 	fclose(fp);
 }
+
+void CreateQProjectFile() {
+	if (!std::filesystem::exists(baseDirectory / ".qproj")) {
+		std::ofstream output((baseDirectory / ".qproj"));
+		if (output.is_open()) {
+#ifdef _WIN32
+			output << "quakespasm.exe" << std::endl;
+#else
+			output << "quakespasm" << std::endl;
+#endif
+			output.close();
+		}
+	}
+}
+
+void ChangeQProjectSourcePort(const std::filesystem::path &sourcePort) {
+	std::cout << sourcePort.string() << "\n";
+	std::ofstream output((baseDirectory / ".qproj"));
+	if (output.is_open()) {
+		output << sourcePort.filename().string() << std::endl;
+		output.close();
+	}
+	projectSourcePort = sourcePort;
+}
+
+void ReadQProjectFile() {
+	std::ifstream input((baseDirectory / ".qproj"));
+	if (input.is_open()) {
+		std::string sourcePortName;
+		std::getline(input, sourcePortName);
+		projectSourcePort = baseDirectory.parent_path() / sourcePortName;
+		input.close();
+	}
+}
+
 } // namespace QuakePrism

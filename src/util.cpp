@@ -20,7 +20,6 @@ along with this program.
 #include "util.h"
 #include "imgui.h"
 #include <cstdint>
-#include <filesystem>
 #include <fstream>
 #include <ostream>
 #include <string>
@@ -179,11 +178,12 @@ bool CompileProject() {
 bool RunProject() {
 	chdir(baseDirectory.parent_path().string().c_str());
 #ifdef _WIN32
-	std::string cmd =
-		"quakespasm.exe -game " + baseDirectory.filename().string();
+	std::string cmd = projectSourcePort.filename().string() + " -game " +
+					  baseDirectory.filename().string();
 	bool result = system(cmd.c_str()) != -1;
 #else
-	std::string cmd = "./quakespasm -game " + baseDirectory.filename().string();
+	std::string cmd = "./" + projectSourcePort.filename().string() + " -game " +
+					  baseDirectory.filename().string();
 	bool result = system(cmd.c_str()) != -1;
 #endif
 	chdir(baseDirectory.string().c_str());

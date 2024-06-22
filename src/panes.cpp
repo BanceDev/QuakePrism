@@ -130,6 +130,24 @@ void DrawMenuBar() {
 			ImGui::EndMenu();
 		}
 
+		static ImGui::FileBrowser sourcePortBrowser;
+		if (ImGui::BeginMenu("Settings")) {
+			if (ImGui::MenuItem("Set Source Port", NULL, false, newEnabled)) {
+#ifdef _WIN32
+				sourcePortBrowser.SetTypeFilters(".exe");
+#endif
+				sourcePortBrowser.SetTitle("Choose Source Port Executable");
+				sourcePortBrowser.SetPwd(baseDirectory.parent_path());
+				sourcePortBrowser.Open();
+			}
+			ImGui::EndMenu();
+		}
+		if (sourcePortBrowser.HasSelected()) {
+			ChangeQProjectSourcePort(sourcePortBrowser.GetSelected());
+			sourcePortBrowser.ClearSelected();
+		}
+		sourcePortBrowser.Display();
+
 		if (ImGui::BeginMenu("Help")) {
 			if (ImGui::MenuItem("Documentation")) {
 #ifdef _WIN32
@@ -779,6 +797,11 @@ void DrawOpenProjectPopup() {
 			projectsList.push_back(selectedProjectDirecory);
 			AddProjectToRecents(selectedProjectDirecory);
 			baseDirectory = selectedProjectDirecory;
+
+			// Handle qproj file
+			CreateQProjectFile(); // only will work if the file DNE
+			ReadQProjectFile();
+
 			currentQCFileNames.clear();
 			currentModelName.clear();
 			currentTextureName.clear();
@@ -797,6 +820,10 @@ void DrawOpenProjectPopup() {
 		if (ImGui::Button("Open")) {
 			try {
 				baseDirectory = projectsList.at(itemCurrentIdx);
+				// Handle qproj file
+				CreateQProjectFile(); // only will work if the file DNE
+				ReadQProjectFile();
+
 				currentQCFileNames.clear();
 				currentModelName.clear();
 				currentTextureName.clear();
@@ -853,16 +880,13 @@ static bool CopyTemplate(const std::filesystem::path &source,
 	return true;
 }
 
-static int InputTextFilterWhitespace(ImGuiInputTextCallbackData* data)
-{
-    if (data->EventFlag == ImGuiInputTextFlags_CallbackCharFilter)
-    {
-        if (isspace(data->EventChar))
-        {
-            return 1; // Ignore the character
-        }
-    }
-    return 0;
+static int InputTextFilterWhitespace(ImGuiInputTextCallbackData *data) {
+	if (data->EventFlag == ImGuiInputTextFlags_CallbackCharFilter) {
+		if (isspace(data->EventChar)) {
+			return 1; // Ignore the character
+		}
+	}
+	return 0;
 }
 
 void DrawNewProjectPopup() {
@@ -929,7 +953,9 @@ void DrawNewProjectPopup() {
 			ImGui::TextUnformatted("Project Name");
 			ImGui::SetNextItemWidth(360.0f);
 			ImGui::InputText("##projectname", projectName,
-							 IM_ARRAYSIZE(projectName), ImGuiInputTextFlags_CallbackCharFilter, InputTextFilterWhitespace);
+							 IM_ARRAYSIZE(projectName),
+							 ImGuiInputTextFlags_CallbackCharFilter,
+							 InputTextFilterWhitespace);
 
 			static ImGui::FileBrowser projectLocationBrowser(
 				ImGuiFileBrowserFlags_SelectDirectory);
@@ -1051,6 +1077,11 @@ void DrawNewProjectPopup() {
 				AddProjectToRecents(selectedProjectDirecory);
 				projectsList.push_back(selectedProjectDirecory);
 				baseDirectory = selectedProjectDirecory;
+
+				// Handle qproj file
+				CreateQProjectFile(); // only will work if the file DNE
+				ReadQProjectFile();
+
 				selectedProjectDirecory.clear();
 				currentQCFileNames.clear();
 				currentModelName.clear();
