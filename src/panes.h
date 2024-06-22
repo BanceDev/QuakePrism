@@ -49,8 +49,6 @@ void DrawOpenProjectPopup();
 
 void DrawNewProjectPopup();
 
-void DrawLauncherPopup();
-
 void SaveFromEditor(TextEditor *editor);
 
 } // namespace QuakePrism

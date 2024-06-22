@@ -51,7 +51,8 @@ extern std::vector<TextEditor> editorList;
 
 // Config Assets
 extern std::filesystem::path configFile;
-extern std::filesystem::path projectsDirectory;
+extern std::vector<std::filesystem::path> projectsList;
+extern std::filesystem::path projectSourcePort;
 
 // Essential Paths
 extern std::vector<std::filesystem::path> currentQCFileNames;
@@ -66,6 +67,10 @@ void loadFonts();
 
 void loadColormap();
 
-bool configFound();
+void CreateQProjectFile();
+
+void ChangeQProjectSourcePort(const std::filesystem::path &sourcePort);
+
+void ReadQProjectFile();
 
 } // namespace QuakePrism

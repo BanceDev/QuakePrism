@@ -17,7 +17,6 @@ along with this program.
 
 */
 
-#include "TextEditor.h"
 #include "framebuffer.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
@@ -25,6 +24,7 @@ along with this program.
 #include "panes.h"
 #include "resources.h"
 #include "theme.h"
+#include "util.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -129,6 +129,7 @@ int main(int, char **) {
 
 	QuakePrism::SetImguiTheme();
 	QuakePrism::loadIcons();
+	QuakePrism::InitializeRecentProjectsList();
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
 	ImGui_ImplOpenGL3_Init(glsl_version);
@@ -202,7 +203,6 @@ int main(int, char **) {
 		QuakePrism::DrawErrorPopup();
 		QuakePrism::DrawOpenProjectPopup();
 		QuakePrism::DrawNewProjectPopup();
-		QuakePrism::DrawLauncherPopup();
 
 		ImGui::PopFont();
 

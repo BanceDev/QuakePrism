@@ -25,10 +25,6 @@ To stay in contact with developers and users check out the community [discord](h
 - [ ] QuakeC Error/Warning Checking
 - [ ] SPR and LMP Tools
 
-## Changing Source Port
-
-In order to allow for a fully offline functionality Quake Prism ships with Quakespasm in the templates folder. If you want to use a different source port with your mod/game first launch Quake Prism and make a projects directory. Afterwards you can replace the source port files that appear in the projects directory. In order to be compatible with the one click compile and run from the editor the executable must be named quake or quake.exe depending on your operating system.
-
 ## Releases
 - Binary builds are available from [releases](https://github.com/BanceDev/QuakePrism/releases)
 
