@@ -18,10 +18,12 @@ along with this program.
 */
 
 #pragma once
+#include "TextEditor.h"
 #include <string>
 
 namespace QuakePrism {
 std::string getCompilerOutputString();
 
-void createTextEditorDiagnostics();
-}
+void createTextEditorDiagnostics(TextEditor &editor);
+
+} // namespace QuakePrism

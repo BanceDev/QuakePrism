@@ -270,6 +270,8 @@ class TextEditor {
 	static const Palette &GetDarkPalette();
 	static const Palette &GetLightPalette();
 	static const Palette &GetRetroBluePalette();
+	void SetFileName(const std::string &fileName);
+	std::string GetFileName();
 
   private:
 	typedef std::vector<std::pair<std::regex, PaletteIndex>> RegexList;
@@ -392,4 +394,5 @@ class TextEditor {
 	float mLastClick;
 
 	bool mUnsaved;
+	std::string mFileName;
 };

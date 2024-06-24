@@ -60,6 +60,7 @@ std::filesystem::path projectSourcePort;
 
 // Essential Paths
 std::vector<std::filesystem::path> currentQCFileNames;
+TextEditor currentTextEditor;
 std::filesystem::path currentModelName;
 std::filesystem::path currentTextureName;
 std::filesystem::path baseDirectory;
