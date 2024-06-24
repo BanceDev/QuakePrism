@@ -17,75 +17,79 @@ along with this program.
 
 */
 
-
-#include <iostream>
-#include <sstream>
-#include <regex>
-#include <string>
-#include <vector>
 #include "resources.h"
+#include <regex>
+#include <sstream>
+#include <string>
 #include <unistd.h>
+#include <vector>
 
 struct Diagnostic {
-    std::string file;
-    int line;
-    std::string type;
-    std::string message;
+	std::string file;
+	int line;
+	std::string type;
+	std::string message;
 };
 
-static std::vector<Diagnostic> parseCompilerOutput(const std::string& output) {
-    std::vector<Diagnostic> diagnostics;
-    std::regex combinedRegex(R"(([^:]+):(\d+): (warning|error)(?: ([^:]+))?: (.+))");
-    std::smatch match;
+static std::vector<Diagnostic> parseCompilerOutput(const std::string &output) {
+	std::vector<Diagnostic> diagnostics;
+	std::regex combinedRegex(
+		R"(([^:]+):(\d+): (warning|error)(?: ([^:]+))?: (.+))");
+	std::smatch match;
 
-    // Use a string stream to read the output line by line
-    std::istringstream outputStream(output);
-    std::string line;
+	// Use a string stream to read the output line by line
+	std::istringstream outputStream(output);
+	std::string line;
 
-    while (std::getline(outputStream, line)) {
-        if (std::regex_match(line, match, combinedRegex)) {
-            Diagnostic diag;
-            diag.file = match[1];
-            diag.line = std::stoi(match[2]);
-            diag.type = match[3];
-            diag.message = std::string(match[4]) + ": " + std::string(match[5]); // Include the warning/error code
-            diagnostics.push_back(diag);
-        }
-    }
+	while (std::getline(outputStream, line)) {
+		if (std::regex_match(line, match, combinedRegex)) {
+			Diagnostic diag;
+			diag.file = match[1];
+			diag.line = std::stoi(match[2]);
+			diag.type = match[3];
+			diag.message =
+				std::string(match[4]) + ": " +
+				std::string(match[5]); // Include the warning/error code
+			diagnostics.push_back(diag);
+		}
+	}
 
-    return diagnostics;
+	return diagnostics;
 }
 
 namespace QuakePrism {
 
 std::string getCompilerOutputString() {
-    std::string compilerOutput;
-    chdir((baseDirectory / "src").string().c_str());
+	std::string compilerOutput;
+	chdir((baseDirectory / "src").string().c_str());
 #ifdef _WIN32
-    std::string command = "fteqcc64.exe 2>&1";
+	std::string command = "fteqcc64.exe 2>&1";
 #else
-    std::string command = "./fteqcc64 2>&1";
+	std::string command = "./fteqcc64 2>&1";
 #endif
 
-    FILE *pipe = popen(command.c_str(), "r");
-    if (!pipe)
-        return "";
-    char buffer[128];
-    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-        compilerOutput += buffer;
-    }
-    pclose(pipe);
-    chdir(baseDirectory.string().c_str());
-    return compilerOutput;
+	FILE *pipe = popen(command.c_str(), "r");
+	if (!pipe)
+		return "";
+	char buffer[128];
+	while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+		compilerOutput += buffer;
+	}
+	pclose(pipe);
+	chdir(baseDirectory.string().c_str());
+	return compilerOutput;
 }
 
 void createTextEditorDiagnostics(TextEditor &editor) {
-    std::vector<Diagnostic> diagnostics = parseCompilerOutput(getCompilerOutputString());
-    TextEditor::ErrorMarkers markers;
-    for (const auto& diag : diagnostics) {
-        if (editor.GetFileName() == diag.file)
-            markers.insert(std::make_pair(diag.line, diag.message));
-    }
-    editor.SetErrorMarkers(markers);
+	std::vector<Diagnostic> diagnostics =
+		parseCompilerOutput(getCompilerOutputString());
+	TextEditor::ErrorMarkers markers;
+	for (const auto &diag : diagnostics) {
+		if (editor.GetFileName() == diag.file) {
+			markers.erase(diag.line); // use latest warning if duplicate lines
+			markers.insert(std::make_pair(diag.line, diag.message));
+		}
+	}
+	editor.SetErrorMarkers(markers);
 }
-}
+} // namespace QuakePrism

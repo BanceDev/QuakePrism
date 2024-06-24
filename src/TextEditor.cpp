@@ -39,6 +39,7 @@ TextEditor::TextEditor()
 	SetPalette(GetDarkPalette());
 	SetLanguageDefinition(LanguageDefinition::HLSL());
 	mLines.push_back(Line());
+	mUnsaved = false;
 }
 
 TextEditor::~TextEditor() {}
@@ -56,7 +57,9 @@ void TextEditor::SetLanguageDefinition(const LanguageDefinition &aLanguageDef) {
 
 void TextEditor::SetPalette(const Palette &aValue) { mPaletteBase = aValue; }
 
-void TextEditor::SetFileName(const std::string &fileName) { mFileName = fileName; }
+void TextEditor::SetFileName(const std::string &fileName) {
+	mFileName = fileName;
+}
 std::string TextEditor::GetFileName() { return mFileName; }
 
 std::string TextEditor::GetText(const Coordinates &aStart,

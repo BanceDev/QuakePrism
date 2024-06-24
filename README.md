@@ -33,8 +33,22 @@ Clone the repo recursively to install imgui dependencies
 ```
 git clone --recursive
 ```
-Other dependencies include sld2, glew, and glm. These can either be installed using the packagage manager for your respective Linux distro, or if you are on windows by downloading the installers for those libraries.
-Run the make command in the QuakePrism directory and it will output to a build directory. The makefile currently supports Linux fully, for Windows developers it is reccomended to use the Visual Studio project instead.
+
+### Linux Dependencies
+
+#### Arch Based
+```
+sudo pacman -S sdl2 glew glm
+```
+
+#### Debian Based
+```
+sudo apt install libsdl2-dev libglew-dev libglm-dev
+```
+
+### Windows Dependencies
+
+All windows builds for this project are currently cross compiled from Linux. There is a visual studio sln file that I have made based off of the ImGui template. It has not been tested at all so if you do manage to build from windows and want to support the project submit a PR to update this portion of the readme with instructions/changes that may need to be made to the visual studio sln/project files. 
 
 ## Contributing
 - For bug reports and feature suggestions please use [issues](https://github.com/BanceDev/QuakePrism/issues).
