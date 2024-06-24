@@ -136,7 +136,7 @@ void DrawMenuBar() {
 		if (ImGui::BeginMenu("Settings")) {
 			if (ImGui::MenuItem("Set Source Port", NULL, false, newEnabled)) {
 #ifdef _WIN32
-				sourcePortBrowser.SetTypeFilters(".exe");
+				sourcePortBrowser.SetTypeFilters({".exe"});
 #endif
 				sourcePortBrowser.SetTitle("Choose Source Port Executable");
 				sourcePortBrowser.SetPwd(baseDirectory.parent_path());
@@ -630,8 +630,7 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 								std::istreambuf_iterator<char>());
 							TextEditor editor;
 							editor.SetText(str);
-							editor.SetFileName(path.filename());
-							// TODO: move this for proper interval linting
+							editor.SetFileName(path.filename().string());
 							createTextEditorDiagnostics(editor);
 							editorList.push_back(editor);
 						}
