@@ -1927,7 +1927,7 @@ const TextEditor::Palette &TextEditor::GetDarkPalette() {
 		0xff7FBB21, // Char literal
 		0xffffffff, // Punctuation
 		0xff49A4E5, // Preprocessor
-		0xffCAADC1, // Identifier
+		0xffBB8CAF, // Identifier
 		0xff8C567E, // Known identifier
 		0xffc040a0, // Preproc identifier
 		0xff92595E, // Comment (single line)
