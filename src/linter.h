@@ -19,9 +19,10 @@ along with this program.
 
 #pragma once
 #include <string>
+#include "TextEditor.h"
 
 namespace QuakePrism {
 std::string getCompilerOutputString();
 
-void createTextEditorDiagnostics();
+void createTextEditorDiagnostics(TextEditor &editor);
 }
