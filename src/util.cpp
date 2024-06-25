@@ -167,7 +167,7 @@ bool CompileProject() {
 
 	chdir((baseDirectory / "src").string().c_str());
 #ifdef _WIN32
-	bool result = system("fteqcc64.exe") != -1;
+	bool result = system("start fteqcc64.exe") != -1;
 #else
 	bool result = system("./fteqcc64") != -1;
 #endif
@@ -178,8 +178,8 @@ bool CompileProject() {
 bool RunProject() {
 	chdir(baseDirectory.parent_path().string().c_str());
 #ifdef _WIN32
-	std::string cmd = projectSourcePort.filename().string() + " -game " +
-					  baseDirectory.filename().string();
+	std::string cmd = "start " + projectSourcePort.filename().string() +
+					  " -game " + baseDirectory.filename().string();
 	bool result = system(cmd.c_str()) != -1;
 #else
 	std::string cmd = "./" + projectSourcePort.filename().string() + " -game " +
