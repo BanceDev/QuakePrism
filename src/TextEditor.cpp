@@ -944,12 +944,12 @@ void TextEditor::Render() {
 				if (ImGui::IsMouseHoveringRect(lineStartScreenPos, end)) {
 					ImGui::BeginTooltip();
 					ImGui::PushStyleColor(ImGuiCol_Text,
-										  ImVec4(1.0f, 0.2f, 0.2f, 1.0f));
+										  ImVec4(0.9f, 0.4f, 0.3f, 1.0f));
 					ImGui::Text("Error at line %d:", errorIt->first);
 					ImGui::PopStyleColor();
 					ImGui::Separator();
 					ImGui::PushStyleColor(ImGuiCol_Text,
-										  ImVec4(1.0f, 1.0f, 0.2f, 1.0f));
+										  ImVec4(0.9f, 0.6f, 0.3f, 1.0f));
 					ImGui::Text("%s", errorIt->second.c_str());
 					ImGui::PopStyleColor();
 					ImGui::EndTooltip();
@@ -1939,7 +1939,7 @@ const TextEditor::Palette &TextEditor::GetDarkPalette() {
 		0xff92595E, // Comment (single line)
 		0xff54649D, // Comment (multi line)
 		0xff101010, // Background
-		0xffDD3833, // Cursor
+		0xffffffff, // Cursor
 		0x80EF8651, // Selection
 		0x80DA867D, // ErrorMarker
 		0x4044E8D8, // Breakpoint

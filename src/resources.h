@@ -56,7 +56,7 @@ extern std::filesystem::path projectSourcePort;
 
 // Essential Paths
 extern std::vector<std::filesystem::path> currentQCFileNames;
-extern TextEditor currentTextEditor;
+extern TextEditor *currentTextEditor;
 extern std::filesystem::path currentModelName;
 extern std::filesystem::path currentTextureName;
 extern std::filesystem::path baseDirectory;
