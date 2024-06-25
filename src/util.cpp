@@ -29,6 +29,7 @@ along with this program.
 #include <unistd.h>
 #ifdef _WIN32
 #include <direct.h>
+#include <iostream>
 #include <windows.h>
 #endif
 
@@ -177,19 +178,9 @@ bool CompileProject() {
 
 	PROCESS_INFORMATION pi;
 	ZeroMemory(&pi, sizeof(pi));
-	const char* exe = "fteqcc64.exe";
-	bool result = CreateProcess(
-		NULL,
-		(LPSTR)exe,
-		NULL,
-		NULL,
-		FALSE,
-		CREATE_NO_WINDOW,
-		NULL,
-		NULL,
-		&si,
-		&pi
-	);
+	const wchar_t *exe = L"fteqcc64.exe";
+	bool result = CreateProcess(NULL, (LPWSTR)exe, NULL, NULL, FALSE,
+								CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
 	_chdir(baseDirectory.string().c_str());
 #else
 	chdir((baseDirectory / "src").string().c_str());
@@ -200,29 +191,19 @@ bool CompileProject() {
 }
 
 bool RunProject() {
-	
+
 #ifdef _WIN32
 	_chdir(baseDirectory.parent_path().string().c_str());
-	std::string cmd = projectSourcePort.filename().string() +
-					  " -game " + baseDirectory.filename().string();
+	std::wstring cmd = projectSourcePort.filename().wstring() + L" -game " +
+					   baseDirectory.filename().wstring();
 	STARTUPINFO si;
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 
 	PROCESS_INFORMATION pi;
 	ZeroMemory(&pi, sizeof(pi));
-	bool result = CreateProcess(
-		NULL,
-		(LPSTR)cmd.c_str(),
-		NULL,
-		NULL,
-		FALSE,
-		CREATE_NO_WINDOW,
-		NULL,
-		NULL,
-		&si,
-		&pi
-	);
+	bool result = CreateProcess(NULL, (LPWSTR)cmd.c_str(), NULL, NULL, FALSE,
+								CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
 	_chdir(baseDirectory.string().c_str());
 #else
 	chdir(baseDirectory.parent_path().string().c_str());

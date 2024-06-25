@@ -99,8 +99,8 @@ void DrawMenuBar() {
 			if (ImGui::MenuItem("Containing Folder", NULL, false, newEnabled) &&
 				!baseDirectory.empty()) {
 #ifdef _WIN32
-				ShellExecuteA(NULL, "open", baseDirectory.c_str(), NULL, NULL,
-							 SW_SHOWDEFAULT);
+				ShellExecuteA(NULL, "open", baseDirectory.string().c_str(),
+							  NULL, NULL, SW_SHOWDEFAULT);
 #else
 				std::string command = "xdg-open " + baseDirectory.string();
 				system(command.c_str());
@@ -154,7 +154,10 @@ void DrawMenuBar() {
 		if (ImGui::BeginMenu("Help")) {
 			if (ImGui::MenuItem("Documentation")) {
 #ifdef _WIN32
-				ShellExecuteA(NULL, "open", "https://github.com/BanceDev/QuakePrism/blob/main/docs/MANUAL.md", NULL, NULL, SW_SHOWDEFAULT);
+				ShellExecuteA(NULL, "open",
+							  "https://github.com/BanceDev/QuakePrism/blob/"
+							  "main/docs/MANUAL.md",
+							  NULL, NULL, SW_SHOWDEFAULT);
 #else
 				system("xdg-open "
 					   "https://github.com/BanceDev/QuakePrism/blob/main/docs/"
@@ -1007,11 +1010,13 @@ void DrawNewProjectPopup() {
 #endif
 						auto dest = selectedProjectDirecory.parent_path() /
 									relative_path;
-						if (!std::filesystem::exists(path)) { // prevent duplicate imports (lead to crash on windows)
+						if (std::filesystem::exists(
+								path)) { // prevent duplicate imports (lead to
+										 // crash on windows)
 							if (std::filesystem::is_directory(path)) {
 								std::filesystem::create_directories(dest);
 							} else if (std::filesystem::is_regular_file(path) ||
-									std::filesystem::is_symlink(path)) {
+									   std::filesystem::is_symlink(path)) {
 								std::filesystem::copy(
 									path, dest,
 									std::filesystem::copy_options::
