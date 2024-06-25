@@ -27,6 +27,9 @@ along with this program.
 #include "resources.h"
 #include "stb_image.h"
 #include <unistd.h>
+#ifdef _WIN32
+#include <direct.h>
+#endif
 
 namespace QuakePrism {
 
@@ -165,34 +168,43 @@ bool ButtonCentered(const char *label) {
 
 bool CompileProject() {
 
-	chdir((baseDirectory / "src").string().c_str());
 #ifdef _WIN32
+	_chdir((baseDirectory / "src").string().c_str());
 	bool result = system("start fteqcc64.exe") != -1;
+	_chdir(baseDirectory.string().c_str());
 #else
+	chdir((baseDirectory / "src").string().c_str());
 	bool result = system("./fteqcc64") != -1;
-#endif
 	chdir(baseDirectory.string().c_str());
+#endif
 	return result;
 }
 
 bool RunProject() {
-	chdir(baseDirectory.parent_path().string().c_str());
+	
 #ifdef _WIN32
+	_chdir(baseDirectory.parent_path().string().c_str());
 	std::string cmd = "start " + projectSourcePort.filename().string() +
 					  " -game " + baseDirectory.filename().string();
 	bool result = system(cmd.c_str()) != -1;
+	_chdir(baseDirectory.string().c_str());
 #else
+	chdir(baseDirectory.parent_path().string().c_str());
 	std::string cmd = "./" + projectSourcePort.filename().string() + " -game " +
 					  baseDirectory.filename().string();
 	bool result = system(cmd.c_str()) != -1;
-#endif
 	chdir(baseDirectory.string().c_str());
+#endif
 	return result;
 }
 
 void CreateFile(const char *filename) {
 	if (!std::filesystem::exists(baseDirectory / "src" / filename)) {
+#ifdef _WIN32
+		_chdir((baseDirectory / "src").string().c_str());
+#else
 		chdir((baseDirectory / "src").string().c_str());
+#endif
 		std::string s = filename;
 		s += ".qc";
 		std::ofstream{s};
