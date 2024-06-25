@@ -43,7 +43,7 @@ ifeq ($(UNAME_S), Linux)
         CXX := x86_64-w64-mingw32-g++
         EXE := build/QuakePrism.exe
         LIBS := -lmingw32 -lSDL2main -lSDL2 -lgdi32 -lopengl32 -limm32 -lglew32 -lglu32
-        CXXFLAGS := -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(SRC_DIR) -I/usr/x86_64-w64-mingw32/include -I/usr/x86_64-w64-mingw32/include/SDL2 -D_UNICODE -DUNICODE -g -Wall -Wformat
+        CXXFLAGS := -std=c++17 -mwindows -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(SRC_DIR) -I/usr/x86_64-w64-mingw32/include -I/usr/x86_64-w64-mingw32/include/SDL2 -D_UNICODE -DUNICODE -g -Wall -Wformat
     endif
 endif
 

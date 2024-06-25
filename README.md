@@ -21,8 +21,8 @@ To stay in contact with developers and users check out the community [discord](h
 - [x] QuakeC Editor
 - [x] Mod/Game Project Templates
 - [x] Color Palette Editor 
+- [x] QuakeC Error/Warning Checking
 - [ ] WAD Editor
-- [ ] QuakeC Error/Warning Checking
 - [ ] SPR and LMP Tools
 
 ## Releases

@@ -70,10 +70,10 @@ void loadFonts() {
 	ImGuiIO &io = ImGui::GetIO();
 	(void)io;
 
-	ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 21.0f);
+	ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 20.0f);
 	IM_ASSERT(ubuntuFont != nullptr);
 	ubuntuMonoFont = io.Fonts->AddFontFromFileTTF(
-		"res/UbuntuMonoNerdFontMono-Regular.ttf", 21.0f);
+		"res/UbuntuMonoNerdFontMono-Regular.ttf", 20.0f);
 	IM_ASSERT(ubuntuMonoFont != nullptr);
 }
 

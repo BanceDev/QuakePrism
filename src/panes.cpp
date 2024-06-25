@@ -1007,15 +1007,16 @@ void DrawNewProjectPopup() {
 #endif
 						auto dest = selectedProjectDirecory.parent_path() /
 									relative_path;
-
-						if (std::filesystem::is_directory(path)) {
-							std::filesystem::create_directories(dest);
-						} else if (std::filesystem::is_regular_file(path) ||
-								   std::filesystem::is_symlink(path)) {
-							std::filesystem::copy(
-								path, dest,
-								std::filesystem::copy_options::
-									overwrite_existing);
+						if (!std::filesystem::exists(path)) { // prevent duplicate imports (lead to crash on windows)
+							if (std::filesystem::is_directory(path)) {
+								std::filesystem::create_directories(dest);
+							} else if (std::filesystem::is_regular_file(path) ||
+									std::filesystem::is_symlink(path)) {
+								std::filesystem::copy(
+									path, dest,
+									std::filesystem::copy_options::
+										overwrite_existing);
+							}
 						}
 					}
 				}
