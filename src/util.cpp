@@ -29,6 +29,7 @@ along with this program.
 #include <unistd.h>
 #ifdef _WIN32
 #include <direct.h>
+#include <windows.h>
 #endif
 
 namespace QuakePrism {
@@ -170,7 +171,25 @@ bool CompileProject() {
 
 #ifdef _WIN32
 	_chdir((baseDirectory / "src").string().c_str());
-	bool result = system("start fteqcc64.exe") != -1;
+	STARTUPINFO si;
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+
+	PROCESS_INFORMATION pi;
+	ZeroMemory(&pi, sizeof(pi));
+	const char* exe = "fteqcc64.exe";
+	bool result = CreateProcess(
+		NULL,
+		(LPSTR)exe,
+		NULL,
+		NULL,
+		FALSE,
+		CREATE_NO_WINDOW,
+		NULL,
+		NULL,
+		&si,
+		&pi
+	);
 	_chdir(baseDirectory.string().c_str());
 #else
 	chdir((baseDirectory / "src").string().c_str());
@@ -184,9 +203,26 @@ bool RunProject() {
 	
 #ifdef _WIN32
 	_chdir(baseDirectory.parent_path().string().c_str());
-	std::string cmd = "start " + projectSourcePort.filename().string() +
+	std::string cmd = projectSourcePort.filename().string() +
 					  " -game " + baseDirectory.filename().string();
-	bool result = system(cmd.c_str()) != -1;
+	STARTUPINFO si;
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+
+	PROCESS_INFORMATION pi;
+	ZeroMemory(&pi, sizeof(pi));
+	bool result = CreateProcess(
+		NULL,
+		(LPSTR)cmd.c_str(),
+		NULL,
+		NULL,
+		FALSE,
+		CREATE_NO_WINDOW,
+		NULL,
+		NULL,
+		&si,
+		&pi
+	);
 	_chdir(baseDirectory.string().c_str());
 #else
 	chdir(baseDirectory.parent_path().string().c_str());
