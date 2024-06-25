@@ -1034,8 +1034,7 @@ void DrawNewProjectPopup() {
 					break;
 				}
 				case 2: {
-					std::filesystem::path projectPath =
-						selectedProjectDirecory / projectName;
+					std::filesystem::path projectPath = selectedProjectDirecory;
 
 					// Create the destination directory if it does not exist
 					if (!std::filesystem::exists(projectPath)) {
