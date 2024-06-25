@@ -23,6 +23,10 @@ along with this program.
 #include <string>
 #include <unistd.h>
 #include <vector>
+#include <stdio.h>
+#ifdef _WIN32
+#include <direct.h>
+#endif
 
 struct Diagnostic {
 	std::string file;
@@ -61,22 +65,29 @@ namespace QuakePrism {
 
 std::string getCompilerOutputString() {
 	std::string compilerOutput;
-	chdir((baseDirectory / "src").string().c_str());
+	
 #ifdef _WIN32
-	std::string command = "fteqcc64.exe 2>&1";
+	_chdir((baseDirectory / "src").string().c_str());
+	std::string command = "start fteqcc64.exe 2>&1";
+	FILE *pipe = _popen(command.c_str(), "r");
 #else
+	chdir((baseDirectory / "src").string().c_str());
 	std::string command = "./fteqcc64 2>&1";
-#endif
-
 	FILE *pipe = popen(command.c_str(), "r");
+#endif
 	if (!pipe)
 		return "";
 	char buffer[128];
 	while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
 		compilerOutput += buffer;
 	}
+#ifdef _WIN32
+	_pclose(pipe);
+	chdir(baseDirectory.string().c_str());
+#else
 	pclose(pipe);
 	chdir(baseDirectory.string().c_str());
+#endif
 	return compilerOutput;
 }
 

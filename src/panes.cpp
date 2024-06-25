@@ -99,7 +99,7 @@ void DrawMenuBar() {
 			if (ImGui::MenuItem("Containing Folder", NULL, false, newEnabled) &&
 				!baseDirectory.empty()) {
 #ifdef _WIN32
-				ShellExecute(NULL, L"open", baseDirectory.c_str(), NULL, NULL,
+				ShellExecuteA(NULL, "open", baseDirectory.c_str(), NULL, NULL,
 							 SW_SHOWDEFAULT);
 #else
 				std::string command = "xdg-open " + baseDirectory.string();
@@ -154,10 +154,7 @@ void DrawMenuBar() {
 		if (ImGui::BeginMenu("Help")) {
 			if (ImGui::MenuItem("Documentation")) {
 #ifdef _WIN32
-				ShellExecute(0, 0,
-							 L"https://github.com/BanceDev/QuakePrism/blob/"
-							 L"main/docs/MANUAL.md",
-							 0, 0, SW_SHOW);
+				ShellExecuteA(NULL, "open", "https://github.com/BanceDev/QuakePrism/blob/main/docs/MANUAL.md", NULL, NULL, SW_SHOWDEFAULT);
 #else
 				system("xdg-open "
 					   "https://github.com/BanceDev/QuakePrism/blob/main/docs/"

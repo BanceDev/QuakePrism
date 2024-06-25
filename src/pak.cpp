@@ -220,7 +220,11 @@ bool ExtractPAK(const std::filesystem::path filename,
 	}
 
 	if (out_dir != NULL) {
+#ifdef _WIN32
+		if (_chdir(out_dir->string().c_str()) != 0) {
+#else
 		if (chdir(out_dir->string().c_str()) != 0) {
+#endif
 			return false;
 		}
 	}
