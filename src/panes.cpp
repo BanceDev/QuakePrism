@@ -57,7 +57,7 @@ bool isNewProjectOpen = false;
 bool isLauncherOpen = true;
 bool isCompiling = false;
 bool palLoaded = false;
-static bool newTabOpened = false;
+bool newTabOpened = false;
 
 namespace QuakePrism {
 
@@ -398,12 +398,12 @@ void SaveFromEditor(TextEditor *editor) {
 }
 
 static void DrawTextTab(TextEditor &editor,
-						const std::filesystem::path &currentFile,
-						bool &tabOpen) {
+						const std::filesystem::path &currentFile, bool &tabOpen,
+						const bool focused) {
 	auto lang = TextEditor::LanguageDefinition::QuakeC();
 	editor.SetLanguageDefinition(lang);
 	ImGuiTabItemFlags flags = ImGuiTabItemFlags_None;
-	if (newTabOpened) {
+	if (focused) {
 		newTabOpened = false;
 		flags = ImGuiTabItemFlags_SetSelected;
 	}
@@ -519,7 +519,13 @@ void DrawTextEditor() {
 	if (ImGui::BeginTabBar("Tab Bar")) {
 		for (int i = 0; i < editorList.size(); ++i) {
 			bool tabOpen = true;
-			DrawTextTab(editorList.at(i), currentQCFileNames.at(i), tabOpen);
+			if ((i == editorList.size() - 1) && newTabOpened) {
+				DrawTextTab(editorList.at(i), currentQCFileNames.at(i), tabOpen,
+							true);
+			} else {
+				DrawTextTab(editorList.at(i), currentQCFileNames.at(i), tabOpen,
+							false);
+			}
 			if (!tabOpen) {
 				RemoveEditorTab(i);
 				--i;
@@ -632,8 +638,8 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 						if (std::find(currentQCFileNames.begin(),
 									  currentQCFileNames.end(),
 									  path) == currentQCFileNames.end()) {
-							newTabOpened = true;
 							currentQCFileNames.push_back(path);
+							newTabOpened = true;
 							std::string str(
 								(std::istreambuf_iterator<char>(input)),
 								std::istreambuf_iterator<char>());
