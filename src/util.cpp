@@ -178,8 +178,8 @@ bool CompileProject() {
 
 	PROCESS_INFORMATION pi;
 	ZeroMemory(&pi, sizeof(pi));
-	const wchar_t *exe = L"fteqcc64.exe";
-	bool result = CreateProcess(NULL, (LPWSTR)exe, NULL, NULL, FALSE,
+	std::wstring cmd = L"fteqcc64.exe";
+	bool result = CreateProcess(NULL, (LPWSTR)cmd.c_str(), NULL, NULL, FALSE,
 								CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
 	_chdir(baseDirectory.string().c_str());
 #else

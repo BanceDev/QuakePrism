@@ -124,10 +124,7 @@ void DrawMenuBar() {
 			}
 			if (ImGui::MenuItem("Compile and Run", NULL, false, newEnabled)) {
 				isCompiling = true;
-				if (!CompileProject()) {
-					isErrorOpen = true;
-					userError = MISSING_COMPILER;
-				}
+				CompileProject();
 				RunProject();
 			}
 			ImGui::EndMenu();
