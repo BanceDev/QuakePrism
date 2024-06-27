@@ -64,7 +64,6 @@ namespace QuakePrism {
 void DrawMenuBar() {
 	if (ImGui::BeginMainMenuBar()) {
 		const bool newEnabled = !baseDirectory.empty();
-
 		if (ImGui::BeginMenu("File")) {
 			if (ImGui::BeginMenu("New")) {
 				if (ImGui::BeginMenu("QC File", newEnabled)) {
@@ -123,6 +122,7 @@ void DrawMenuBar() {
 				RunProject();
 			}
 			if (ImGui::MenuItem("Compile and Run", NULL, false, newEnabled)) {
+				// this is done to ensure compiling finishes before running
 				isCompiling = true;
 				CompileProject();
 				RunProject();
@@ -361,7 +361,6 @@ void DrawDebugConsole() {
 		isCompiling = false;
 	}
 	ImGui::TextUnformatted(consoleText.c_str());
-
 	ImGui::End();
 }
 
@@ -1055,22 +1054,17 @@ void DrawNewProjectPopup() {
 
 					std::filesystem::path srcDir =
 						selectedProjectDirecory / "src";
+					std::filesystem::path quakeCodebase;
 					if (codebaseType == 0) {
-						std::filesystem::path quakeCodebase =
-							executingDirectory / "res/templates/Id1/src";
-						if (!CopyTemplate(quakeCodebase, srcDir)) {
-							userError = PROJECT_FAILURE;
-							isErrorOpen = true;
-						}
+						quakeCodebase = executingDirectory / "res/templates/Id1/src";
+						
 					} else {
-						std::filesystem::path blankCodebase =
-							executingDirectory / "res/templates/Blank/src";
-						if (!CopyTemplate(blankCodebase, srcDir)) {
-							userError = PROJECT_FAILURE;
-							isErrorOpen = true;
-						}
+						quakeCodebase = executingDirectory / "res/templates/Blank/src";
 					}
-
+					if (!CopyTemplate(quakeCodebase, srcDir)) {
+						userError = PROJECT_FAILURE;
+						isErrorOpen = true;
+					}
 					break;
 				}
 				case 3: {
