@@ -27,8 +27,8 @@ along with this program.
 
 namespace QuakePrism {
 // Font Assets
-extern ImFont *ubuntuMonoFont;
-extern ImFont *ubuntuFont;
+extern ImFont *inconsolataFont;
+extern ImFont *notoSansFont;
 
 // Colormap
 extern unsigned char colormap[256][3];

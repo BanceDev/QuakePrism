@@ -28,8 +28,8 @@ along with this program.
 namespace QuakePrism {
 
 // Fonts
-ImFont *ubuntuFont;
-ImFont *ubuntuMonoFont;
+ImFont *inconsolataFont;
+ImFont *notoSansFont;
 
 // Colormap
 unsigned char colormap[256][3] = {
@@ -70,11 +70,11 @@ void loadFonts() {
 	ImGuiIO &io = ImGui::GetIO();
 	(void)io;
 
-	ubuntuFont = io.Fonts->AddFontFromFileTTF("res/Ubuntu-M.ttf", 20.0f);
-	IM_ASSERT(ubuntuFont != nullptr);
-	ubuntuMonoFont = io.Fonts->AddFontFromFileTTF(
-		"res/UbuntuMonoNerdFontMono-Regular.ttf", 20.0f);
-	IM_ASSERT(ubuntuMonoFont != nullptr);
+	notoSansFont = io.Fonts->AddFontFromFileTTF("res/NotoSans.ttf", 21.0f);
+	IM_ASSERT(notoSansFont != nullptr);
+	inconsolataFont =
+		io.Fonts->AddFontFromFileTTF("res/Inconsolata.ttf", 21.0f);
+	IM_ASSERT(inconsolataFont != nullptr);
 }
 
 void loadIcons() {

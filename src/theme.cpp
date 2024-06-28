@@ -52,12 +52,10 @@ void SetImguiTheme() {
 		ImGui::ColorConvertU32ToFloat4(Colors::Theme::propertyField);
 
 	// Tabs
-	colors[ImGuiCol_Tab] =
-		ImGui::ColorConvertU32ToFloat4(Colors::Theme::titlebar);
-	colors[ImGuiCol_TabHovered] = ImColor(255, 225, 135, 30);
+	colors[ImGuiCol_Tab] = ImColor(255, 225, 135, 30);
+	colors[ImGuiCol_TabHovered] = ImColor(255, 225, 135, 45);
 	colors[ImGuiCol_TabActive] = ImColor(255, 225, 135, 60);
-	colors[ImGuiCol_TabUnfocused] =
-		ImGui::ColorConvertU32ToFloat4(Colors::Theme::titlebar);
+	colors[ImGuiCol_TabUnfocused] = colors[ImGuiCol_TabHovered];
 	colors[ImGuiCol_TabUnfocusedActive] = colors[ImGuiCol_TabHovered];
 
 	// Title
@@ -127,4 +125,4 @@ void SetImguiTheme() {
 	style.FrameBorderSize = 1.0f;
 	style.IndentSpacing = 11.0f;
 }
-} // namespace QuakePrism::UI
+} // namespace QuakePrism

@@ -408,6 +408,12 @@ static void DrawTextTab(TextEditor &editor,
 		currentTextEditor = &editor;
 		auto cpos = editor.GetCursorPosition();
 
+		ImGui::GetWindowDrawList()->AddRectFilled(
+			ImGui::GetCursorScreenPos(),
+			ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth(),
+				   ImGui::GetCursorScreenPos().y + 21.0f),
+			ImColor(255, 225, 135, 30));
+
 		ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s ", cpos.mLine + 1,
 					cpos.mColumn + 1, editor.GetTotalLines(),
 					editor.IsOverwrite() ? "Ovr" : "Ins",
@@ -1056,10 +1062,12 @@ void DrawNewProjectPopup() {
 						selectedProjectDirecory / "src";
 					std::filesystem::path quakeCodebase;
 					if (codebaseType == 0) {
-						quakeCodebase = executingDirectory / "res/templates/Id1/src";
-						
+						quakeCodebase =
+							executingDirectory / "res/templates/Id1/src";
+
 					} else {
-						quakeCodebase = executingDirectory / "res/templates/Blank/src";
+						quakeCodebase =
+							executingDirectory / "res/templates/Blank/src";
 					}
 					if (!CopyTemplate(quakeCodebase, srcDir)) {
 						userError = PROJECT_FAILURE;
@@ -1145,7 +1153,7 @@ void DrawAboutPopup() {
 	isAboutOpen = ImGui::BeginPopupModal("About", nullptr,
 										 ImGuiWindowFlags_AlwaysAutoResize);
 	if (isAboutOpen) {
-		ImGui::Image((ImTextureID)(intptr_t)appIcon, {48, 48});
+		ImGui::Image((ImTextureID)(intptr_t)appIcon, {64, 64});
 
 		ImGui::SameLine();
 
@@ -1171,7 +1179,7 @@ void DrawErrorPopup() {
 	isErrorOpen = ImGui::BeginPopupModal("Error", nullptr,
 										 ImGuiWindowFlags_AlwaysAutoResize);
 	if (isErrorOpen) {
-		ImGui::Image((ImTextureID)(intptr_t)appIcon, {48, 48});
+		ImGui::Image((ImTextureID)(intptr_t)appIcon, {64, 64});
 
 		ImGui::SameLine();
 		switch (userError) {

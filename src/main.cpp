@@ -26,8 +26,8 @@ along with this program.
 #include "theme.h"
 #include "util.h"
 #include <SDL2/SDL.h>
-#include <stdio.h>
 #include <SDL2/SDL_opengl.h>
+#include <stdio.h>
 
 // global defined indices for OpenGL
 GLuint VAO;		   // vertex array object
@@ -112,8 +112,7 @@ int main(int, char **) {
 
 	// Main loop
 	bool done = false;
-	while (!done)
-	{
+	while (!done) {
 		// Poll and handle events (inputs, window resize, etc.)
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
@@ -130,7 +129,7 @@ int main(int, char **) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
-		ImGui::PushFont(QuakePrism::ubuntuFont);
+		ImGui::PushFont(QuakePrism::notoSansFont);
 		QuakePrism::DrawMenuBar();
 		ImGui::DockSpaceOverViewport();
 
@@ -139,11 +138,11 @@ int main(int, char **) {
 		QuakePrism::DrawPaletteTool();
 		ImGui::PopFont();
 
-		ImGui::PushFont(QuakePrism::ubuntuMonoFont);
+		ImGui::PushFont(QuakePrism::inconsolataFont);
 		QuakePrism::DrawTextEditor();
 		ImGui::PopFont();
 
-		ImGui::PushFont(QuakePrism::ubuntuFont);
+		ImGui::PushFont(QuakePrism::notoSansFont);
 		QuakePrism::DrawFileExplorer();
 
 		// Display all active popups
