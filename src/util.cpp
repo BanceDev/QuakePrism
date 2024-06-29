@@ -21,6 +21,8 @@ along with this program.
 #include "imgui.h"
 #include "resources.h"
 #include "stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 #include <cstdint>
 #include <fstream>
 #include <ostream>
@@ -119,6 +121,16 @@ void convertRGBAToIndices(unsigned char *pixels, unsigned char *indices,
 			indices[i] = 255;
 		}
 	}
+}
+
+void convertRGBToImage(const char *filename, unsigned char *pixels,
+					   const int width, const int height) {
+	stbi_write_png(filename, width, height, 3, pixels, width * 3);
+}
+
+void convertRGBAToImage(const char *filename, unsigned char *pixels,
+						const int width, const int height) {
+	stbi_write_png(filename, width, height, 4, pixels, width * 4);
 }
 
 bool ImageTreeNode(const char *label, const GLuint icon) {

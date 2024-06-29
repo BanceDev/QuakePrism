@@ -298,7 +298,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	// File browser is for import texture
 	static ImGui::FileBrowser texImportBrowser;
 	texImportBrowser.SetTitle("Select Texture");
-	texImportBrowser.SetTypeFilters({".tga"});
+	texImportBrowser.SetTypeFilters({".png", ".jpg", ".tga"});
 	if (!texImportBrowser.IsOpened())
 		texImportBrowser.SetPwd(baseDirectory);
 
@@ -355,8 +355,17 @@ void DrawTextureViewer() {
 								ImGui::GetContentRegionAvail().x *
 									(height / (float)width)));
 		} else {
+			GLuint texture;
+			int width, height;
+			LMP::Lmp2Tex(currentTextureName.string().c_str(), &texture, &width,
+						 &height);
 			if (ImGui::Button("Convert Lump to Image")) {
+				LMP::Lmp2Img(currentTextureName);
 			}
+			ImGui::Image((ImTextureID)(intptr_t)texture,
+						 ImVec2(ImGui::GetContentRegionAvail().x / 2,
+								(ImGui::GetContentRegionAvail().x / 2) *
+									(height / (float)width)));
 		}
 	}
 	ImGui::End();
@@ -707,7 +716,8 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 					ImGui::SetWindowFocus("Model Viewer");
 				} else if (path.extension() == ".tga" ||
 						   path.extension() == ".jpg" ||
-						   path.extension() == ".png") {
+						   path.extension() == ".png" ||
+						   path.extension() == ".lmp") {
 					std::ifstream input(path);
 					if (input.good()) {
 						currentTextureName = path;

@@ -30,6 +30,10 @@ void convertRGBToIndices(unsigned char *pixels, unsigned char *indices,
 						 const int size);
 void convertRGBAToIndices(unsigned char *pixels, unsigned char *indices,
 						  const int size);
+void convertRGBToImage(const char *filename, unsigned char *pixels,
+					   const int width, const int height);
+void convertRGBAToImage(const char *filename, unsigned char *pixels,
+						const int width, const int height);
 
 bool ImageTreeNode(const char *label, const GLuint icon);
 

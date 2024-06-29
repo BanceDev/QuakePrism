@@ -22,5 +22,8 @@ along with this program.
 namespace QuakePrism::LMP {
 
 void Img2Lmp(std::filesystem::path filename);
+void Lmp2Img(std::filesystem::path filename);
+void Lmp2Tex(std::filesystem::path filename, unsigned int *texID, int *width,
+			 int *height);
 
 } // namespace QuakePrism::LMP

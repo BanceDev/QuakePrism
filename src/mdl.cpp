@@ -21,7 +21,6 @@ along with this program.
 #include "resources.h"
 #include "util.h"
 #include <cstdio>
-#include <fstream>
 #include <string>
 
 /* Table of precalculated normals */
@@ -174,25 +173,15 @@ GLuint MakeTextureFromSkin(int n, const bool filteringEnabled,
 	return id;
 }
 
-bool ImportTextureFromTGA(const char *textureName, const char *modelName,
-						  struct mdl_model_t *mdl) {
+static bool ImportTextureFromImg(const char *textureName, const char *modelName,
+								 struct mdl_model_t *mdl) {
 
-	GLuint tgaTexID;
-
-	if (!QuakePrism::LoadTextureFromFile(textureName, &tgaTexID, nullptr,
-										 nullptr)) {
+	GLuint imgTexID;
+	int width, height;
+	if (!QuakePrism::LoadTextureFromFile(textureName, &imgTexID, &width,
+										 &height)) {
 		return false;
 	}
-	FILE *texp = fopen(textureName, "rb");
-	if (!texp) {
-		return false;
-	}
-	tga_header_t texHeader;
-	fread(&texHeader, 1, sizeof(tga_header_t), texp);
-	fclose(texp);
-
-	const int width = texHeader.width;
-	const int height = texHeader.height;
 
 	FILE *fp = fopen(modelName, "wb");
 	if (!fp) {
@@ -203,7 +192,7 @@ bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 	fwrite(&mdl->header, 1, sizeof(struct mdl_header_t), fp);
 
 	// Allocate memory for the RGB data
-	glBindTexture(GL_TEXTURE_2D, tgaTexID);
+	glBindTexture(GL_TEXTURE_2D, imgTexID);
 	GLubyte *pixels = (GLubyte *)malloc(width * height * 3);
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 	GLubyte *indices = (GLubyte *)malloc(width * height);
@@ -247,7 +236,8 @@ bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 	return true;
 }
 
-bool ExportTextureToTGA(const char *textureName, struct mdl_model_t *mdl) {
+static bool ExportTextureToImg(const char *textureName,
+							   struct mdl_model_t *mdl) {
 	int width = mdl->header.skinwidth;
 	int height = mdl->header.skinheight;
 
@@ -257,29 +247,11 @@ bool ExportTextureToTGA(const char *textureName, struct mdl_model_t *mdl) {
 	// Convert indexed 8 bits texture to RGB 24 bits
 	for (int i = 0; i < width * height; ++i) {
 		int colorIndex = mdl->skins[currentSkin - 1].data[i];
-		pixels[(i * 3) + 0] = colormap[colorIndex][2];
+		pixels[(i * 3) + 0] = colormap[colorIndex][0];
 		pixels[(i * 3) + 1] = colormap[colorIndex][1];
-		pixels[(i * 3) + 2] = colormap[colorIndex][0];
+		pixels[(i * 3) + 2] = colormap[colorIndex][2];
 	}
-
-	tga_header_t tgaHeader = {0};
-	tgaHeader.dataTypeCode = 2; // Uncompressed, true-color image
-	tgaHeader.width = width;
-	tgaHeader.height = height;
-	tgaHeader.bitsPerPixel = 24;
-	tgaHeader.imageDescriptor = 0x20; // Top-left origin
-
-	std::ofstream ofs(textureName, std::ios::binary);
-	if (!ofs) {
-		free(pixels);
-		return false;
-	}
-
-	ofs.write(reinterpret_cast<char *>(&tgaHeader), sizeof(tga_header_t));
-	ofs.write(reinterpret_cast<char *>(pixels), width * height * 3);
-	ofs.close();
-
-	free(pixels);
+	convertRGBToImage(textureName, pixels, width, height);
 	return true;
 }
 /**
@@ -574,18 +546,18 @@ void Animate(int start, int end, int *frame, float *interp) {
 
 bool mdlTextureImport(std::filesystem::path texturePath,
 					  std::filesystem::path modelPath) {
-	return ImportTextureFromTGA(texturePath.string().c_str(),
+	return ImportTextureFromImg(texturePath.string().c_str(),
 								modelPath.string().c_str(), &mdlfile);
 }
 
 bool mdlTextureExport(std::filesystem::path modelPath) {
 	modelPath.replace_extension("");
-	std::string tgaFilename = modelPath.string();
+	std::string imgFilename = modelPath.string();
 	if (totalSkins > 1) {
-		tgaFilename += "_" + std::to_string(currentSkin);
+		imgFilename += "_" + std::to_string(currentSkin);
 	}
-	tgaFilename += ".tga";
-	return ExportTextureToTGA(tgaFilename.c_str(), &mdlfile);
+	imgFilename += ".png";
+	return ExportTextureToImg(imgFilename.c_str(), &mdlfile);
 }
 
 void cleanup() { FreeModel(&mdlfile); }

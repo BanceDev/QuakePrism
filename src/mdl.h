@@ -60,11 +60,6 @@ extern int totalSkins;
 GLuint MakeTextureFromSkin(int n, const bool filteringEnabled,
 						   const struct mdl_model_t *mdl);
 
-bool ImportTextureFromTGA(const char *textureName, const char *modelName,
-						  struct mdl_model_t *mdl);
-
-bool ExportTextureToTGA(const char *textureName, struct mdl_model_t *mdl);
-
 bool ReadMDLModel(const char *filename, struct mdl_model_t *mdl,
 				  const bool filteringEnabled);
 
