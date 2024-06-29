@@ -77,6 +77,50 @@ bool LoadTextureFromFile(const char *filename, GLuint *out_texture,
 	return true;
 }
 
+static float colorDistance(const unsigned char *color1,
+						   const unsigned char *color2) {
+	return std::sqrt(std::pow(color1[0] - color2[0], 2) +
+					 std::pow(color1[1] - color2[1], 2) +
+					 std::pow(color1[2] - color2[2], 2));
+}
+
+static int findClosestColorIndex(const unsigned char *color) {
+	float minDistance = std::numeric_limits<float>::max();
+	int closestIndex = 0;
+
+	for (int i = 0; i < 256; ++i) {
+		float distance = colorDistance(color, colormap[i]);
+		if (distance < minDistance) {
+			minDistance = distance;
+			closestIndex = i;
+		}
+	}
+
+	return closestIndex;
+}
+
+void convertRGBToIndices(unsigned char *pixels, unsigned char *indices,
+						 const int size) {
+	for (int i = 0; i < size; ++i) {
+		const unsigned char color[3] = {
+			pixels[(i * 3) + 0], pixels[(i * 3) + 1], pixels[(i * 3) + 2]};
+		indices[i] = findClosestColorIndex(color);
+	}
+}
+
+void convertRGBAToIndices(unsigned char *pixels, unsigned char *indices,
+						  const int size) {
+	for (int i = 0; i < size; ++i) {
+		const unsigned char color[3] = {
+			pixels[(i * 4) + 0], pixels[(i * 4) + 1], pixels[(i * 4) + 2]};
+		if (pixels[(i * 4) + 3] > 0) {
+			indices[i] = findClosestColorIndex(color);
+		} else {
+			indices[i] = 255;
+		}
+	}
+}
+
 bool ImageTreeNode(const char *label, const GLuint icon) {
 	const ImGuiStyle &style = ImGui::GetStyle();
 	ImGuiStorage *storage = ImGui::GetStateStorage();

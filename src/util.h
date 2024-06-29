@@ -26,25 +26,25 @@ namespace QuakePrism {
 
 bool LoadTextureFromFile(const char *filename, GLuint *out_texture,
 						 int *out_width, int *out_height);
+void convertRGBToIndices(unsigned char *pixels, unsigned char *indices,
+						 const int size);
+void convertRGBAToIndices(unsigned char *pixels, unsigned char *indices,
+						  const int size);
 
 bool ImageTreeNode(const char *label, const GLuint icon);
 
 void HelpMarker(const char *desc);
 
 bool ButtonRight(const char *label, float offset_from_right);
-
 bool ButtonCentered(const char *label);
 
 bool CompileProject();
-
 bool RunProject();
 
 void CreateFile(const char *filename);
-
 void CreateFolder(const char *dirname);
 
 void AddProjectToRecents(const std::filesystem::path &projectPath);
-
 void InitializeRecentProjectsList();
 
 } // namespace QuakePrism

@@ -60,10 +60,6 @@ extern int totalSkins;
 GLuint MakeTextureFromSkin(int n, const bool filteringEnabled,
 						   const struct mdl_model_t *mdl);
 
-float colorDistance(const GLubyte *color1, const unsigned char *color2);
-int findClosestColorIndex(const GLubyte *color);
-void convertRGBToIndices(GLubyte *pixels, GLubyte *indices, const int size);
-
 bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 						  struct mdl_model_t *mdl);
 

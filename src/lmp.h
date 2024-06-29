@@ -17,13 +17,10 @@ along with this program.
 
 */
 
-namespace QuakePrism::LMP {
-typedef struct {
-	long width;
-	long height;
-	unsigned char *pixels;
-} lump_t;
+#include <filesystem>
 
-void Img2Lmp(const char *filename);
+namespace QuakePrism::LMP {
+
+void Img2Lmp(std::filesystem::path filename);
 
 } // namespace QuakePrism::LMP

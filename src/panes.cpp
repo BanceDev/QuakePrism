@@ -24,6 +24,7 @@ along with this program.
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "linter.h"
+#include "lmp.h"
 #include "mdl.h"
 #include "pak.h"
 #include "resources.h"
@@ -339,16 +340,24 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 }
 
 void DrawTextureViewer() {
-	ImGui::Begin("Texture Viewer", nullptr, ImGuiWindowFlags_NoMove);
+	ImGui::Begin("Texture Tools", nullptr, ImGuiWindowFlags_NoMove);
 	if (!currentTextureName.empty()) {
-		GLuint texture;
-		int width, height;
-		LoadTextureFromFile(currentTextureName.string().c_str(), &texture,
-							&width, &height);
-		ImGui::Image(
-			(ImTextureID)(intptr_t)texture,
-			ImVec2(ImGui::GetContentRegionAvail().x,
-				   ImGui::GetContentRegionAvail().x * (height / (float)width)));
+		if (currentTextureName.extension() != ".lmp") {
+			GLuint texture;
+			int width, height;
+			LoadTextureFromFile(currentTextureName.string().c_str(), &texture,
+								&width, &height);
+			if (ImGui::Button("Convert Image to Lump")) {
+				LMP::Img2Lmp(currentTextureName);
+			}
+			ImGui::Image((ImTextureID)(intptr_t)texture,
+						 ImVec2(ImGui::GetContentRegionAvail().x,
+								ImGui::GetContentRegionAvail().x *
+									(height / (float)width)));
+		} else {
+			if (ImGui::Button("Convert Lump to Image")) {
+			}
+		}
 	}
 	ImGui::End();
 }
@@ -608,7 +617,9 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 			} else {
 				if (directoryEntry.path().extension() == ".mdl") {
 					icon = modelIcon;
-				} else if (directoryEntry.path().extension() == ".tga") {
+				} else if (directoryEntry.path().extension() == ".tga" ||
+						   directoryEntry.path().extension() == ".jpg" ||
+						   directoryEntry.path().extension() == ".png") {
 					icon = imageIcon;
 				} else {
 					icon = fileIcon;
@@ -694,7 +705,9 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 						userError = LOAD_FAILED;
 					}
 					ImGui::SetWindowFocus("Model Viewer");
-				} else if (path.extension() == ".tga") {
+				} else if (path.extension() == ".tga" ||
+						   path.extension() == ".jpg" ||
+						   path.extension() == ".png") {
 					std::ifstream input(path);
 					if (input.good()) {
 						currentTextureName = path;
@@ -702,7 +715,7 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 						isErrorOpen = true;
 						userError = LOAD_FAILED;
 					}
-					ImGui::SetWindowFocus("Texture Viewer");
+					ImGui::SetWindowFocus("Texture Tools");
 				}
 			}
 

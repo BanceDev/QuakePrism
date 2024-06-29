@@ -174,35 +174,6 @@ GLuint MakeTextureFromSkin(int n, const bool filteringEnabled,
 	return id;
 }
 
-float colorDistance(const GLubyte *color1, const unsigned char *color2) {
-	return std::sqrt(std::pow(color1[0] - color2[0], 2) +
-					 std::pow(color1[1] - color2[1], 2) +
-					 std::pow(color1[2] - color2[2], 2));
-}
-
-int findClosestColorIndex(const GLubyte *color) {
-	float minDistance = std::numeric_limits<float>::max();
-	int closestIndex = 0;
-
-	for (int i = 0; i < 256; ++i) {
-		float distance = colorDistance(color, colormap[i]);
-		if (distance < minDistance) {
-			minDistance = distance;
-			closestIndex = i;
-		}
-	}
-
-	return closestIndex;
-}
-
-void convertRGBToIndices(GLubyte *pixels, GLubyte *indices, const int size) {
-	for (int i = 0; i < size; ++i) {
-		const GLubyte color[3] = {pixels[(i * 3) + 0], pixels[(i * 3) + 1],
-								  pixels[(i * 3) + 2]};
-		indices[i] = findClosestColorIndex(color);
-	}
-}
-
 bool ImportTextureFromTGA(const char *textureName, const char *modelName,
 						  struct mdl_model_t *mdl) {
 
