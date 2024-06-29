@@ -5,11 +5,11 @@
 #include <string>
 
 #include "TextEditor.h"
-
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h" // for imGui::GetCurrentWindow()
 
 #include "panes.h"
+#include "resources.h"
 
 // TODO
 // - multiline comments vs single-line: latter is blocking start of a ML
@@ -722,6 +722,9 @@ void TextEditor::HandleKeyboardInputs() {
 		else if (!ctrl && shift && !alt &&
 				 ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
 			Cut();
+		else if (ctrl && !shift && !alt &&
+				 ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_F)))
+			QuakePrism::isFindOpen = !QuakePrism::isFindOpen;
 		else if (ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGuiKey_S)) {
 			QuakePrism::SaveFromEditor(this);
 			mUnsaved = false;
@@ -1845,6 +1848,87 @@ void TextEditor::SelectAll() {
 
 bool TextEditor::HasSelection() const {
 	return mState.mSelectionEnd > mState.mSelectionStart;
+}
+
+void TextEditor::SelectNextOccurrenceOf(const char *aText, int aTextSize) {
+	Coordinates nextStart, nextEnd;
+	FindNextOccurrence(aText, aTextSize, GetActualCursorCoordinates(),
+					   nextStart, nextEnd);
+	SetSelection(nextStart, nextEnd);
+	SetCursorPosition(nextEnd);
+	EnsureCursorVisible();
+}
+
+bool TextEditor::FindNextOccurrence(const char *aText, int aTextSize,
+									const Coordinates &aFrom,
+									Coordinates &outStart,
+									Coordinates &outEnd) {
+	assert(aTextSize > 0);
+	int fline, ifline;
+	int findex, ifindex;
+
+	ifline = fline = aFrom.mLine;
+	ifindex = findex = GetCharacterIndex(aFrom);
+
+	while (true) {
+		bool matches;
+		{ // match function
+			int lineOffset = 0;
+			int currentCharIndex = findex;
+			int i = 0;
+			for (; i < aTextSize; i++) {
+				if (currentCharIndex == mLines[fline + lineOffset].size()) {
+					if (aText[i] == '\n' &&
+						fline + lineOffset + 1 < mLines.size()) {
+						currentCharIndex = 0;
+						lineOffset++;
+					} else
+						break;
+				} else {
+					char toCompareA =
+						mLines[fline + lineOffset][currentCharIndex].mChar;
+					char toCompareB = aText[i];
+					toCompareA = (toCompareA >= 'A' && toCompareA <= 'Z')
+									 ? toCompareA - 'A' + 'a'
+									 : toCompareA;
+					toCompareB = (toCompareB >= 'A' && toCompareB <= 'Z')
+									 ? toCompareB - 'A' + 'a'
+									 : toCompareB;
+					if (toCompareA != toCompareB)
+						break;
+					else
+						currentCharIndex++;
+				}
+			}
+			matches = i == aTextSize;
+			if (matches) {
+				outStart = {fline, GetCharacterColumn(fline, findex)};
+				outEnd = {
+					fline + lineOffset,
+					GetCharacterColumn(fline + lineOffset, currentCharIndex)};
+				return true;
+			}
+		}
+
+		// move forward
+		if (findex == mLines[fline].size()) // need to consider line breaks
+		{
+			if (fline == mLines.size() - 1) {
+				fline = 0;
+				findex = 0;
+			} else {
+				fline++;
+				findex = 0;
+			}
+		} else
+			findex++;
+
+		// detect complete scan
+		if (findex == ifindex && fline == ifline)
+			return false;
+	}
+
+	return false;
 }
 
 void TextEditor::Copy() {

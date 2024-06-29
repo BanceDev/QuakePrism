@@ -17,6 +17,7 @@ along with this program.
 
 */
 
+#include "TextEditor.h"
 #include "resources.h"
 #include <iostream>
 #include <regex>
@@ -162,19 +163,20 @@ std::string getCompilerOutputString() {
 	return compilerOutput;
 }
 
-void createTextEditorDiagnostics(TextEditor &editor) {
+void createTextEditorDiagnostics() {
 	std::string compilerOutput = getCompilerOutputString();
 	std::vector<Diagnostic> diagnostics = parseCompilerOutput(compilerOutput);
-	std::cout << diagnostics.size() << std::endl;
-	std::cout << "should have parsed" << std::endl;
-	TextEditor::ErrorMarkers markers;
-	for (const auto &diag : diagnostics) {
-		std::cout << "Diag" << std::endl;
-		if (editor.GetFileName() == diag.file) {
-			markers.erase(diag.line); // use latest warning if duplicate lines
-			markers.insert(std::make_pair(diag.line, diag.message));
+	for (auto &editor : editorList) {
+		TextEditor::ErrorMarkers markers;
+		for (const auto &diag : diagnostics) {
+			std::cout << "Diag" << std::endl;
+			if (editor.GetFileName() == diag.file && !editor.IsUnsaved()) {
+				markers.erase(
+					diag.line); // use latest warning if duplicate lines
+				markers.insert(std::make_pair(diag.line, diag.message));
+			}
 		}
+		editor.SetErrorMarkers(markers);
 	}
-	editor.SetErrorMarkers(markers);
 }
 } // namespace QuakePrism

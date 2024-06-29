@@ -47,7 +47,9 @@ extern GLuint newCard;
 extern GLuint importCard;
 extern GLuint libreCard;
 
+// Text Editor Info
 extern std::vector<TextEditor> editorList;
+extern bool isFindOpen;
 
 // Config Assets
 extern std::filesystem::path configFile;

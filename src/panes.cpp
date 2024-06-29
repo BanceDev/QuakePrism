@@ -354,14 +354,19 @@ void DrawTextureViewer() {
 }
 
 void DrawDebugConsole() {
-	ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoMove);
-	static std::string consoleText = "";
-	if (isCompiling) {
-		consoleText = getCompilerOutputString();
-		isCompiling = false;
+	static bool consoleOpen = true;
+	if (isCompiling)
+		consoleOpen = true;
+	if (consoleOpen) {
+		ImGui::Begin("Console", &consoleOpen, ImGuiWindowFlags_NoMove);
+		static std::string consoleText = "";
+		if (isCompiling) {
+			consoleText = getCompilerOutputString();
+			isCompiling = false;
+		}
+		ImGui::TextUnformatted(consoleText.c_str());
+		ImGui::End();
 	}
-	ImGui::TextUnformatted(consoleText.c_str());
-	ImGui::End();
 }
 
 static void SaveQuakeCFile(std::string textToSave,
@@ -387,7 +392,7 @@ void SaveFromEditor(TextEditor *editor) {
 	for (int i = 0; i < editorList.size(); ++i) {
 		if (&editorList.at(i) == editor) {
 			SaveQuakeCFile(textToSave, currentQCFileNames.at(i));
-			createTextEditorDiagnostics(*editor);
+			createTextEditorDiagnostics();
 			break;
 		}
 	}
@@ -395,7 +400,7 @@ void SaveFromEditor(TextEditor *editor) {
 
 static void DrawTextTab(TextEditor &editor,
 						const std::filesystem::path &currentFile, bool &tabOpen,
-						const bool focused) {
+						const bool focused, const bool isFindOpen) {
 	auto lang = TextEditor::LanguageDefinition::QuakeC();
 	editor.SetLanguageDefinition(lang);
 	ImGuiTabItemFlags flags = ImGuiTabItemFlags_None;
@@ -411,7 +416,7 @@ static void DrawTextTab(TextEditor &editor,
 		ImGui::GetWindowDrawList()->AddRectFilled(
 			ImGui::GetCursorScreenPos(),
 			ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth(),
-				   ImGui::GetCursorScreenPos().y + 21.0f),
+				   ImGui::GetCursorScreenPos().y + 28.0f),
 			ImColor(255, 225, 135, 30));
 
 		ImGui::Text("%6d/%-6d %6d lines  | %s | %s | %s ", cpos.mLine + 1,
@@ -419,7 +424,16 @@ static void DrawTextTab(TextEditor &editor,
 					editor.IsOverwrite() ? "Ovr" : "Ins",
 					editor.IsUnsaved() ? "*" : " ",
 					editor.GetLanguageDefinition().mName.c_str());
-
+		if (isFindOpen) {
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(256.0f);
+			static char expr[32] = "";
+			ImGui::InputText("##expr", expr, IM_ARRAYSIZE(expr));
+			ImGui::SameLine();
+			if (ImGui::Button("Next")) {
+				editor.SelectNextOccurrenceOf(expr, strlen(expr));
+			}
+		}
 		editor.Render("TextEditor");
 		ImGui::EndTabItem();
 	}
@@ -479,6 +493,9 @@ void DrawTextEditor() {
 			if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr,
 								!ro && currentTextEditor->CanRedo()))
 				currentTextEditor->Redo();
+			if (ImGui::MenuItem("Find", "Ctrl-F")) {
+				isFindOpen = !isFindOpen;
+			}
 
 			ImGui::Separator();
 
@@ -523,10 +540,10 @@ void DrawTextEditor() {
 			bool tabOpen = true;
 			if ((i == editorList.size() - 1) && newTabOpened) {
 				DrawTextTab(editorList.at(i), currentQCFileNames.at(i), tabOpen,
-							true);
+							true, isFindOpen);
 			} else {
 				DrawTextTab(editorList.at(i), currentQCFileNames.at(i), tabOpen,
-							false);
+							false, isFindOpen);
 			}
 			if (!tabOpen) {
 				RemoveEditorTab(i);
@@ -549,7 +566,8 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 	if (!currentPath.empty()) {
 		std::vector<std::filesystem::directory_entry> directoryEntries;
 
-		// Collect all entries (both directories and files) in the current path
+		// Collect all entries (both directories and files) in the current
+		// path
 		for (auto &directoryEntry :
 			 std::filesystem::directory_iterator(currentPath)) {
 			directoryEntries.push_back(directoryEntry);
@@ -612,7 +630,8 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 						// Extract the original file extension
 						std::string originalExtension =
 							path.extension().string();
-						// Append the original file extension to the new name
+						// Append the original file extension to the new
+						// name
 						std::filesystem::path newPath =
 							path.parent_path() /
 							(std::string(rename) + originalExtension);
@@ -648,7 +667,7 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 							TextEditor editor;
 							editor.SetText(str);
 							editor.SetFileName(path.filename().string());
-							createTextEditorDiagnostics(editor);
+							createTextEditorDiagnostics();
 							editorList.push_back(editor);
 						}
 					} else {
@@ -702,8 +721,8 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 void DrawFileExplorer() {
 
 	ImGui::Begin("Project Browser", nullptr, ImGuiWindowFlags_NoMove);
-	// prevents crash if user deletes a project folder and then tries to open it
-	// for some reason
+	// prevents crash if user deletes a project folder and then tries to
+	// open it for some reason
 	if (!std::filesystem::exists(baseDirectory)) {
 		baseDirectory.clear();
 	}
@@ -1013,8 +1032,8 @@ void DrawNewProjectPopup() {
 						auto dest = selectedProjectDirecory.parent_path() /
 									relative_path;
 						if (std::filesystem::exists(
-								path)) { // prevent duplicate imports (lead to
-										 // crash on windows)
+								path)) { // prevent duplicate imports (lead
+										 // to crash on windows)
 							if (std::filesystem::is_directory(path)) {
 								std::filesystem::create_directories(dest);
 							} else if (std::filesystem::is_regular_file(path) ||

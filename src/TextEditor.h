@@ -256,6 +256,10 @@ class TextEditor {
 	void SelectWordUnderCursor();
 	void SelectAll();
 	bool HasSelection() const;
+	void SelectNextOccurrenceOf(const char *aText, int aTextSize);
+	bool FindNextOccurrence(const char *aText, int aTextSize,
+							const Coordinates &aFrom, Coordinates &outStart,
+							Coordinates &outEnd);
 
 	void Copy();
 	void Cut();

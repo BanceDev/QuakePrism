@@ -51,6 +51,7 @@ GLuint importCard;
 GLuint libreCard;
 
 std::vector<TextEditor> editorList;
+bool isFindOpen = false;
 
 // Config Files
 std::filesystem::path configFile =
