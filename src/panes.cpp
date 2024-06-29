@@ -490,54 +490,56 @@ void DrawTextEditor() {
 
 	ImGui::Begin("Editor", nullptr,
 				 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_MenuBar);
-
-	if (ImGui::BeginMenuBar()) {
-		if (ImGui::BeginMenu("File")) {
-			if (ImGui::MenuItem("Save", "Ctrl-S", nullptr)) {
-				SaveFromEditor(currentTextEditor);
+	if (!editorList.empty()) {
+		if (ImGui::BeginMenuBar()) {
+			if (ImGui::BeginMenu("File")) {
+				if (ImGui::MenuItem("Save", "Ctrl-S", nullptr)) {
+					SaveFromEditor(currentTextEditor);
+				}
+				ImGui::EndMenu();
 			}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Edit")) {
-			bool ro = currentTextEditor->IsReadOnly();
-			if (ImGui::MenuItem("Read-Only", nullptr, &ro))
-				currentTextEditor->SetReadOnly(ro);
+			if (ImGui::BeginMenu("Edit")) {
+				bool ro = currentTextEditor->IsReadOnly();
+				if (ImGui::MenuItem("Read-Only", nullptr, &ro))
+					currentTextEditor->SetReadOnly(ro);
 
-			ImGui::Separator();
+				ImGui::Separator();
 
-			if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr,
-								!ro && currentTextEditor->CanUndo()))
-				currentTextEditor->Undo();
-			if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr,
-								!ro && currentTextEditor->CanRedo()))
-				currentTextEditor->Redo();
-			if (ImGui::MenuItem("Find", "Ctrl-F")) {
-				isFindOpen = !isFindOpen;
+				if (ImGui::MenuItem("Undo", "ALT-Backspace", nullptr,
+									!ro && currentTextEditor->CanUndo()))
+					currentTextEditor->Undo();
+				if (ImGui::MenuItem("Redo", "Ctrl-Y", nullptr,
+									!ro && currentTextEditor->CanRedo()))
+					currentTextEditor->Redo();
+				if (ImGui::MenuItem("Find", "Ctrl-F")) {
+					isFindOpen = !isFindOpen;
+				}
+
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr,
+									currentTextEditor->HasSelection()))
+					currentTextEditor->Copy();
+				if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr,
+									!ro && currentTextEditor->HasSelection()))
+					currentTextEditor->Cut();
+				if (ImGui::MenuItem("Delete", "Del", nullptr,
+									!ro && currentTextEditor->HasSelection()))
+					currentTextEditor->Delete();
+				if (ImGui::MenuItem("Paste", "Ctrl-V", nullptr,
+									!ro &&
+										ImGui::GetClipboardText() != nullptr))
+					currentTextEditor->Paste();
+
+				ImGui::Separator();
+				if (ImGui::MenuItem("Select all", nullptr, nullptr))
+					currentTextEditor->SetSelection(
+						TextEditor::Coordinates(),
+						TextEditor::Coordinates(
+							currentTextEditor->GetTotalLines(), 0));
+
+				ImGui::EndMenu();
 			}
-
-			ImGui::Separator();
-
-			if (ImGui::MenuItem("Copy", "Ctrl-C", nullptr,
-								currentTextEditor->HasSelection()))
-				currentTextEditor->Copy();
-			if (ImGui::MenuItem("Cut", "Ctrl-X", nullptr,
-								!ro && currentTextEditor->HasSelection()))
-				currentTextEditor->Cut();
-			if (ImGui::MenuItem("Delete", "Del", nullptr,
-								!ro && currentTextEditor->HasSelection()))
-				currentTextEditor->Delete();
-			if (ImGui::MenuItem("Paste", "Ctrl-V", nullptr,
-								!ro && ImGui::GetClipboardText() != nullptr))
-				currentTextEditor->Paste();
-
-			ImGui::Separator();
-			if (ImGui::MenuItem("Select all", nullptr, nullptr))
-				currentTextEditor->SetSelection(
-					TextEditor::Coordinates(),
-					TextEditor::Coordinates(currentTextEditor->GetTotalLines(),
-											0));
-
-			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu("View")) {

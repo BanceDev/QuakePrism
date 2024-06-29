@@ -27,11 +27,9 @@ along with this program.
 #include "util.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
-#include <X11/X.h>
 #include <filesystem>
 #include <stdio.h>
 #ifndef _WIN32
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include <SDL2/SDL_image.h>
 #endif // !#endif
