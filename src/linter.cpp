@@ -19,7 +19,6 @@ along with this program.
 
 #include "TextEditor.h"
 #include "resources.h"
-#include <iostream>
 #include <regex>
 #include <sstream>
 #include <stdio.h>
@@ -48,9 +47,7 @@ static std::vector<Diagnostic> parseCompilerOutput(const std::string &output) {
 	std::string line;
 
 	while (std::getline(outputStream, line)) {
-		std::cout << line << std::endl;
 		if (std::regex_match(line, match, combinedRegex)) {
-			std::cout << "match" << std::endl;
 			Diagnostic diag;
 			diag.file = match[1];
 			diag.line = std::stoi(match[2]);
@@ -169,7 +166,6 @@ void createTextEditorDiagnostics() {
 	for (auto &editor : editorList) {
 		TextEditor::ErrorMarkers markers;
 		for (const auto &diag : diagnostics) {
-			std::cout << "Diag" << std::endl;
 			if (editor.GetFileName() == diag.file && !editor.IsUnsaved()) {
 				markers.erase(
 					diag.line); // use latest warning if duplicate lines
