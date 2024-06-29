@@ -42,8 +42,6 @@ struct mdl_frame_t;
 
 struct mdl_model_t;
 
-struct tga_header_t;
-
 namespace QuakePrism::MDL {
 
 enum { TEXTURED_MODE, TEXTURELESS_MODE, WIREFRAME_MODE };
