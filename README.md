@@ -38,12 +38,12 @@ git clone --recursive
 
 #### Arch Based
 ```
-sudo pacman -S sdl2 glew glm
+sudo pacman -S sdl2 sdl2_image glew glm
 ```
 
 #### Debian Based
 ```
-sudo apt install libsdl2-dev libglew-dev libglm-dev
+sudo apt install libsdl2-dev libsdl2-image-dev libglew-dev libglm-dev
 ```
 
 ### Windows Dependencies

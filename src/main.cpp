@@ -28,6 +28,7 @@ along with this program.
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <X11/X.h>
+#include <filesystem>
 #include <stdio.h>
 #ifndef _WIN32
 #define STB_IMAGE_IMPLEMENTATION
@@ -84,15 +85,6 @@ int main(int, char **) {
 		return -1;
 	}
 
-	// Set Window Icon
-#ifndef _WIN32
-	SDL_Surface *iconSurface = LoadSurface("res/prism_small.png");
-	if (iconSurface) {
-		SDL_SetWindowIcon(window, iconSurface);
-		SDL_FreeSurface(iconSurface);
-	}
-#endif
-
 	SDL_GLContext gl_context = SDL_GL_CreateContext(window);
 	SDL_GL_MakeCurrent(window, gl_context);
 	SDL_GL_SetSwapInterval(1); // Enable vsync
@@ -137,9 +129,13 @@ int main(int, char **) {
 	// Set Window Icon
 	// Main loop
 	bool done = false;
+#ifndef _WIN32
+	std::filesystem::path iconPath =
+		std::filesystem::current_path() / "res/prism_small.png";
+#endif
 	while (!done) {
 #ifndef _WIN32
-		SDL_Surface *iconSurface = LoadSurface("res/prism_small.png");
+		SDL_Surface *iconSurface = LoadSurface(iconPath.c_str());
 		if (iconSurface) {
 			SDL_SetWindowIcon(window, iconSurface);
 			SDL_FreeSurface(iconSurface);
