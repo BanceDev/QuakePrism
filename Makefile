@@ -19,7 +19,7 @@ LIBS :=
 
 ifeq ($(UNAME_S), Linux)
     ECHO_MESSAGE := "Linux"
-    LIBS += $(LINUX_GL_LIBS) -ldl -lSDL2
+    LIBS += $(LINUX_GL_LIBS) -ldl -lSDL2 -lSDL2_image
     CXXFLAGS += `sdl2-config --cflags`
 endif
 

@@ -19,13 +19,12 @@ along with this program.
 
 #include "util.h"
 #include "imgui.h"
+#include "resources.h"
+#include "stb_image.h"
 #include <cstdint>
 #include <fstream>
 #include <ostream>
 #include <string>
-#define STB_IMAGE_IMPLEMENTATION
-#include "resources.h"
-#include "stb_image.h"
 #include <unistd.h>
 #ifdef _WIN32
 #include <direct.h>

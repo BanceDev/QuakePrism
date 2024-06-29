@@ -27,14 +27,30 @@ along with this program.
 #include "util.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#include <X11/X.h>
 #include <stdio.h>
-
+#ifndef _WIN32
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#include <SDL2/SDL_image.h>
+#endif // !#endif
 // global defined indices for OpenGL
 GLuint VAO;		   // vertex array object
 GLuint VBO;		   // vertex buffer object
 GLuint FBO;		   // frame buffer object
 GLuint RBO;		   // rendering buffer object
 GLuint texture_id; // the texture id we'll need later to create a texture
+
+#ifndef _WIN32
+// Function to load an image into an SDL_Surface
+SDL_Surface *LoadSurface(const char *path) {
+	SDL_Surface *surface = IMG_Load(path);
+	if (!surface) {
+		printf("IMG_Load: %s\n", IMG_GetError());
+	}
+	return surface;
+}
+#endif
 
 // Main code
 int main(int, char **) {
@@ -67,6 +83,15 @@ int main(int, char **) {
 		printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
 		return -1;
 	}
+
+	// Set Window Icon
+#ifndef _WIN32
+	SDL_Surface *iconSurface = LoadSurface("res/prism_small.png");
+	if (iconSurface) {
+		SDL_SetWindowIcon(window, iconSurface);
+		SDL_FreeSurface(iconSurface);
+	}
+#endif
 
 	SDL_GLContext gl_context = SDL_GL_CreateContext(window);
 	SDL_GL_MakeCurrent(window, gl_context);
@@ -109,10 +134,17 @@ int main(int, char **) {
 
 	// create the framebuffer right before the main loop
 	QuakePrism::createFramebuffer(FBO, RBO, texture_id);
-
+	// Set Window Icon
 	// Main loop
 	bool done = false;
 	while (!done) {
+#ifndef _WIN32
+		SDL_Surface *iconSurface = LoadSurface("res/prism_small.png");
+		if (iconSurface) {
+			SDL_SetWindowIcon(window, iconSurface);
+			SDL_FreeSurface(iconSurface);
+		}
+#endif
 		// Poll and handle events (inputs, window resize, etc.)
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
