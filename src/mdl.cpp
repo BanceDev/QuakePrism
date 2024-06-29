@@ -22,7 +22,6 @@ along with this program.
 #include "util.h"
 #include <cstdio>
 #include <fstream>
-#include <iostream>
 #include <string>
 
 /* Table of precalculated normals */
