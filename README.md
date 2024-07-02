@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://github.com/BanceDev/QuakePrism/blob/main/banner.png" alt="Logo for Quake Prism" width="256" height="256"/>
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/banner.png" alt="Logo for Quake Prism"/>
 </p>
 
 # Quake Prism
