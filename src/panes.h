@@ -41,8 +41,6 @@ void DrawErrorPopup();
 
 void DrawAboutPopup();
 
-void DrawFileTree(const std::filesystem::path &currentPath);
-
 void DrawFileExplorer();
 
 void DrawPaletteTool();

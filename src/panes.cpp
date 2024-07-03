@@ -145,7 +145,8 @@ void DrawMenuBar() {
 			ImGui::EndMenu();
 		}
 		if (sourcePortBrowser.HasSelected()) {
-			ChangeQProjectSourcePort(sourcePortBrowser.GetSelected());
+			projectSourcePort = sourcePortBrowser.GetSelected();
+			UpdateQProjectFile();
 			sourcePortBrowser.ClearSelected();
 		}
 		sourcePortBrowser.Display();
@@ -554,13 +555,27 @@ void DrawTextEditor() {
 		}
 
 		if (ImGui::BeginMenu("View")) {
-			if (ImGui::MenuItem("Dark Mode"))
-				currentTextEditor->SetPalette(TextEditor::GetDarkPalette());
-			if (ImGui::MenuItem("Light Mode"))
-				currentTextEditor->SetPalette(TextEditor::GetLightPalette());
-			if (ImGui::MenuItem("Retro Mode"))
-				currentTextEditor->SetPalette(
-					TextEditor::GetRetroBluePalette());
+			if (ImGui::MenuItem("Dark Mode")) {
+				editorTheme = "prism-dark";
+				UpdateQProjectFile();
+				for (auto &editor : editorList) {
+					editor.SetPalette(TextEditor::GetDarkPalette());
+				}
+			}
+			if (ImGui::MenuItem("Light Mode")) {
+				editorTheme = "prism-light";
+				UpdateQProjectFile();
+				for (auto &editor : editorList) {
+					editor.SetPalette(TextEditor::GetLightPalette());
+				}
+			}
+			if (ImGui::MenuItem("Retro Mode")) {
+				editorTheme = "prism-retro";
+				UpdateQProjectFile();
+				for (auto &editor : editorList) {
+					editor.SetPalette(TextEditor::GetRetroBluePalette());
+				}
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
@@ -593,7 +608,7 @@ static bool AlphabeticalComparator(const std::filesystem::directory_entry &a,
 	return a.path().filename().string() < b.path().filename().string();
 }
 
-void DrawFileTree(const std::filesystem::path &currentPath) {
+static void DrawFileTree(const std::filesystem::path &currentPath) {
 	if (!currentPath.empty()) {
 		std::vector<std::filesystem::directory_entry> directoryEntries;
 
@@ -700,6 +715,13 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 							TextEditor editor;
 							editor.SetText(str);
 							editor.SetFileName(path.filename().string());
+							if (editorTheme == "prism-dark") {
+								editor.SetPalette(TextEditor::GetDarkPalette);
+							} else if (editorTheme == "prism-light") {
+								editor.SetPalette(TextEditor::GetLightPalette);
+							} else if (editorTheme == "prism-retro") {
+								editor.SetPalette(TextEditor::GetRetroBluePalette);
+							}
 							createTextEditorDiagnostics();
 							editorList.push_back(editor);
 						}

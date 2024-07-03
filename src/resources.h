@@ -77,7 +77,7 @@ void loadColormap();
 
 void CreateQProjectFile();
 
-void ChangeQProjectSourcePort(const std::filesystem::path &sourcePort);
+void UpdateQProjectFile();
 
 void ReadQProjectFile();
 

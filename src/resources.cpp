@@ -54,8 +54,10 @@ GLuint newCard;
 GLuint importCard;
 GLuint libreCard;
 
+// Text Editor
 std::vector<TextEditor> editorList;
 bool isFindOpen = false;
+std::string editorTheme = "prism-dark";
 
 // Config Files
 std::filesystem::path configFile =
@@ -123,16 +125,17 @@ void CreateQProjectFile() {
 #else
 			output << "quakespasm" << std::endl;
 #endif
+			output << "prism-dark" << std::endl;
 			output.close();
 		}
 	}
 }
 
-void ChangeQProjectSourcePort(const std::filesystem::path &sourcePort) {
-	std::cout << sourcePort.string() << "\n";
+void UpdateQProjectFile() {
 	std::ofstream output((baseDirectory / ".qproj"));
 	if (output.is_open()) {
-		output << sourcePort.filename().string() << std::endl;
+		output << projectSourcePort.filename().string() << std::endl;
+		output << editorTheme << std::endl;
 		output.close();
 	}
 	projectSourcePort = sourcePort;
@@ -144,6 +147,7 @@ void ReadQProjectFile() {
 		std::string sourcePortName;
 		std::getline(input, sourcePortName);
 		projectSourcePort = baseDirectory.parent_path() / sourcePortName;
+		std::getline(input, editorTheme);
 		input.close();
 	}
 }
