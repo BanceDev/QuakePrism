@@ -1,4 +1,4 @@
-![Banner](https://github.com/BanceDev/QuakePrism/blob/main/docs/banner-white.png#gh-dark-mode-only)
+![Banner](https://github.com/BanceDev/QuakePrism/blob/main/banner-white.png#gh-dark-mode-only)
 
 <p align="center">
     <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/editor.png" alt="Editor Screenshot"/>
