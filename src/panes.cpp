@@ -28,6 +28,7 @@ along with this program.
 #include "mdl.h"
 #include "pak.h"
 #include "resources.h"
+#include "spr.h"
 #include "util.h"
 #include <algorithm>
 #include <cstdint>
@@ -366,6 +367,16 @@ void DrawTextureViewer() {
 						 ImVec2(ImGui::GetContentRegionAvail().x / 2,
 								(ImGui::GetContentRegionAvail().x / 2) *
 									(height / (float)width)));
+		}
+	}
+	ImGui::End();
+}
+
+void DrawSpriteTool() {
+	ImGui::Begin("Sprite Tools", nullptr, ImGuiWindowFlags_NoMove);
+	if (!currentSpriteFrames.empty()) {
+		for (auto &frame : currentSpriteFrames) {
+			ImGui::Image((ImTextureID)(intptr_t)frame, ImVec2(128, 128));
 		}
 	}
 	ImGui::End();
@@ -728,6 +739,15 @@ void DrawFileTree(const std::filesystem::path &currentPath) {
 						userError = LOAD_FAILED;
 					}
 					ImGui::SetWindowFocus("Texture Tools");
+				} else if (path.extension() == ".spr") {
+					std::ifstream input(path);
+					if (input.good()) {
+						SPR::OpenSprite(path.string().c_str());
+					} else {
+						isErrorOpen = true;
+						userError = LOAD_FAILED;
+					}
+					ImGui::SetWindowFocus("Sprite Tools");
 				}
 			}
 

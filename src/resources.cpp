@@ -36,6 +36,10 @@ unsigned char colormap[256][3] = {
 #include "colormap.h"
 };
 
+// Sprite Panel Assets
+SPR::sprite_t currentSprite;
+std::vector<unsigned int> currentSpriteFrames;
+
 // Images
 GLuint fileIcon;
 GLuint directoryIcon;

@@ -177,6 +177,7 @@
     <ClCompile Include="TextEditor.cpp" />
     <ClCompile Include="linter.cpp" />
     <ClCompile Include="lmp.cpp" />
+    <ClCompile Include="spr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\lib\imgui\imconfig.h" />
@@ -199,6 +200,7 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="linter.h" />
     <ClInclude Include="lmp.h" />
+    <ClInclude Include="spr.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\lib\imgui\misc\debuggers\imgui.natstepfilter" />

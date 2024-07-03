@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.
 
 */
-
+#pragma once
 #define IDSPRITEHEADER                                                         \
 	(('P' << 24) + ('S' << 16) + ('D' << 8) + 'I') // little-endian "IDSP"
 namespace QuakePrism::SPR {
@@ -34,6 +34,7 @@ typedef struct {
 } sprite_t;
 
 typedef struct {
+	int group;
 	int origin[2];
 	int width;
 	int height;
@@ -41,7 +42,6 @@ typedef struct {
 
 bool OpenSprite(const char *filename);
 void RemoveSpriteFrame();
-void SpriteFrame2Tex();
 void SpriteFrame2Img();
 void Img2SpriteFrame();
 

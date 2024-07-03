@@ -20,6 +20,7 @@ along with this program.
 #pragma once
 #include "TextEditor.h"
 #include "imgui.h"
+#include "spr.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <filesystem>
@@ -32,6 +33,10 @@ extern ImFont *notoSansFont;
 
 // Colormap
 extern unsigned char colormap[256][3];
+
+// Sprite Panel Assets
+extern SPR::sprite_t currentSprite;
+extern std::vector<unsigned int> currentSpriteFrames;
 
 // Image Assets
 extern GLuint fileIcon;

@@ -31,6 +31,8 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO);
 
 void DrawTextureViewer();
 
+void DrawSpriteTool();
+
 void DrawDebugConsole();
 
 void DrawTextEditor();

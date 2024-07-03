@@ -49,6 +49,9 @@
    <ClCompile Include="lmp.cpp">
       <Filter>sources</Filter>
     </ClCompile>  
+   <ClCompile Include="spr.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>  
     <ClCompile Include="..\lib\imgui\backends\imgui_impl_sdl2.cpp">
       <Filter>sources</Filter>
     </ClCompile>
@@ -97,6 +100,9 @@
       <Filter>sources</Filter>
     </ClInclude> 
    <ClInclude Include="lmp.h">
+      <Filter>sources</Filter>
+    </ClInclude> 
+   <ClInclude Include="spr.h">
       <Filter>sources</Filter>
     </ClInclude> 
     <ClInclude Include="anorms.h">
