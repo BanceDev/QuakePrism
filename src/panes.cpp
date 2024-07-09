@@ -216,7 +216,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 					 ImVec2(1, 0));
 
 	// Model Viewer Controls
-	if (ImGui::IsItemHovered()) {
+	if (ImGui::IsWindowHovered()) {
 		ImGuiIO &io = ImGui::GetIO();
 		if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
 			MDL::modelAngles[0] += io.MouseDelta.y;
@@ -236,13 +236,12 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 
 	ImGui::End();
 
+	const int maxFrames = MDL::totalFrames - 1;
 	const float animProgress =
-		MDL::totalFrames == 0 ? 0.0f
-							  : MDL::currentFrame / (float)MDL::totalFrames;
+		MDL::totalFrames == 1 ? 0.0f : MDL::currentFrame / (float)maxFrames;
 	ImGui::Begin("Model Tools", nullptr, ImGuiWindowFlags_NoMove);
 	char buf[32];
-	sprintf(buf, "%d/%d", (int)(animProgress * MDL::totalFrames),
-			MDL::totalFrames);
+	sprintf(buf, "%d/%d", (int)(animProgress * maxFrames), maxFrames);
 	ImGui::Columns(2, "tools");
 	ImGui::ProgressBar(animProgress, ImVec2(0.0f, 0.0f), buf);
 	// Animation Control Buttons
@@ -261,7 +260,7 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 	ImGui::PushButtonRepeat(true);
 	if (ImGui::ImageButton((ImTextureID)(intptr_t)forwardButton, {24, 24})) {
 		if (paused) {
-			if (MDL::currentFrame < MDL::totalFrames) {
+			if (MDL::currentFrame < maxFrames) {
 				MDL::currentFrame++;
 			} else {
 				MDL::currentFrame = 0;
@@ -403,15 +402,30 @@ void DrawSpriteTool() {
 
 	ImGui::Begin("Sprite View");
 	if (!currentSpriteFrames.empty()) {
+		static float sprScale = 1.0f;
+		const float width = currentSprite.width * sprScale;
+		const float height = currentSprite.height * sprScale;
+		ImGui::SetCursorPos(ImVec2((ImGui::GetWindowWidth() - width) * 0.5f,
+								   (ImGui::GetWindowHeight() - height) * 0.5f));
 		ImGui::Image(
 			(ImTextureID)(intptr_t)currentSpriteTexs[activeSpriteFrame],
-			ImVec2({128, 128}));
+			ImVec2(width, height));
+
+		// sprite view controls
+		if (ImGui::IsWindowHovered()) {
+			ImGuiIO &io = ImGui::GetIO();
+			sprScale += io.MouseWheel * 0.2f;
+			if (sprScale <= 0) {
+				sprScale = 0.1f;
+			} else if (sprScale >= 10.0f) {
+				sprScale = 10.0f;
+			}
+		}
 	}
 	ImGui::End();
 
 	static bool paused = false;
-	const int maxFrames =
-		currentSprite.numframes == 1 ? 0 : currentSprite.numframes - 1;
+	const int maxFrames = currentSprite.numframes - 1;
 	const float animProgress = currentSprite.numframes == 1
 								   ? 0.0f
 								   : activeSpriteFrame / (float)maxFrames;
