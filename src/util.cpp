@@ -56,7 +56,7 @@ bool LoadTextureFromFile(const char *filename, GLuint *out_texture,
 
 	// Setup filtering parameters for display
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
 					GL_CLAMP_TO_EDGE); // This is required on WebGL for non
 									   // power-of-two textures
@@ -78,6 +78,54 @@ bool LoadTextureFromFile(const char *filename, GLuint *out_texture,
 		*out_height = image_height;
 
 	return true;
+}
+
+unsigned char *GetTexturePixels(GLuint textureID, int width, int height,
+								GLenum format, GLenum type) {
+	// Bind the texture
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	// Allocate a buffer to store the pixel data
+	size_t pixelSize;
+	switch (format) {
+	case GL_RED:
+	case GL_R8:
+	case GL_R16:
+		pixelSize = 1;
+		break;
+	case GL_RG:
+	case GL_RG8:
+	case GL_RG16:
+		pixelSize = 2;
+		break;
+	case GL_RGB:
+	case GL_RGB8:
+	case GL_RGB16:
+		pixelSize = 3;
+		break;
+	case GL_RGBA:
+	case GL_RGBA8:
+	case GL_RGBA16:
+		pixelSize = 4;
+		break;
+	default:
+		pixelSize = 4; // Default to RGBA
+	}
+
+	size_t bufferSize = width * height * pixelSize;
+	std::vector<char> buffer(bufferSize);
+
+	// Read the texture data
+	glGetTexImage(GL_TEXTURE_2D, 0, format, type, buffer.data());
+
+	// Unbind the texture
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// Copy data to a new buffer to return as const char*
+	unsigned char *rawData = (unsigned char *)malloc(bufferSize);
+	std::copy(buffer.begin(), buffer.end(), rawData);
+
+	return rawData; // Don't forget to delete[] rawData when done
 }
 
 static float colorDistance(const unsigned char *color1,

@@ -41,7 +41,7 @@ typedef struct {
 } spriteframe_t;
 
 bool OpenSprite(const char *filename);
-void RemoveSpriteFrame();
+bool WriteSprite(const char *filename);
 void SpriteFrame2Img();
 void Img2SpriteFrame();
 

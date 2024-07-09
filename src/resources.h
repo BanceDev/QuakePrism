@@ -36,7 +36,10 @@ extern unsigned char colormap[256][3];
 
 // Sprite Panel Assets
 extern SPR::sprite_t currentSprite;
-extern std::vector<unsigned int> currentSpriteFrames;
+extern int activeSpriteFrame;
+extern std::vector<SPR::spriteframe_t> currentSpriteFrames;
+extern std::vector<unsigned int> currentSpriteTexs;
+extern std::filesystem::path currentSpritePath;
 
 // Image Assets
 extern GLuint fileIcon;
@@ -55,6 +58,7 @@ extern GLuint libreCard;
 // Text Editor Info
 extern std::vector<TextEditor> editorList;
 extern bool isFindOpen;
+extern std::string editorTheme;
 
 // Config Assets
 extern std::filesystem::path configFile;

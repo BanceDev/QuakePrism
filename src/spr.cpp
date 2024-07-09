@@ -19,6 +19,7 @@ along with this program.
 
 #include "spr.h"
 #include "resources.h"
+#include "util.h"
 #include <SDL2/SDL.h>
 #include <cstdio>
 #include <cstdlib>
@@ -32,8 +33,8 @@ static void SpriteFrame2Tex(unsigned char *pixels, unsigned int &texID,
 	glBindTexture(GL_TEXTURE_2D, texID);
 
 	// Setup filtering parameters for display
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
 					GL_CLAMP_TO_EDGE); // This is required on WebGL for non
 									   // power-of-two textures
@@ -48,38 +49,38 @@ static void SpriteFrame2Tex(unsigned char *pixels, unsigned int &texID,
 }
 
 bool OpenSprite(const char *filename) {
-	FILE *file = fopen(filename, "rb");
-	if (!file) {
+	FILE *fp = fopen(filename, "rb");
+	if (!fp) {
 		return false;
 	}
 
 	// Read the header
-	fread(&currentSprite, sizeof(sprite_t), 1, file);
+	fread(&currentSprite, sizeof(sprite_t), 1, fp);
 
 	if (currentSprite.ident != IDSPRITEHEADER) {
-		fclose(file);
+		fclose(fp);
 		return false;
 	}
 
 	// Read each frame
-	currentSpriteFrames.clear();
+	currentSpriteTexs.clear();
 	for (int i = 0; i < currentSprite.numframes; ++i) {
 		spriteframe_t frame;
-		fread(&frame, sizeof(spriteframe_t), 1, file);
+		fread(&frame, sizeof(spriteframe_t), 1, fp);
 
 		// only support regular sprites at this time
 		if (frame.group != 0) {
-			fclose(file);
+			fclose(fp);
 			return false;
 		}
 		// Allocate memory for the pixel data and read it
-		unsigned char *indicies =
+		unsigned char *indices =
 			(unsigned char *)malloc(frame.width * frame.height);
-		fread(indicies, frame.width * frame.height, 1, file);
+		fread(indices, frame.width * frame.height, 1, fp);
 		unsigned char *pixels =
 			(unsigned char *)malloc(frame.width * frame.height * 4);
 		for (int i = 0; i < frame.width * frame.height; ++i) {
-			int colorIndex = indicies[i];
+			int colorIndex = indices[i];
 			pixels[(i * 4) + 0] = colormap[colorIndex][0];
 			pixels[(i * 4) + 1] = colormap[colorIndex][1];
 			pixels[(i * 4) + 2] = colormap[colorIndex][2];
@@ -92,13 +93,43 @@ bool OpenSprite(const char *filename) {
 
 		unsigned int texID;
 		SpriteFrame2Tex(pixels, texID, frame.width, frame.height);
-		currentSpriteFrames.push_back(texID);
+		currentSpriteTexs.push_back(texID);
+		currentSpriteFrames.push_back(frame);
 
-		free(indicies);
+		free(indices);
 		free(pixels);
 	}
 
-	fclose(file);
+	fclose(fp);
+	return true;
+}
+
+bool WriteSprite(const char *filename) {
+	FILE *fp = fopen(filename, "wb");
+	if (!fp) {
+		return false;
+	}
+
+	// Write the header
+	fwrite(&currentSprite, sizeof(sprite_t), 1, fp);
+
+	// Write each frame
+	for (int i = 0; i < currentSprite.numframes; ++i) {
+		fwrite(&currentSpriteFrames[i], sizeof(spriteframe_t), 1, fp);
+
+		int width = currentSpriteFrames[i].width;
+		int height = currentSpriteFrames[i].height;
+		unsigned char *pixels =
+			GetTexturePixels(currentSpriteTexs[i], width, height);
+		unsigned char *indices = (unsigned char *)malloc(width * height);
+		convertRGBAToIndices(pixels, indices, width * height);
+		fwrite(indices, width * height, 1, fp);
+
+		free(indices);
+		free(pixels);
+	}
+
+	fclose(fp);
 	return true;
 }
 

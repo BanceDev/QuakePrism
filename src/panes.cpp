@@ -31,6 +31,7 @@ along with this program.
 #include "spr.h"
 #include "util.h"
 #include <algorithm>
+#include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
@@ -375,12 +376,139 @@ void DrawTextureViewer() {
 
 void DrawSpriteTool() {
 	ImGui::Begin("Sprite Tools", nullptr, ImGuiWindowFlags_NoMove);
-	if (!currentSpriteFrames.empty()) {
-		for (auto &frame : currentSpriteFrames) {
-			ImGui::Image((ImTextureID)(intptr_t)frame, ImVec2(128, 128));
-		}
+	ImGuiID dockspace_id = ImGui::GetID("SpriteDockSpace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+	static bool first_time = true;
+	const auto currentTime = std::chrono::high_resolution_clock::now();
+	static std::chrono::time_point<std::chrono::high_resolution_clock> lastTime;
+
+	if (first_time) {
+		first_time = false;
+		lastTime = currentTime;
+		ImGui::DockBuilderRemoveNode(dockspace_id);
+		ImGui::DockBuilderAddNode(dockspace_id);
+		ImGui::DockBuilderSetNodeSize(dockspace_id,
+									  ImGui::GetMainViewport()->Size);
+
+		auto dock_id_up = ImGui::DockBuilderSplitNode(
+			dockspace_id, ImGuiDir_Up, 0.7f, nullptr, &dockspace_id);
+		auto dock_id_down = ImGui::DockBuilderSplitNode(
+			dockspace_id, ImGuiDir_Down, 0.3f, nullptr, &dockspace_id);
+		ImGui::DockBuilderDockWindow("Sprite View", dock_id_up);
+		ImGui::DockBuilderDockWindow("Sprite Editor", dock_id_down);
+
+		ImGui::DockBuilderFinish(dockspace_id);
 	}
 	ImGui::End();
+
+	ImGui::Begin("Sprite View");
+	if (!currentSpriteFrames.empty()) {
+		ImGui::Image(
+			(ImTextureID)(intptr_t)currentSpriteTexs[activeSpriteFrame],
+			ImVec2({128, 128}));
+	}
+	ImGui::End();
+
+	static bool paused = false;
+	const int maxFrames =
+		currentSprite.numframes == 1 ? 0 : currentSprite.numframes - 1;
+	const float animProgress = currentSprite.numframes == 1
+								   ? 0.0f
+								   : activeSpriteFrame / (float)maxFrames;
+	ImGui::Begin("Sprite Editor", nullptr, ImGuiWindowFlags_NoMove);
+	char buf[32];
+	sprintf(buf, "%d/%d", (int)(animProgress * maxFrames), maxFrames);
+	ImGui::Columns(2, "tools");
+	ImGui::ProgressBar(animProgress, ImVec2(0.0f, 0.0f), buf);
+	// Animation Control Buttons
+	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::PushButtonRepeat(true);
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)backButton, {24, 24})) {
+		if (paused && activeSpriteFrame > 0)
+			activeSpriteFrame--;
+	}
+	ImGui::PopButtonRepeat();
+	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)playButton, {24, 24})) {
+		paused = !paused;
+	}
+	ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::PushButtonRepeat(true);
+	if (ImGui::ImageButton((ImTextureID)(intptr_t)forwardButton, {24, 24})) {
+		if (paused) {
+			if (activeSpriteFrame < maxFrames) {
+				activeSpriteFrame++;
+			} else {
+				activeSpriteFrame = 0;
+			}
+		}
+	}
+	ImGui::PopButtonRepeat();
+
+	ImGui::NextColumn();
+
+	// Texture Export Button
+	if (ImGui::Button("Remove Sprite")) {
+	}
+
+	ImGui::End();
+
+	// update the animation if 0.1 seconds have elapsed
+	if (!currentSpriteFrames.empty() && !paused) {
+		if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime -
+																  lastTime)
+				.count() >= 100) {
+			lastTime = currentTime;
+			if (activeSpriteFrame < currentSprite.numframes - 1) {
+				activeSpriteFrame++;
+			} else {
+				activeSpriteFrame = 0;
+			}
+		}
+	}
+
+	/*
+		ImGui::Begin("Sprite Tools", nullptr, ImGuiWindowFlags_NoMove);
+		static int selectedSprite = -1;
+		if (!currentSpriteTexs.empty()) {
+			if (ImGui::Button("Save Sprite")) {
+				SPR::WriteSprite(currentSpritePath.string().c_str());
+			}
+			// Begin a new group to handle image wrapping
+			ImGui::BeginGroup();
+
+			for (size_t i = 0; i < currentSpriteTexs.size(); ++i) {
+				if
+	   (ImGui::ImageButton((ImTextureID)(intptr_t)currentSpriteTexs[i],
+									   ImVec2(128, 128))) {
+					selectedSprite = i;
+					ImGui::OpenPopup("Sprite Menu");
+				}
+
+				int wrap = ImGui::GetContentRegionAvail().x / 136;
+				if (wrap == 0)
+					wrap = 1;
+				if ((i + 1) % wrap != 0) {
+					ImGui::SameLine();
+				}
+			}
+
+			// End the group
+			ImGui::EndGroup();
+		}
+
+		if (ImGui::BeginPopup("Sprite Menu")) {
+			if (ImGui::MenuItem("Remove")) {
+				currentSpriteTexs.erase(currentSpriteTexs.begin() +
+	   selectedSprite); currentSpriteFrames.erase(currentSpriteFrames.begin() +
+										  selectedSprite);
+				currentSprite.numframes--;
+			}
+			ImGui::EndPopup();
+		}
+
+		ImGui::End();
+	*/
 }
 
 void DrawDebugConsole() {
@@ -716,11 +844,13 @@ static void DrawFileTree(const std::filesystem::path &currentPath) {
 							editor.SetText(str);
 							editor.SetFileName(path.filename().string());
 							if (editorTheme == "prism-dark") {
-								editor.SetPalette(TextEditor::GetDarkPalette);
+								editor.SetPalette(TextEditor::GetDarkPalette());
 							} else if (editorTheme == "prism-light") {
-								editor.SetPalette(TextEditor::GetLightPalette);
+								editor.SetPalette(
+									TextEditor::GetLightPalette());
 							} else if (editorTheme == "prism-retro") {
-								editor.SetPalette(TextEditor::GetRetroBluePalette);
+								editor.SetPalette(
+									TextEditor::GetRetroBluePalette());
 							}
 							createTextEditorDiagnostics();
 							editorList.push_back(editor);
@@ -764,6 +894,8 @@ static void DrawFileTree(const std::filesystem::path &currentPath) {
 				} else if (path.extension() == ".spr") {
 					std::ifstream input(path);
 					if (input.good()) {
+						activeSpriteFrame = 0;
+						currentSpritePath = path;
 						SPR::OpenSprite(path.string().c_str());
 					} else {
 						isErrorOpen = true;

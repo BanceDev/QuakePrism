@@ -26,6 +26,9 @@ namespace QuakePrism {
 
 bool LoadTextureFromFile(const char *filename, GLuint *out_texture,
 						 int *out_width, int *out_height);
+unsigned char *GetTexturePixels(GLuint textureID, int width, int height,
+								GLenum format = GL_RGBA,
+								GLenum type = GL_UNSIGNED_BYTE);
 void convertRGBToIndices(unsigned char *pixels, unsigned char *indices,
 						 const int size);
 void convertRGBAToIndices(unsigned char *pixels, unsigned char *indices,

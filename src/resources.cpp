@@ -18,12 +18,14 @@ along with this program.
 */
 
 #include "resources.h"
+#include "spr.h"
 #include "util.h"
 #include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <ostream>
 #include <string>
+#include <vector>
 
 namespace QuakePrism {
 
@@ -38,7 +40,10 @@ unsigned char colormap[256][3] = {
 
 // Sprite Panel Assets
 SPR::sprite_t currentSprite;
-std::vector<unsigned int> currentSpriteFrames;
+int activeSpriteFrame = 0;
+std::vector<SPR::spriteframe_t> currentSpriteFrames;
+std::vector<unsigned int> currentSpriteTexs;
+std::filesystem::path currentSpritePath;
 
 // Images
 GLuint fileIcon;
@@ -138,7 +143,6 @@ void UpdateQProjectFile() {
 		output << editorTheme << std::endl;
 		output.close();
 	}
-	projectSourcePort = sourcePort;
 }
 
 void ReadQProjectFile() {

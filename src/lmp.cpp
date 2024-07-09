@@ -80,12 +80,12 @@ void Lmp2Img(std::filesystem::path filename) {
 	fread(&imgWidth, sizeof(int), 1, fp);
 	fread(&imgHeight, sizeof(int), 1, fp);
 
-	unsigned char *indicies = (unsigned char *)malloc(imgWidth * imgHeight);
+	unsigned char *indices = (unsigned char *)malloc(imgWidth * imgHeight);
 	// Read pixel data
-	fread(indicies, sizeof(unsigned char), imgWidth * imgHeight, fp);
+	fread(indices, sizeof(unsigned char), imgWidth * imgHeight, fp);
 	unsigned char *pixels = (unsigned char *)malloc(imgWidth * imgHeight * 4);
 	for (int i = 0; i < imgWidth * imgHeight; ++i) {
-		int colorIndex = indicies[i];
+		int colorIndex = indices[i];
 		pixels[(i * 4) + 0] = colormap[colorIndex][0];
 		pixels[(i * 4) + 1] = colormap[colorIndex][1];
 		pixels[(i * 4) + 2] = colormap[colorIndex][2];
@@ -101,7 +101,7 @@ void Lmp2Img(std::filesystem::path filename) {
 	// Clean up
 	fclose(fp);
 	free(pixels);
-	free(indicies);
+	free(indices);
 }
 
 void Lmp2Tex(std::filesystem::path filename, unsigned int *texID, int *width,
@@ -118,12 +118,12 @@ void Lmp2Tex(std::filesystem::path filename, unsigned int *texID, int *width,
 	fread(&imgWidth, sizeof(int), 1, fp);
 	fread(&imgHeight, sizeof(int), 1, fp);
 
-	unsigned char *indicies = (unsigned char *)malloc(imgWidth * imgHeight);
+	unsigned char *indices = (unsigned char *)malloc(imgWidth * imgHeight);
 	// Read pixel data
-	fread(indicies, sizeof(unsigned char), imgWidth * imgHeight, fp);
+	fread(indices, sizeof(unsigned char), imgWidth * imgHeight, fp);
 	unsigned char *pixels = (unsigned char *)malloc(imgWidth * imgHeight * 4);
 	for (int i = 0; i < imgWidth * imgHeight; ++i) {
-		int colorIndex = indicies[i];
+		int colorIndex = indices[i];
 		pixels[(i * 4) + 0] = colormap[colorIndex][0];
 		pixels[(i * 4) + 1] = colormap[colorIndex][1];
 		pixels[(i * 4) + 2] = colormap[colorIndex][2];
@@ -140,8 +140,8 @@ void Lmp2Tex(std::filesystem::path filename, unsigned int *texID, int *width,
 	glBindTexture(GL_TEXTURE_2D, imgTex);
 
 	// Setup filtering parameters for display
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
 					GL_CLAMP_TO_EDGE); // This is required on WebGL for non
 									   // power-of-two textures
@@ -163,7 +163,7 @@ void Lmp2Tex(std::filesystem::path filename, unsigned int *texID, int *width,
 
 	fclose(fp);
 	free(pixels);
-	free(indicies);
+	free(indices);
 }
 
 } // namespace QuakePrism::LMP
