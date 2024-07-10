@@ -461,11 +461,37 @@ void DrawSpriteTool() {
 
 	ImGui::NextColumn();
 
-	// Texture Export Button
-	if (ImGui::Button("Remove Sprite")) {
+	if (ImGui::Button("Save Sprite")) {
+		SPR::WriteSprite(currentSpritePath.string().c_str());
+	}
+
+	// File browser is for import texture
+	static ImGui::FileBrowser texImportBrowser;
+	texImportBrowser.SetTitle("Select Texture");
+	texImportBrowser.SetTypeFilters({".png", ".jpg", ".tga"});
+	if (!texImportBrowser.IsOpened())
+		texImportBrowser.SetPwd(baseDirectory);
+
+	if (ImGui::Button("Insert Frame") && paused) {
+		texImportBrowser.Open();
+	}
+
+	const bool canRemove = paused && maxFrames > 0;
+	if (ImGui::Button("Remove Frame") && canRemove) {
+		currentSpriteTexs.erase(currentSpriteTexs.begin() + activeSpriteFrame);
+		currentSpriteFrames.erase(currentSpriteFrames.begin() +
+								  activeSpriteFrame);
+		currentSprite.numframes--;
 	}
 
 	ImGui::End();
+
+	texImportBrowser.Display();
+	if (texImportBrowser.HasSelected()) {
+		std::filesystem::path texturePath = texImportBrowser.GetSelected();
+		SPR::InsertFrame(texturePath.string().c_str());
+		texImportBrowser.ClearSelected();
+	}
 
 	// update the animation if 0.1 seconds have elapsed
 	if (!currentSpriteFrames.empty() && !paused) {

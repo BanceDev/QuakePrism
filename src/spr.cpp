@@ -19,6 +19,7 @@ along with this program.
 
 #include "spr.h"
 #include "resources.h"
+#include "stb_image.h"
 #include "util.h"
 #include <SDL2/SDL.h>
 #include <cstdio>
@@ -133,4 +134,39 @@ bool WriteSprite(const char *filename) {
 	return true;
 }
 
+void InsertFrame(const char *filename) {
+	int width = 0;
+	int height = 0;
+	unsigned char *img =
+		stbi_load(filename, &width, &height, NULL, STBI_rgb_alpha);
+	if (img == NULL) {
+		return;
+	}
+
+	spriteframe_t frame;
+	frame.group = 0;
+	frame.width = width;
+	frame.height = height;
+	frame.origin[0] = width / 2;
+	frame.origin[1] = height / 2;
+
+	// update max dimensions if needed
+	if (width > currentSprite.width) {
+		currentSprite.width = width;
+	}
+	if (height > currentSprite.width) {
+		currentSprite.height = height;
+	}
+
+	unsigned int texID;
+	SpriteFrame2Tex(img, texID, width, height);
+
+	currentSpriteFrames.insert(currentSpriteFrames.begin() + activeSpriteFrame,
+							   frame);
+	currentSpriteTexs.insert(currentSpriteTexs.begin() + activeSpriteFrame,
+							 texID);
+	currentSprite.numframes++;
+
+	stbi_image_free(img);
+}
 } // namespace QuakePrism::SPR

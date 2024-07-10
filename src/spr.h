@@ -42,7 +42,7 @@ typedef struct {
 
 bool OpenSprite(const char *filename);
 bool WriteSprite(const char *filename);
+void InsertFrame(const char *filename);
 void SpriteFrame2Img();
-void Img2SpriteFrame();
 
 } // namespace QuakePrism::SPR
