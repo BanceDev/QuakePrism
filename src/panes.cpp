@@ -400,6 +400,7 @@ void DrawSpriteTool() {
 	}
 	ImGui::End();
 
+	static bool showBoundingRadius = false;
 	ImGui::Begin("Sprite View");
 	if (!currentSpriteFrames.empty()) {
 		static float sprScale = 1.0f;
@@ -410,7 +411,15 @@ void DrawSpriteTool() {
 		ImGui::Image(
 			(ImTextureID)(intptr_t)currentSpriteTexs[activeSpriteFrame],
 			ImVec2(width, height));
-
+		if (showBoundingRadius) {
+			ImDrawList *drawList = ImGui::GetWindowDrawList();
+			ImVec2 center = ImVec2(
+				ImGui::GetWindowPos().x + ImGui::GetWindowSize().x * 0.5f,
+				ImGui::GetWindowPos().y + ImGui::GetWindowSize().y * 0.5f);
+			float radius = currentSprite.boundingradius * sprScale;
+			ImU32 boundingColor = IM_COL32(255, 0, 0, 30);
+			drawList->AddCircleFilled(center, radius, boundingColor);
+		}
 		// sprite view controls
 		if (ImGui::IsWindowHovered()) {
 			ImGuiIO &io = ImGui::GetIO();
@@ -459,12 +468,10 @@ void DrawSpriteTool() {
 	}
 	ImGui::PopButtonRepeat();
 
-	ImGui::NextColumn();
-
 	if (ImGui::Button("Save Sprite")) {
 		SPR::WriteSprite(currentSpritePath.string().c_str());
 	}
-
+	ImGui::SameLine();
 	// File browser is for import texture
 	static ImGui::FileBrowser texImportBrowser;
 	texImportBrowser.SetTitle("Select Texture");
@@ -475,6 +482,7 @@ void DrawSpriteTool() {
 	if (ImGui::Button("Insert Frame") && paused) {
 		texImportBrowser.Open();
 	}
+	ImGui::SameLine();
 
 	const bool canRemove = paused && maxFrames > 0;
 	if (ImGui::Button("Remove Frame") && canRemove) {
@@ -483,6 +491,31 @@ void DrawSpriteTool() {
 								  activeSpriteFrame);
 		currentSprite.numframes--;
 	}
+
+	if (ImGui::Button("New Sprite")) {
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Export Sprite Frames")) {
+		SPR::ExportSpriteFrames();
+	}
+
+	ImGui::Checkbox("Show Bounding Radius", &showBoundingRadius);
+
+	ImGui::NextColumn();
+
+	// editable fields
+	HelpMarker("The sprite type determines\nits orientation");
+	const char *sprTypes[] = {"VP Parallel Upright", "Facing Upright",
+							  "VP Parallel", "Oriented",
+							  "VP Parallel Oriented"};
+	ImGui::Combo("Sprite Type", &currentSprite.type, sprTypes,
+				 IM_ARRAYSIZE(sprTypes));
+	const char *syncTypes[] = {"Synchronized", "Random"};
+	ImGui::Combo("Sync Type", &currentSprite.synctype, syncTypes,
+				 IM_ARRAYSIZE(syncTypes));
+	HelpMarker("For sprites used\nas a beam");
+	ImGui::InputFloat("Beam Length", &currentSprite.beamlength);
+	ImGui::InputFloat("Bounding Radius", &currentSprite.boundingradius);
 
 	ImGui::End();
 
@@ -506,49 +539,6 @@ void DrawSpriteTool() {
 			}
 		}
 	}
-
-	/*
-		ImGui::Begin("Sprite Tools", nullptr, ImGuiWindowFlags_NoMove);
-		static int selectedSprite = -1;
-		if (!currentSpriteTexs.empty()) {
-			if (ImGui::Button("Save Sprite")) {
-				SPR::WriteSprite(currentSpritePath.string().c_str());
-			}
-			// Begin a new group to handle image wrapping
-			ImGui::BeginGroup();
-
-			for (size_t i = 0; i < currentSpriteTexs.size(); ++i) {
-				if
-	   (ImGui::ImageButton((ImTextureID)(intptr_t)currentSpriteTexs[i],
-									   ImVec2(128, 128))) {
-					selectedSprite = i;
-					ImGui::OpenPopup("Sprite Menu");
-				}
-
-				int wrap = ImGui::GetContentRegionAvail().x / 136;
-				if (wrap == 0)
-					wrap = 1;
-				if ((i + 1) % wrap != 0) {
-					ImGui::SameLine();
-				}
-			}
-
-			// End the group
-			ImGui::EndGroup();
-		}
-
-		if (ImGui::BeginPopup("Sprite Menu")) {
-			if (ImGui::MenuItem("Remove")) {
-				currentSpriteTexs.erase(currentSpriteTexs.begin() +
-	   selectedSprite); currentSpriteFrames.erase(currentSpriteFrames.begin() +
-										  selectedSprite);
-				currentSprite.numframes--;
-			}
-			ImGui::EndPopup();
-		}
-
-		ImGui::End();
-	*/
 }
 
 void DrawDebugConsole() {
@@ -991,7 +981,7 @@ void DrawPaletteTool() {
 		palLoaded = true;
 	}
 	ImGui::Begin("Palette Editor", nullptr, ImGuiWindowFlags_NoMove);
-	if (ImGui::Button("Export Palette")) {
+	if (ImGui::Button("Save Palette")) {
 		// first expor the colors from the widgets to the colormap
 		for (int i = 0; i < 256; ++i) {
 			for (int j = 0; j < 3; ++j) {

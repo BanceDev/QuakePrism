@@ -169,4 +169,27 @@ void InsertFrame(const char *filename) {
 
 	stbi_image_free(img);
 }
+
+void ExportSpriteFrames() {
+	for (int i = 0; i < currentSprite.numframes; ++i) {
+		int width = currentSpriteFrames[i].width;
+		int height = currentSpriteFrames[i].height;
+		unsigned char *pixels =
+			GetTexturePixels(currentSpriteTexs[i], width, height);
+		unsigned char *indices = (unsigned char *)malloc(width * height);
+		convertRGBAToIndices(pixels, indices, width * height);
+
+		std::string imgFilename = currentSpritePath.parent_path().string() +
+								  "/" + currentSpritePath.stem().string();
+		if (currentSprite.numframes > 1) {
+			imgFilename += "_" + std::to_string(i + 1);
+		}
+		imgFilename += ".png";
+
+		convertRGBAToImage(imgFilename.c_str(), pixels, width, height);
+		// Clean up
+		free(pixels);
+		free(indices);
+	}
+}
 } // namespace QuakePrism::SPR
