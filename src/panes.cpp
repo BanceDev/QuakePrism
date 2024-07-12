@@ -401,7 +401,7 @@ void DrawSpriteTool() {
 	ImGui::End();
 
 	static bool showBoundingRadius = false;
-	ImGui::Begin("Sprite View");
+	ImGui::Begin("Sprite View", nullptr, ImGuiWindowFlags_NoMove);
 	if (!currentSpriteFrames.empty()) {
 		static float sprScale = 1.0f;
 		const float width = currentSprite.width * sprScale;
