@@ -206,8 +206,8 @@ bool ImageTreeNode(const char *label, const GLuint icon) {
 
 	// Icon, text
 	ImGui::SameLine(x);
-	ImGui::ImageButton((ImTextureID)(intptr_t)icon, {24, 24}, ImVec2(0, 0),
-					   ImVec2(1, 1), 0);
+	ImGui::Image((ImTextureID)(intptr_t)icon, {24, 24}, ImVec2(0, 0),
+				 ImVec2(1, 1));
 	ImGui::SameLine();
 	ImGui::TextUnformatted(label);
 	ImGui::EndGroup();

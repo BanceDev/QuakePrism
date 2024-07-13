@@ -816,6 +816,26 @@ static void DrawFileTree(const std::filesystem::path &currentPath) {
 						   directoryEntry.path().extension() == ".jpg" ||
 						   directoryEntry.path().extension() == ".png") {
 					icon = imageIcon;
+				} else if (directoryEntry.path().extension() == ".lmp") {
+					icon = lumpIcon;
+				} else if (directoryEntry.path().extension() == ".bsp") {
+					icon = bspIcon;
+				} else if (directoryEntry.path().extension() == ".wad") {
+					icon = wadIcon;
+				} else if (directoryEntry.path().extension() == ".wav" ||
+						   directoryEntry.path().extension() == ".ogg" ||
+						   directoryEntry.path().extension() == ".mp3") {
+					icon = audioIcon;
+				} else if (directoryEntry.path().extension() == ".dem") {
+					icon = demoIcon;
+				} else if (directoryEntry.path().extension() == ".qc") {
+					icon = qcIcon;
+				} else if (directoryEntry.path().extension() == ".exe") {
+					icon = exeIcon;
+				} else if (directoryEntry.path().extension() == ".cfg") {
+					icon = cfgIcon;
+				} else if (directoryEntry.path().extension() == ".map") {
+					icon = mapIcon;
 				} else {
 					icon = fileIcon;
 				}
