@@ -36,6 +36,7 @@ along with this program.
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <stdexcept>
 #include <string>
@@ -344,27 +345,34 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 void DrawTextureViewer() {
 	ImGui::Begin("Texture Tools", nullptr, ImGuiWindowFlags_NoMove);
 	if (!currentTextureName.empty()) {
+		static std::string localTextureName = "";
+		static GLuint currentTexViewID = 0;
+		static int width, height;
+		if (localTextureName != currentTextureName.string()) {
+			localTextureName = currentTextureName.string();
+			glDeleteTextures(1, &currentTexViewID);
+			currentTexViewID = 0;
+			if (currentTextureName.extension() != ".lmp") {
+				LoadTextureFromFile(currentTextureName.string().c_str(),
+									&currentTexViewID, &width, &height);
+			} else {
+				LMP::Lmp2Tex(currentTextureName.string().c_str(),
+							 &currentTexViewID, &width, &height);
+			}
+		}
 		if (currentTextureName.extension() != ".lmp") {
-			GLuint texture;
-			int width, height;
-			LoadTextureFromFile(currentTextureName.string().c_str(), &texture,
-								&width, &height);
 			if (ImGui::Button("Convert Image to Lump")) {
 				LMP::Img2Lmp(currentTextureName);
 			}
-			ImGui::Image((ImTextureID)(intptr_t)texture,
+			ImGui::Image((ImTextureID)(intptr_t)currentTexViewID,
 						 ImVec2(ImGui::GetContentRegionAvail().x,
 								ImGui::GetContentRegionAvail().x *
 									(height / (float)width)));
 		} else {
-			GLuint texture;
-			int width, height;
-			LMP::Lmp2Tex(currentTextureName.string().c_str(), &texture, &width,
-						 &height);
 			if (ImGui::Button("Convert Lump to Image")) {
 				LMP::Lmp2Img(currentTextureName);
 			}
-			ImGui::Image((ImTextureID)(intptr_t)texture,
+			ImGui::Image((ImTextureID)(intptr_t)currentTexViewID,
 						 ImVec2(ImGui::GetContentRegionAvail().x / 2,
 								(ImGui::GetContentRegionAvail().x / 2) *
 									(height / (float)width)));
@@ -474,7 +482,7 @@ void DrawSpriteTool() {
 	ImGui::SameLine();
 	// File browser is for import texture
 	static ImGui::FileBrowser texImportBrowser;
-	texImportBrowser.SetTitle("Select Texture");
+	texImportBrowser.SetTitle("Select Frame");
 	texImportBrowser.SetTypeFilters({".png", ".jpg", ".tga"});
 	if (!texImportBrowser.IsOpened())
 		texImportBrowser.SetPwd(baseDirectory);
@@ -486,13 +494,23 @@ void DrawSpriteTool() {
 
 	const bool canRemove = paused && maxFrames > 0;
 	if (ImGui::Button("Remove Frame") && canRemove) {
+		glDeleteTextures(1, &currentSpriteTexs.at(activeSpriteFrame));
 		currentSpriteTexs.erase(currentSpriteTexs.begin() + activeSpriteFrame);
 		currentSpriteFrames.erase(currentSpriteFrames.begin() +
 								  activeSpriteFrame);
 		currentSprite.numframes--;
 	}
 
+	// File browser is for new sprite
+	static ImGui::FileBrowser newSpriteBrowser(
+		ImGuiFileBrowserFlags_MultipleSelection);
+	newSpriteBrowser.SetTitle("Select Frames");
+	newSpriteBrowser.SetTypeFilters({".png", ".jpg", ".tga"});
+	if (!newSpriteBrowser.IsOpened())
+		newSpriteBrowser.SetPwd(baseDirectory);
+
 	if (ImGui::Button("New Sprite")) {
+		newSpriteBrowser.Open();
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("Export Sprite Frames")) {
@@ -524,6 +542,14 @@ void DrawSpriteTool() {
 		std::filesystem::path texturePath = texImportBrowser.GetSelected();
 		SPR::InsertFrame(texturePath.string().c_str());
 		texImportBrowser.ClearSelected();
+	}
+
+	newSpriteBrowser.Display();
+	if (newSpriteBrowser.HasSelected()) {
+		std::vector<std::filesystem::path> framePaths =
+			newSpriteBrowser.GetMultiSelected();
+		SPR::NewSpriteFromFrames(framePaths);
+		newSpriteBrowser.ClearSelected();
 	}
 
 	// update the animation if 0.1 seconds have elapsed

@@ -26,9 +26,11 @@ along with this program.
 #include "stb_image_write.h"
 #include <cstdint>
 #include <fstream>
+#include <iostream>
 #include <ostream>
 #include <string>
 #include <unistd.h>
+
 #ifdef _WIN32
 #include <direct.h>
 #include <iostream>
@@ -46,16 +48,17 @@ bool LoadTextureFromFile(const char *filename, GLuint *out_texture,
 	int image_height = 0;
 	unsigned char *image_data =
 		stbi_load(filename, &image_width, &image_height, NULL, 4);
-	if (image_data == NULL)
+	if (image_data == NULL) {
+		std::cerr << "Failed to load image: " << filename << std::endl;
 		return false;
-
+	}
 	// Create a OpenGL texture identifier
 	GLuint image_texture;
 	glGenTextures(1, &image_texture);
 	glBindTexture(GL_TEXTURE_2D, image_texture);
 
 	// Setup filtering parameters for display
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
 					GL_CLAMP_TO_EDGE); // This is required on WebGL for non
@@ -68,10 +71,10 @@ bool LoadTextureFromFile(const char *filename, GLuint *out_texture,
 #endif
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0,
 				 GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+
 	stbi_image_free(image_data);
 
-	if (out_texture != nullptr)
-		*out_texture = image_texture;
+	*out_texture = image_texture;
 	if (out_width != nullptr)
 		*out_width = image_width;
 	if (out_height != nullptr)

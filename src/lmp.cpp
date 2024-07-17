@@ -104,16 +104,16 @@ void Lmp2Img(std::filesystem::path filename) {
 	free(indices);
 }
 
-void Lmp2Tex(std::filesystem::path filename, unsigned int *texID, int *width,
+bool Lmp2Tex(std::filesystem::path filename, unsigned int *texID, int *width,
 			 int *height) {
 	// header
 	if (filename.filename() == "colormap.lmp" ||
 		filename.filename() == "palette.lmp")
-		return;
+		return false;
 	int imgWidth, imgHeight;
 	FILE *fp = fopen(filename.string().c_str(), "rb");
 	if (!fp)
-		return;
+		return false;
 	// Read header
 	fread(&imgWidth, sizeof(int), 1, fp);
 	fread(&imgHeight, sizeof(int), 1, fp);
@@ -164,6 +164,7 @@ void Lmp2Tex(std::filesystem::path filename, unsigned int *texID, int *width,
 	fclose(fp);
 	free(pixels);
 	free(indices);
+	return true;
 }
 
 } // namespace QuakePrism::LMP

@@ -24,6 +24,7 @@ along with this program.
 #include <SDL2/SDL.h>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 
 namespace QuakePrism::SPR {
 
@@ -192,4 +193,63 @@ void ExportSpriteFrames() {
 		free(indices);
 	}
 }
+
+static void AddFrame(const char *filename) {
+	int width = 0;
+	int height = 0;
+	unsigned char *img =
+		stbi_load(filename, &width, &height, NULL, STBI_rgb_alpha);
+	if (img == NULL) {
+		return;
+	}
+
+	spriteframe_t frame;
+	frame.group = 0;
+	frame.width = width;
+	frame.height = height;
+	frame.origin[0] = width / 2;
+	frame.origin[1] = height / 2;
+
+	// update max dimensions if needed
+	if (width > currentSprite.width) {
+		currentSprite.width = width;
+	}
+	if (height > currentSprite.width) {
+		currentSprite.height = height;
+	}
+
+	unsigned int texID;
+	SpriteFrame2Tex(img, texID, width, height);
+
+	currentSpriteFrames.push_back(frame);
+	currentSpriteTexs.push_back(texID);
+	currentSprite.numframes++;
+
+	stbi_image_free(img);
+	std::cout << currentSprite.width << std::endl;
+}
+
+void NewSpriteFromFrames(std::vector<std::filesystem::path> framePaths) {
+	// init currentSprite
+	currentSprite.ident = IDSPRITEHEADER;
+	currentSprite.version = 1;
+	currentSprite.type = 0;
+	currentSprite.boundingradius = 0.0f;
+	currentSprite.width = 0;
+	currentSprite.height = 0;
+	currentSprite.numframes = 0;
+	currentSprite.beamlength = 0.0f;
+	currentSprite.synctype = 0;
+
+	currentSpriteFrames.clear();
+	currentSpriteTexs.clear();
+
+	currentSpritePath = framePaths.at(0);
+	currentSpritePath.replace_extension(".spr");
+	for (auto &path : framePaths) {
+		std::cout << path.string() << std::endl;
+		AddFrame(path.string().c_str());
+	}
+}
+
 } // namespace QuakePrism::SPR

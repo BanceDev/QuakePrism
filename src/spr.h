@@ -17,6 +17,9 @@ along with this program.
 
 */
 #pragma once
+#include <filesystem>
+#include <vector>
+
 #define IDSPRITEHEADER                                                         \
 	(('P' << 24) + ('S' << 16) + ('D' << 8) + 'I') // little-endian "IDSP"
 namespace QuakePrism::SPR {
@@ -44,5 +47,6 @@ bool OpenSprite(const char *filename);
 bool WriteSprite(const char *filename);
 void InsertFrame(const char *filename);
 void ExportSpriteFrames();
+void NewSpriteFromFrames(std::vector<std::filesystem::path> framePaths);
 
 } // namespace QuakePrism::SPR
