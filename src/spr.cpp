@@ -202,7 +202,6 @@ static void AddFrame(const char *filename) {
 	if (img == NULL) {
 		return;
 	}
-
 	spriteframe_t frame;
 	frame.group = 0;
 	frame.width = width;
@@ -226,7 +225,6 @@ static void AddFrame(const char *filename) {
 	currentSprite.numframes++;
 
 	stbi_image_free(img);
-	std::cout << currentSprite.width << std::endl;
 }
 
 void NewSpriteFromFrames(std::vector<std::filesystem::path> framePaths) {
@@ -247,7 +245,6 @@ void NewSpriteFromFrames(std::vector<std::filesystem::path> framePaths) {
 	currentSpritePath = framePaths.at(0);
 	currentSpritePath.replace_extension(".spr");
 	for (auto &path : framePaths) {
-		std::cout << path.string() << std::endl;
 		AddFrame(path.string().c_str());
 	}
 }

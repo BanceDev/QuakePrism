@@ -412,8 +412,10 @@ void DrawSpriteTool() {
 	ImGui::Begin("Sprite View", nullptr, ImGuiWindowFlags_NoMove);
 	if (!currentSpriteFrames.empty()) {
 		static float sprScale = 1.0f;
-		const float width = currentSprite.width * sprScale;
-		const float height = currentSprite.height * sprScale;
+		const float width =
+			currentSpriteFrames[activeSpriteFrame].width * sprScale;
+		const float height =
+			currentSpriteFrames[activeSpriteFrame].height * sprScale;
 		ImGui::SetCursorPos(ImVec2((ImGui::GetWindowWidth() - width) * 0.5f,
 								   (ImGui::GetWindowHeight() - height) * 0.5f));
 		ImGui::Image(
@@ -487,7 +489,7 @@ void DrawSpriteTool() {
 	if (!texImportBrowser.IsOpened())
 		texImportBrowser.SetPwd(baseDirectory);
 
-	if (ImGui::Button("Insert Frame") && paused) {
+	if (ImGui::Button("Insert Frame") && (paused || maxFrames == 0)) {
 		texImportBrowser.Open();
 	}
 	ImGui::SameLine();
