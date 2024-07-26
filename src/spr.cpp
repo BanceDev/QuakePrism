@@ -24,7 +24,6 @@ along with this program.
 #include <SDL2/SDL.h>
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 
 namespace QuakePrism::SPR {
 
@@ -81,15 +80,15 @@ bool OpenSprite(const char *filename) {
 		fread(indices, frame.width * frame.height, 1, fp);
 		unsigned char *pixels =
 			(unsigned char *)malloc(frame.width * frame.height * 4);
-		for (int i = 0; i < frame.width * frame.height; ++i) {
+		for (int j = 0; j < frame.width * frame.height; ++j) {
 			int colorIndex = indices[i];
-			pixels[(i * 4) + 0] = colormap[colorIndex][0];
-			pixels[(i * 4) + 1] = colormap[colorIndex][1];
-			pixels[(i * 4) + 2] = colormap[colorIndex][2];
-			if (colorIndex != 255) {
-				pixels[(i * 4) + 3] = 255;
+			pixels[(j * 4) + 0] = colormap[colorIndex][0];
+			pixels[(j * 4) + 1] = colormap[colorIndex][1];
+			pixels[(j * 4) + 2] = colormap[colorIndex][2];
+			if (colorIndex == 255) {
+				pixels[(j * 4) + 3] = 0;
 			} else {
-				pixels[(i * 4) + 3] = 0;
+				pixels[(j * 4) + 3] = 255;
 			}
 		}
 

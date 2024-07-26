@@ -30,13 +30,13 @@ along with this program.
 #include "resources.h"
 #include "spr.h"
 #include "util.h"
+#include "wad.h"
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <iterator>
 #include <stdexcept>
 #include <string>
@@ -364,19 +364,22 @@ void DrawTextureViewer() {
 			if (ImGui::Button("Convert Image to Lump")) {
 				LMP::Img2Lmp(currentTextureName);
 			}
-			ImGui::Image((ImTextureID)(intptr_t)currentTexViewID,
-						 ImVec2(ImGui::GetContentRegionAvail().x,
-								ImGui::GetContentRegionAvail().x *
-									(height / (float)width)));
 		} else {
 			if (ImGui::Button("Convert Lump to Image")) {
 				LMP::Lmp2Img(currentTextureName);
 			}
-			ImGui::Image((ImTextureID)(intptr_t)currentTexViewID,
-						 ImVec2(ImGui::GetContentRegionAvail().x / 2,
-								(ImGui::GetContentRegionAvail().x / 2) *
-									(height / (float)width)));
 		}
+		float displayWidth =
+			width >= height
+				? ImGui::GetContentRegionAvail().x
+				: width * (ImGui::GetContentRegionAvail().y / (float)height);
+		float displayHeight =
+			height > width
+				? ImGui::GetContentRegionAvail().y
+				: height * (ImGui::GetContentRegionAvail().x / (float)width);
+
+		ImGui::Image((ImTextureID)(intptr_t)currentTexViewID,
+					 ImVec2(displayWidth, displayHeight));
 	}
 	ImGui::End();
 }
@@ -567,6 +570,22 @@ void DrawSpriteTool() {
 			}
 		}
 	}
+}
+
+void DrawWADTool() {
+	ImGui::Begin("WAD Tools", nullptr, ImGuiWindowFlags_NoMove);
+	static bool once = true;
+	if (!baseDirectory.empty()) {
+		if (once) {
+			std::filesystem::path testPath = baseDirectory / "gfx.wad";
+			WAD::OpenWad(testPath.string().c_str());
+			once = false;
+		}
+		for (auto &entry : currentWadTexs) {
+			ImGui::Image((void *)(intptr_t)entry, ImVec2(128, 128));
+		}
+	}
+	ImGui::End();
 }
 
 void DrawDebugConsole() {
@@ -980,6 +999,15 @@ static void DrawFileTree(const std::filesystem::path &currentPath) {
 						userError = LOAD_FAILED;
 					}
 					ImGui::SetWindowFocus("Sprite Tools");
+				} else if (path.extension() == ".wad") {
+					std::ifstream input(path);
+					if (input.good()) {
+						// do WAD stuff here
+					} else {
+						isErrorOpen = true;
+						userError = LOAD_FAILED;
+					}
+					ImGui::SetWindowFocus("WAD Tools");
 				}
 			}
 

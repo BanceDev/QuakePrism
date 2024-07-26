@@ -21,6 +21,7 @@ along with this program.
 #include "TextEditor.h"
 #include "imgui.h"
 #include "spr.h"
+#include "wad.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <filesystem>
@@ -40,6 +41,13 @@ extern int activeSpriteFrame;
 extern std::vector<SPR::spriteframe_t> currentSpriteFrames;
 extern std::vector<unsigned int> currentSpriteTexs;
 extern std::filesystem::path currentSpritePath;
+
+// WAD Panel Assets
+extern WAD::wad_t currentWad;
+extern std::vector<WAD::wadentry_t> currentWadEntries;
+extern std::vector<std::vector<unsigned char>> currentWadEntryData;
+extern std::vector<unsigned int> currentWadTexs;
+extern std::filesystem::path currentWadPath;
 
 // Image Assets
 extern GLuint fileIcon;

@@ -21,7 +21,6 @@ along with this program.
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
-#include <filesystem>
 
 namespace QuakePrism {
 
@@ -32,6 +31,8 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO);
 void DrawTextureViewer();
 
 void DrawSpriteTool();
+
+void DrawWADTool();
 
 void DrawDebugConsole();
 

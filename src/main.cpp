@@ -162,6 +162,7 @@ int main(int, char **) {
 		QuakePrism::DrawModelViewer(texture_id, RBO, FBO);
 		QuakePrism::DrawTextureViewer();
 		QuakePrism::DrawSpriteTool();
+		QuakePrism::DrawWADTool();
 		QuakePrism::DrawPaletteTool();
 		ImGui::PopFont();
 
