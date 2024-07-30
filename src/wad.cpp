@@ -156,4 +156,13 @@ void ExportAsImages() {}
 void NewWadFromLumps() {}
 
 void NewWadFromImages() {}
+
+void CleanupWad() {
+	for (auto &texID : currentWadTexs) {
+		glDeleteTextures(1, &texID);
+	}
+	currentWadTexs.clear();
+	currentWadEntries.clear();
+}
+
 } // namespace QuakePrism::WAD

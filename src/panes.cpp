@@ -345,6 +345,12 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 void DrawTextureViewer() {
 	ImGui::Begin("Texture Tools", nullptr, ImGuiWindowFlags_NoMove);
 	if (!currentTextureName.empty()) {
+		ImGui::GetWindowDrawList()->AddRectFilled(
+			ImGui::GetCursorScreenPos(),
+			ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth(),
+				   ImGui::GetCursorScreenPos().y + 28.0f),
+			ImColor(255, 225, 135, 30));	
+		
 		static std::string localTextureName = "";
 		static GLuint currentTexViewID = 0;
 		static int width, height;
@@ -574,16 +580,65 @@ void DrawSpriteTool() {
 
 void DrawWADTool() {
 	ImGui::Begin("WAD Tools", nullptr, ImGuiWindowFlags_NoMove);
-	static bool once = true;
-	if (!baseDirectory.empty()) {
-		if (once) {
-			std::filesystem::path testPath = baseDirectory / "gfx.wad";
-			WAD::OpenWad(testPath.string().c_str());
-			once = false;
+	static int selectedEntry = -1;
+	if (!currentWadTexs.empty()) {
+		ImGui::GetWindowDrawList()->AddRectFilled(
+			ImGui::GetCursorScreenPos(),
+			ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth(),
+				   ImGui::GetCursorScreenPos().y + 28.0f),
+			ImColor(255, 225, 135, 30));
+		
+		if (ImGui::Button("Save WAD")) {
 		}
-		for (auto &entry : currentWadTexs) {
-			ImGui::Image((void *)(intptr_t)entry, ImVec2(128, 128));
+		ImGui::SameLine();
+		if (ImGui::Button("New WAD")) {
+
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Add Texture")) {
+
+		}
+		// Begin a new group to handle image wrapping
+		ImGui::BeginGroup();
+		for (size_t i = 0; i < currentWadTexs.size(); ++i) {
+			int width, height;
+ 			
+			glBindTexture(GL_TEXTURE_2D, currentWadTexs[i]);
+    		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+    		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+   			glBindTexture(GL_TEXTURE_2D, 0);
+
+			if (width != height) {
+				if (width > height) {
+					height = (height * 128) / width;
+					width = 128;
+				} else {
+					width = (width * 128) / height;
+					height = 128;
+				}
+			} else {
+				width = 128;
+				height = 128;
+			}
+
+			if (ImGui::ImageButton((ImTextureID)(intptr_t)currentWadTexs[i],
+									ImVec2(width, height))) {
+				selectedEntry = i;
+				ImGui::OpenPopup("Wad Menu");
+			}
+			int wrap = ImGui::GetContentRegionAvail().x / 142;
+			if (wrap == 0)
+				wrap = 1;
+			if ((i + 1) % wrap != 0) {
+				ImGui::SameLine();
+			}
+		}
+		ImGui::EndGroup();
+	}
+	if (ImGui::BeginPopup("Wad Menu")) {
+		if (ImGui::MenuItem("Remove")) {
+		}
+		ImGui::EndPopup();
 	}
 	ImGui::End();
 }
@@ -993,6 +1048,7 @@ static void DrawFileTree(const std::filesystem::path &currentPath) {
 					if (input.good()) {
 						activeSpriteFrame = 0;
 						currentSpritePath = path;
+						SPR::CleanupSprite();
 						SPR::OpenSprite(path.string().c_str());
 					} else {
 						isErrorOpen = true;
@@ -1002,7 +1058,9 @@ static void DrawFileTree(const std::filesystem::path &currentPath) {
 				} else if (path.extension() == ".wad") {
 					std::ifstream input(path);
 					if (input.good()) {
-						// do WAD stuff here
+						currentWadPath = path;
+						WAD::CleanupWad();
+						WAD::OpenWad(path.string().c_str());
 					} else {
 						isErrorOpen = true;
 						userError = LOAD_FAILED;
@@ -1057,6 +1115,12 @@ void DrawPaletteTool() {
 		palLoaded = true;
 	}
 	ImGui::Begin("Palette Editor", nullptr, ImGuiWindowFlags_NoMove);
+	ImGui::GetWindowDrawList()->AddRectFilled(
+		ImGui::GetCursorScreenPos(),
+		ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth(),
+				ImGui::GetCursorScreenPos().y + 28.0f),
+		ImColor(255, 225, 135, 30));
+	
 	if (ImGui::Button("Save Palette")) {
 		// first expor the colors from the widgets to the colormap
 		for (int i = 0; i < 256; ++i) {

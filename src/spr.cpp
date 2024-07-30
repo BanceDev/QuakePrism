@@ -238,14 +238,21 @@ void NewSpriteFromFrames(std::vector<std::filesystem::path> framePaths) {
 	currentSprite.beamlength = 0.0f;
 	currentSprite.synctype = 0;
 
-	currentSpriteFrames.clear();
-	currentSpriteTexs.clear();
+	CleanupSprite();
 
 	currentSpritePath = framePaths.at(0);
 	currentSpritePath.replace_extension(".spr");
 	for (auto &path : framePaths) {
 		AddFrame(path.string().c_str());
 	}
+}
+
+void CleanupSprite() {
+	for (auto &texID : currentSpriteTexs) {
+		glDeleteTextures(1, &texID);
+	}
+	currentSpriteTexs.clear();
+	currentSpriteFrames.clear();
 }
 
 } // namespace QuakePrism::SPR

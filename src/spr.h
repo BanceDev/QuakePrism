@@ -48,5 +48,6 @@ bool WriteSprite(const char *filename);
 void InsertFrame(const char *filename);
 void ExportSpriteFrames();
 void NewSpriteFromFrames(std::vector<std::filesystem::path> framePaths);
+void CleanupSprite();
 
 } // namespace QuakePrism::SPR

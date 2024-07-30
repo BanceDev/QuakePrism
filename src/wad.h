@@ -55,5 +55,6 @@ void ExportAsLumps();
 void ExportAsImages();
 void NewWadFromLumps();
 void NewWadFromImages();
+void CleanupWad();
 
 } // namespace QuakePrism::WAD
