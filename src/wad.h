@@ -39,7 +39,7 @@ typedef struct {
 } wadentry_t;
 
 typedef struct {
-	char name;
+	char name[16];
 	int width, height;
 	int offsets[4];
 } miptex_t;

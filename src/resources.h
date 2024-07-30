@@ -45,7 +45,6 @@ extern std::filesystem::path currentSpritePath;
 // WAD Panel Assets
 extern WAD::wad_t currentWad;
 extern std::vector<WAD::wadentry_t> currentWadEntries;
-extern std::vector<std::vector<unsigned char>> currentWadEntryData;
 extern std::vector<unsigned int> currentWadTexs;
 extern std::filesystem::path currentWadPath;
 

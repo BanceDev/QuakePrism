@@ -74,14 +74,13 @@ bool OpenWad(const char *filename) {
 		return false;
 	}
 
-	// Resize the lump data vector to hold data for each lump
-	currentWadEntryData.resize(currentWad.numEntries);
-
 	// Read the lump data
 	for (size_t i = 0; i < currentWadEntries.size(); ++i) {
-		currentWadEntryData[i].resize(currentWadEntries[i].dirsize);
+		unsigned char *lumpData =
+			(unsigned char *)malloc(currentWadEntries[i].dirsize);
+
 		file.seekg(currentWadEntries[i].offset, std::ios::beg);
-		file.read(reinterpret_cast<char *>(currentWadEntryData[i].data()),
+		file.read(reinterpret_cast<char *>(lumpData),
 				  currentWadEntries[i].dirsize);
 		if (!file) {
 			std::cerr << "Failed to read lump data for "
@@ -92,14 +91,12 @@ bool OpenWad(const char *filename) {
 		if (currentWadEntries[i].type == 'B' ||
 			currentWadEntries[i].type == 'E') {
 			qpic_t pic;
-			memcpy(&pic.width, currentWadEntryData[i].data(), sizeof(int));
-			memcpy(&pic.height, currentWadEntryData[i].data() + sizeof(int),
-				   sizeof(int));
+			memcpy(&pic, lumpData, sizeof(qpic_t));
 			unsigned char *pixels =
 				(unsigned char *)malloc(pic.width * pic.height * 4);
 			for (int j = 0; j < pic.width * pic.height; ++j) {
-				const int idx = sizeof(int) * 2 + j;
-				const int colorIndex = currentWadEntryData[i][idx];
+				const int idx = sizeof(qpic_t) + j;
+				const int colorIndex = lumpData[idx];
 				pixels[(j * 4) + 0] = colormap[colorIndex][0];
 				pixels[(j * 4) + 1] = colormap[colorIndex][1];
 				pixels[(j * 4) + 2] = colormap[colorIndex][2];
@@ -112,7 +109,37 @@ bool OpenWad(const char *filename) {
 			unsigned int texID;
 			QPic2Tex(pixels, texID, pic.width, pic.height);
 			currentWadTexs.push_back(texID);
+			free(pixels);
+		} else if (currentWadEntries[i].type == 'D') {
+			miptex_t miptex;
+			memcpy(&miptex, lumpData, sizeof(miptex_t));
+
+			// The largest miptex is the first one, offset is in
+			// miptex.offsets[0]
+			int mipWidth = miptex.width;
+			int mipHeight = miptex.height;
+
+			unsigned char *pixels =
+				(unsigned char *)malloc(mipWidth * mipHeight * 4);
+			for (int j = 0; j < mipWidth * mipHeight; ++j) {
+				const int idx = sizeof(miptex_t) + j;
+				const int colorIndex = lumpData[idx];
+				pixels[(j * 4) + 0] = colormap[colorIndex][0];
+				pixels[(j * 4) + 1] = colormap[colorIndex][1];
+				pixels[(j * 4) + 2] = colormap[colorIndex][2];
+				if (colorIndex == 255) {
+					pixels[(j * 4) + 3] = 0;
+				} else {
+					pixels[(j * 4) + 3] = 255;
+				}
+			}
+			unsigned int texID;
+			QPic2Tex(pixels, texID, mipWidth, mipHeight);
+			currentWadTexs.push_back(texID);
+
+			free(pixels);
 		}
+		free(lumpData);
 	}
 
 	return true;

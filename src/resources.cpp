@@ -48,7 +48,6 @@ std::filesystem::path currentSpritePath;
 // WAD Panel Assets
 WAD::wad_t currentWad;
 std::vector<WAD::wadentry_t> currentWadEntries;
-std::vector<std::vector<char>> currentWadEntryData;
 std::vector<unsigned int> currentWadTexs;
 std::filesystem::path currentWadPath;
 
