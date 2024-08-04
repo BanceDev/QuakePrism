@@ -17,6 +17,9 @@ along with this program.
 
 */
 
+#include <vector>
+#include <filesystem>
+
 #pragma once
 #define WADID                                                                  \
 	(('2' << 24) + ('D' << 16) + ('A' << 8) + 'W') // little-endian "WAD2"
@@ -48,12 +51,18 @@ typedef struct {
 	int width, height;
 } qpic_t;
 
+typedef struct {
+	int width, height;
+	bool isMip;
+} waddata_t;
+
 bool OpenWad(const char *filename);
 bool WriteWad(const char *filename);
-void InsertImage(const char *filename);
+void InsertImage(const char *filename, const bool isMip);
 void ExportAsImages();
-void ExportImage(int index);
-void NewWadFromImages();
+void ExportImage(const int index);
+void RemoveImage(const int index);
+void NewWadFromImages(std::vector<std::filesystem::path> files, const bool isMip);
 void CleanupWad();
 
 } // namespace QuakePrism::WAD

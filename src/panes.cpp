@@ -592,17 +592,62 @@ void DrawWADTool() {
 		if (ImGui::Button("Save WAD")) {
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("New WAD")) {
+		
+		static ImGui::FileBrowser newWadBrowser(
+			ImGuiFileBrowserFlags_MultipleSelection);
+		newWadBrowser.SetTitle("Select Frames");
+		newWadBrowser.SetTypeFilters({".png", ".jpg", ".tga"});
+		if (!newWadBrowser.IsOpened())
+			newWadBrowser.SetPwd(baseDirectory);
 
+		static bool isMip = false;	
+		if (ImGui::Button("New UI WAD")) {
+			newWadBrowser.Open();
+			isMip = false;
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("New Map WAD")) {
+			newWadBrowser.Open();
+			isMip = true;
+		}
+		
+		newWadBrowser.Display();
+		if (newWadBrowser.HasSelected()) {
+			std::vector<std::filesystem::path> framePaths =
+				newWadBrowser.GetMultiSelected();
+			WAD::NewWadFromImages(framePaths, isMip);
+			newWadBrowser.ClearSelected();
+		}
+		
 		ImGui::SameLine();
 		if(ImGui::Button("Export WAD")) {
 			WAD::ExportAsImages();
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Add Texture")) {
-
+		
+		// File browser is for import texture
+		static ImGui::FileBrowser texImportBrowser;
+		texImportBrowser.SetTitle("Select Frame");
+		texImportBrowser.SetTypeFilters({".png", ".jpg", ".tga"});
+		if (!texImportBrowser.IsOpened())
+			texImportBrowser.SetPwd(baseDirectory);
+		if (ImGui::Button("Add UI Texture")) {
+			texImportBrowser.Open();
+			isMip = false;
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Add Map Texture")) {
+			texImportBrowser.Open();
+			isMip = true;
+		}
+		
+		texImportBrowser.Display();
+		if (texImportBrowser.HasSelected()) {
+			std::filesystem::path texturePath = texImportBrowser.GetSelected();
+			WAD::InsertImage(texturePath.string().c_str(), isMip);
+			texImportBrowser.ClearSelected();
+		}
+
 		// Begin a new group to handle image wrapping
 		ImGui::BeginGroup();
 		for (size_t i = 0; i < currentWadTexs.size(); ++i) {
@@ -642,6 +687,7 @@ void DrawWADTool() {
 	}
 	if (ImGui::BeginPopup("Wad Menu")) {
 		if (ImGui::MenuItem("Remove")) {
+			WAD::RemoveImage(selectedEntry);
 		}
 		if (ImGui::MenuItem("Export")) {
 			WAD::ExportImage(selectedEntry);

@@ -46,7 +46,7 @@ extern std::filesystem::path currentSpritePath;
 extern WAD::wad_t currentWad;
 extern std::vector<WAD::wadentry_t> currentWadEntries;
 extern std::vector<unsigned int> currentWadTexs;
-extern std::vector<WAD::qpic_t> currentWadData;
+extern std::vector<WAD::waddata_t> currentWadData;
 extern std::filesystem::path currentWadPath;
 
 // Image Assets

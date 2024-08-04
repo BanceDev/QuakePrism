@@ -81,7 +81,7 @@ bool OpenSprite(const char *filename) {
 		unsigned char *pixels =
 			(unsigned char *)malloc(frame.width * frame.height * 4);
 		for (int j = 0; j < frame.width * frame.height; ++j) {
-			int colorIndex = indices[i];
+			int colorIndex = indices[j];
 			pixels[(j * 4) + 0] = colormap[colorIndex][0];
 			pixels[(j * 4) + 1] = colormap[colorIndex][1];
 			pixels[(j * 4) + 2] = colormap[colorIndex][2];

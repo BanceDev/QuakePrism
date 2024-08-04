@@ -18,6 +18,7 @@ along with this program.
 */
 
 #include "wad.h"
+#include "SDL_opengl.h"
 #include "resources.h"
 #include "util.h"
 #include <cstdio>
@@ -111,7 +112,11 @@ bool OpenWad(const char *filename) {
 			unsigned int texID;
 			QPic2Tex(pixels, texID, pic.width, pic.height);
 			currentWadTexs.push_back(texID);
-			currentWadData.push_back(pic);
+			waddata_t data;
+			data.width = pic.width;
+			data.height = pic.height;
+			data.isMip = false;
+			currentWadData.push_back(data);
 			free(pixels);
 		} else if (currentWadEntries[i].type == 'D') {
 			miptex_t miptex;
@@ -139,10 +144,11 @@ bool OpenWad(const char *filename) {
 			unsigned int texID;
 			QPic2Tex(pixels, texID, mipWidth, mipHeight);
 			currentWadTexs.push_back(texID);
-			qpic_t pic;
-			pic.width = mipWidth;
-			pic.height = mipHeight;
-			currentWadData.push_back(pic);
+			waddata_t data;
+			data.width = mipWidth;
+			data.height = mipHeight;
+			data.isMip = true;
+			currentWadData.push_back(data);
 			free(pixels);
 		}
 		free(lumpData);
@@ -153,7 +159,17 @@ bool OpenWad(const char *filename) {
 
 bool WriteWad(const char *filename) { return false; }
 
-void InsertImage(const char *filename) {}
+void InsertImage(const char *filename, const bool isMip) {
+	int width, height;
+	unsigned int texID;
+	LoadTextureFromFile(filename, &texID, &width, &height);
+	waddata_t data;
+	data.width = width;
+	data.height = height;
+	data.isMip = isMip;
+	currentWadData.push_back(data);
+	currentWadTexs.push_back(texID);
+}
 
 void ExportAsImages() {
 	std::filesystem::path outDir = currentWadPath.parent_path();	
@@ -166,7 +182,6 @@ void ExportAsImages() {
 	for (int i = 0; i < currentWadTexs.size(); ++i) {
 		std::filesystem::path outFile = outDir / currentWadEntries[i].name;
 		outFile.replace_extension(".png");
-		std::cout << outFile << "\n";
 		int width = currentWadData[i].width;
 		int height = currentWadData[i].height;
 		unsigned char *pixels = GetTexturePixels(currentWadTexs[i], width, height);
@@ -175,7 +190,7 @@ void ExportAsImages() {
 
 }
 
-void ExportImage(int index) {
+void ExportImage(const int index) {
 	std::string filename = currentWadPath.parent_path();
 	filename += "/";
 	filename += currentWadEntries[index].name;
@@ -186,7 +201,19 @@ void ExportImage(int index) {
 	convertRGBAToImage(filename.c_str(), pixels, width, height);	
 }
 
-void NewWadFromImages() {}
+void RemoveImage(const int index) {
+	unsigned int texID = currentWadTexs[index];
+	currentWadTexs.erase(currentWadTexs.begin() + index);
+	currentWadData.erase(currentWadData.begin() + index);
+	glDeleteTextures(1, &texID);
+}
+
+void NewWadFromImages(std::vector<std::filesystem::path> files, const bool isMip) {
+	CleanupWad();
+	for (auto &file : files) {
+		InsertImage(file.string().c_str(), isMip);
+	}
+}
 
 void CleanupWad() {
 	for (auto &texID : currentWadTexs) {
