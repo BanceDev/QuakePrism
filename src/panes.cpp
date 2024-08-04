@@ -56,6 +56,7 @@ enum {
 
 int userError = 0;
 bool isAboutOpen = false;
+bool isStartupOpen = true;
 bool isErrorOpen = false;
 bool isOpenProjectOpen = false;
 bool isNewProjectOpen = false;
@@ -1027,7 +1028,7 @@ static void DrawFileTree(const std::filesystem::path &currentPath) {
 					ImGui::EndMenu();
 				}
 				if (ImGui::MenuItem("Delete")) {
-					std::filesystem::remove(path);
+					std::filesystem::remove_all(path);
 				}
 				ImGui::EndPopup();
 			}
@@ -1607,6 +1608,39 @@ void DrawAboutPopup() {
 
 		if (ImGui::Button("Close")) {
 			isAboutOpen = false;
+			ImGui::CloseCurrentPopup();
+		}
+
+		ImGui::EndPopup();
+	}
+}
+
+void DrawStartupPopup() {
+	if (!isStartupOpen)
+		return;
+
+	ImGui::OpenPopup("startup");
+	isStartupOpen = ImGui::BeginPopupModal("startup", nullptr,
+										 ImGuiWindowFlags_AlwaysAutoResize);
+	if (isStartupOpen) {
+		ImGui::Image((ImTextureID)(intptr_t)appIcon, {64, 64});
+
+		ImGui::SameLine();
+
+		ImGui::BeginGroup();
+		ImGui::Text("Welcome to Quake Prism!");
+		ImGui::Text("create or open a project");
+		ImGui::EndGroup();
+
+		if (ImGui::Button("New")) {
+			isStartupOpen = false;
+			isNewProjectOpen = true;
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Open")) {
+			isStartupOpen = false;
+			isOpenProjectOpen = true;
 			ImGui::CloseCurrentPopup();
 		}
 

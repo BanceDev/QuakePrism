@@ -174,6 +174,7 @@ int main(int, char **) {
 		QuakePrism::DrawFileExplorer();
 
 		// Display all active popups
+		QuakePrism::DrawStartupPopup();
 		QuakePrism::DrawAboutPopup();
 		QuakePrism::DrawErrorPopup();
 		QuakePrism::DrawOpenProjectPopup();

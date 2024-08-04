@@ -42,6 +42,8 @@ void DrawErrorPopup();
 
 void DrawAboutPopup();
 
+void DrawStartupPopup();
+
 void DrawFileExplorer();
 
 void DrawPaletteTool();
