@@ -20,6 +20,7 @@ along with this program.
 #include "resources.h"
 #include "spr.h"
 #include "util.h"
+#include "wad.h"
 #include <cstdio>
 #include <fstream>
 #include <iostream>
@@ -49,6 +50,7 @@ std::filesystem::path currentSpritePath;
 WAD::wad_t currentWad;
 std::vector<WAD::wadentry_t> currentWadEntries;
 std::vector<unsigned int> currentWadTexs;
+std::vector<WAD::qpic_t> currentWadData;
 std::filesystem::path currentWadPath;
 
 // Images

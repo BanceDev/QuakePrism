@@ -19,8 +19,10 @@ along with this program.
 
 #include "wad.h"
 #include "resources.h"
+#include "util.h"
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -109,6 +111,7 @@ bool OpenWad(const char *filename) {
 			unsigned int texID;
 			QPic2Tex(pixels, texID, pic.width, pic.height);
 			currentWadTexs.push_back(texID);
+			currentWadData.push_back(pic);
 			free(pixels);
 		} else if (currentWadEntries[i].type == 'D') {
 			miptex_t miptex;
@@ -136,7 +139,10 @@ bool OpenWad(const char *filename) {
 			unsigned int texID;
 			QPic2Tex(pixels, texID, mipWidth, mipHeight);
 			currentWadTexs.push_back(texID);
-
+			qpic_t pic;
+			pic.width = mipWidth;
+			pic.height = mipHeight;
+			currentWadData.push_back(pic);
 			free(pixels);
 		}
 		free(lumpData);
@@ -147,13 +153,38 @@ bool OpenWad(const char *filename) {
 
 bool WriteWad(const char *filename) { return false; }
 
-void InsertLump(const char *filename) {}
+void InsertImage(const char *filename) {}
 
-void ExportAsLumps() {}
+void ExportAsImages() {
+	std::filesystem::path outDir = currentWadPath.parent_path();	
+	outDir /= currentWadPath.filename();
+	outDir.replace_extension("");
+	// Create the output directory if it does not exist
+	if (!std::filesystem::exists(outDir)) {
+		std::filesystem::create_directory(outDir);
+	}
+	for (int i = 0; i < currentWadTexs.size(); ++i) {
+		std::filesystem::path outFile = outDir / currentWadEntries[i].name;
+		outFile.replace_extension(".png");
+		std::cout << outFile << "\n";
+		int width = currentWadData[i].width;
+		int height = currentWadData[i].height;
+		unsigned char *pixels = GetTexturePixels(currentWadTexs[i], width, height);
+		convertRGBAToImage(outFile.string().c_str(), pixels, width, height);
+	}	
 
-void ExportAsImages() {}
+}
 
-void NewWadFromLumps() {}
+void ExportImage(int index) {
+	std::string filename = currentWadPath.parent_path();
+	filename += "/";
+	filename += currentWadEntries[index].name;
+	filename += ".png";
+	int width = currentWadData[index].width;
+	int height = currentWadData[index].height;
+	unsigned char *pixels = GetTexturePixels(currentWadTexs[index], width, height);
+	convertRGBAToImage(filename.c_str(), pixels, width, height);	
+}
 
 void NewWadFromImages() {}
 
@@ -162,6 +193,7 @@ void CleanupWad() {
 		glDeleteTextures(1, &texID);
 	}
 	currentWadTexs.clear();
+	currentWadData.clear();
 	currentWadEntries.clear();
 }
 

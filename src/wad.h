@@ -50,10 +50,9 @@ typedef struct {
 
 bool OpenWad(const char *filename);
 bool WriteWad(const char *filename);
-void InsertLump(const char *filename);
-void ExportAsLumps();
+void InsertImage(const char *filename);
 void ExportAsImages();
-void NewWadFromLumps();
+void ExportImage(int index);
 void NewWadFromImages();
 void CleanupWad();
 

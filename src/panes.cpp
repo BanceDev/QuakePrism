@@ -37,6 +37,7 @@ along with this program.
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <stdexcept>
 #include <string>
@@ -595,6 +596,10 @@ void DrawWADTool() {
 
 		}
 		ImGui::SameLine();
+		if(ImGui::Button("Export WAD")) {
+			WAD::ExportAsImages();
+		}
+		ImGui::SameLine();
 		if (ImGui::Button("Add Texture")) {
 
 		}
@@ -602,7 +607,7 @@ void DrawWADTool() {
 		ImGui::BeginGroup();
 		for (size_t i = 0; i < currentWadTexs.size(); ++i) {
 			int width, height;
- 			
+
 			glBindTexture(GL_TEXTURE_2D, currentWadTexs[i]);
     		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
     		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
@@ -637,6 +642,9 @@ void DrawWADTool() {
 	}
 	if (ImGui::BeginPopup("Wad Menu")) {
 		if (ImGui::MenuItem("Remove")) {
+		}
+		if (ImGui::MenuItem("Export")) {
+			WAD::ExportImage(selectedEntry);
 		}
 		ImGui::EndPopup();
 	}
