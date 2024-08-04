@@ -26,8 +26,8 @@ To stay in contact with developers and users check out the community [discord](h
 - [x] Color Palette Editor 
 - [x] QuakeC Error/Warning Checking
 - [x] LMP Tools
-- [ ] WAD Editor
-- [ ] SPR Tools
+- [x] WAD Editor
+- [x] SPR Tools
 
 ## Releases
 - Binary builds are available from [releases](https://github.com/BanceDev/QuakePrism/releases)

@@ -589,6 +589,7 @@ void DrawWADTool() {
 		ImColor(255, 225, 135, 30));
 	
 	if (ImGui::Button("Save WAD")) {
+		WAD::WriteWad(currentWadPath.string().c_str());
 	}
 	ImGui::SameLine();
 	
