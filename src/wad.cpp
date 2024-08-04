@@ -116,6 +116,7 @@ bool OpenWad(const char *filename) {
 			data.width = pic.width;
 			data.height = pic.height;
 			data.isMip = false;
+			data.name = currentWadEntries[i].name;
 			currentWadData.push_back(data);
 			free(pixels);
 		} else if (currentWadEntries[i].type == 'D') {
@@ -148,6 +149,7 @@ bool OpenWad(const char *filename) {
 			data.width = mipWidth;
 			data.height = mipHeight;
 			data.isMip = true;
+			data.name = currentWadEntries[i].name;
 			currentWadData.push_back(data);
 			free(pixels);
 		}
@@ -159,16 +161,19 @@ bool OpenWad(const char *filename) {
 
 bool WriteWad(const char *filename) { return false; }
 
-void InsertImage(const char *filename, const bool isMip) {
+void InsertImage(std::filesystem::path filename, const bool isMip) {
 	int width, height;
 	unsigned int texID;
-	LoadTextureFromFile(filename, &texID, &width, &height);
+	LoadTextureFromFile(filename.string().c_str(), &texID, &width, &height);
 	waddata_t data;
 	data.width = width;
 	data.height = height;
 	data.isMip = isMip;
+	filename.replace_extension("");
+	data.name = filename.filename();
 	currentWadData.push_back(data);
 	currentWadTexs.push_back(texID);
+	currentWad.numEntries++;
 }
 
 void ExportAsImages() {
@@ -180,7 +185,7 @@ void ExportAsImages() {
 		std::filesystem::create_directory(outDir);
 	}
 	for (int i = 0; i < currentWadTexs.size(); ++i) {
-		std::filesystem::path outFile = outDir / currentWadEntries[i].name;
+		std::filesystem::path outFile = outDir / currentWadData[i].name;
 		outFile.replace_extension(".png");
 		int width = currentWadData[i].width;
 		int height = currentWadData[i].height;
@@ -193,7 +198,7 @@ void ExportAsImages() {
 void ExportImage(const int index) {
 	std::string filename = currentWadPath.parent_path();
 	filename += "/";
-	filename += currentWadEntries[index].name;
+	filename += currentWadData[index].name;
 	filename += ".png";
 	int width = currentWadData[index].width;
 	int height = currentWadData[index].height;
@@ -206,10 +211,16 @@ void RemoveImage(const int index) {
 	currentWadTexs.erase(currentWadTexs.begin() + index);
 	currentWadData.erase(currentWadData.begin() + index);
 	glDeleteTextures(1, &texID);
+	currentWad.numEntries--;
 }
 
 void NewWadFromImages(std::vector<std::filesystem::path> files, const bool isMip) {
 	CleanupWad();
+
+	currentWad.id = WADID;
+	currentWad.numEntries = files.size();
+	currentWad.offset = 0;
+
 	for (auto &file : files) {
 		InsertImage(file.string().c_str(), isMip);
 	}

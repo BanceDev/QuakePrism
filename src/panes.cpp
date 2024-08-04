@@ -582,71 +582,71 @@ void DrawSpriteTool() {
 void DrawWADTool() {
 	ImGui::Begin("WAD Tools", nullptr, ImGuiWindowFlags_NoMove);
 	static int selectedEntry = -1;
-	if (!currentWadTexs.empty()) {
-		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImGui::GetCursorScreenPos(),
-			ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth(),
-				   ImGui::GetCursorScreenPos().y + 28.0f),
-			ImColor(255, 225, 135, 30));
-		
-		if (ImGui::Button("Save WAD")) {
-		}
-		ImGui::SameLine();
-		
-		static ImGui::FileBrowser newWadBrowser(
-			ImGuiFileBrowserFlags_MultipleSelection);
-		newWadBrowser.SetTitle("Select Frames");
-		newWadBrowser.SetTypeFilters({".png", ".jpg", ".tga"});
-		if (!newWadBrowser.IsOpened())
-			newWadBrowser.SetPwd(baseDirectory);
+	ImGui::GetWindowDrawList()->AddRectFilled(
+		ImGui::GetCursorScreenPos(),
+		ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth(),
+				ImGui::GetCursorScreenPos().y + 28.0f),
+		ImColor(255, 225, 135, 30));
+	
+	if (ImGui::Button("Save WAD")) {
+	}
+	ImGui::SameLine();
+	
+	static ImGui::FileBrowser newWadBrowser(
+		ImGuiFileBrowserFlags_MultipleSelection);
+	newWadBrowser.SetTitle("Select Frames");
+	newWadBrowser.SetTypeFilters({".png", ".jpg", ".tga"});
+	if (!newWadBrowser.IsOpened())
+		newWadBrowser.SetPwd(baseDirectory);
 
-		static bool isMip = false;	
-		if (ImGui::Button("New UI WAD")) {
-			newWadBrowser.Open();
-			isMip = false;
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("New Map WAD")) {
-			newWadBrowser.Open();
-			isMip = true;
-		}
-		
-		newWadBrowser.Display();
-		if (newWadBrowser.HasSelected()) {
-			std::vector<std::filesystem::path> framePaths =
-				newWadBrowser.GetMultiSelected();
-			WAD::NewWadFromImages(framePaths, isMip);
-			newWadBrowser.ClearSelected();
-		}
-		
-		ImGui::SameLine();
-		if(ImGui::Button("Export WAD")) {
-			WAD::ExportAsImages();
-		}
-		ImGui::SameLine();
-		
-		// File browser is for import texture
-		static ImGui::FileBrowser texImportBrowser;
-		texImportBrowser.SetTitle("Select Frame");
-		texImportBrowser.SetTypeFilters({".png", ".jpg", ".tga"});
-		if (!texImportBrowser.IsOpened())
-			texImportBrowser.SetPwd(baseDirectory);
-		if (ImGui::Button("Add UI Texture")) {
-			texImportBrowser.Open();
-			isMip = false;
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Add Map Texture")) {
-			texImportBrowser.Open();
-			isMip = true;
-		}
-		
-		texImportBrowser.Display();
-		if (texImportBrowser.HasSelected()) {
-			std::filesystem::path texturePath = texImportBrowser.GetSelected();
-			WAD::InsertImage(texturePath.string().c_str(), isMip);
-			texImportBrowser.ClearSelected();
-		}
+	static bool isMip = false;	
+	if (ImGui::Button("New UI WAD")) {
+		newWadBrowser.Open();
+		isMip = false;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("New Map WAD")) {
+		newWadBrowser.Open();
+		isMip = true;
+	}
+	
+	newWadBrowser.Display();
+	if (newWadBrowser.HasSelected()) {
+		std::vector<std::filesystem::path> framePaths =
+			newWadBrowser.GetMultiSelected();
+		WAD::NewWadFromImages(framePaths, isMip);
+		newWadBrowser.ClearSelected();
+	}
+	
+	ImGui::SameLine();
+	if(ImGui::Button("Export WAD")) {
+		WAD::ExportAsImages();
+	}
+	ImGui::SameLine();
+	
+	// File browser is for import texture
+	static ImGui::FileBrowser texImportBrowser;
+	texImportBrowser.SetTitle("Select Frame");
+	texImportBrowser.SetTypeFilters({".png", ".jpg", ".tga"});
+	if (!texImportBrowser.IsOpened())
+		texImportBrowser.SetPwd(baseDirectory);
+	if (ImGui::Button("Add UI Texture")) {
+		texImportBrowser.Open();
+		isMip = false;
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Add Map Texture")) {
+		texImportBrowser.Open();
+		isMip = true;
+	}
+	
+	texImportBrowser.Display();
+	if (texImportBrowser.HasSelected()) {
+		std::filesystem::path texturePath = texImportBrowser.GetSelected();
+		WAD::InsertImage(texturePath, isMip);
+		texImportBrowser.ClearSelected();
+	}
+	if (!currentWadTexs.empty()) {
 
 		// Begin a new group to handle image wrapping
 		ImGui::BeginGroup();

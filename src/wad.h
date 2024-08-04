@@ -54,11 +54,12 @@ typedef struct {
 typedef struct {
 	int width, height;
 	bool isMip;
+	std::string name;
 } waddata_t;
 
 bool OpenWad(const char *filename);
 bool WriteWad(const char *filename);
-void InsertImage(const char *filename, const bool isMip);
+void InsertImage(std::filesystem::path filename, const bool isMip);
 void ExportAsImages();
 void ExportImage(const int index);
 void RemoveImage(const int index);
