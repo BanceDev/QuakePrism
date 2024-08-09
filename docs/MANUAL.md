@@ -19,16 +19,7 @@ In this section we will cover the basics of beginning to use Quake Prism. This w
 </p>
 
 
-When you launch Quake Prism for the first time it will require that you select a location for it to create a Quake Prism projects directory. Quake Prism will automatically create the directory upon selection of a location for projects. If the projects directory is ever moved or deleted Quake Prism will ask you to make a new one.
-
-### Main Window
-
-After setting a projects directory or opening Quake Prism in future instances you will be met with the screen below. 
-In order to begin using the toolset of the editor you will need to either select the new project or open project button.
-
-<p align="center">
-    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/main.png" alt="Start Screen"/>
-</p>
+When you launch Quake Prism it will prompt you to open a project or create a new one. You can store projects anywhere on your machine since Quake Prism tracks all of the projects in a config file. If you have an existing mod/game project you can also import that project by selecting the open option and then selecting the import option in the popup.
 
 ### Open Project
 
@@ -36,7 +27,8 @@ In order to begin using the toolset of the editor you will need to either select
     <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/open.png" alt="Start Screen"/>
 </p>
 
-Upon pressing the open project button you will be presented with a popup that shows all viable projects by scanning for directories in your Quake Prism projects folder. Select which project you would like to open by clicking on its name and then pressing the open button. 
+Upon pressing the open project button you will be presented with a popup that shows all previosly opened projects that are logged in your Quake Prism config file. Select which project you would like to open by clicking on its name and then pressing the open button. Alternatively, you can import a project that you made outside of Quake Prism by using the import option. 
+
 
 ### New Project
 
@@ -47,6 +39,14 @@ Upon pressing the open project button you will be presented with a popup that sh
 Upon pressing the new project button you will be presented with a popup that allows for you to select one of three project templates. The currently selected template can be seen above the text prompt for the new project name. In order to make a new project select the desired template by clicking on it, name your project using the prompt, and then select the make project button.
 
 If you choose the Import PAK option then you will additionally need to import any number of Quake PAK files and then select a codebase between either the Quake Prism blank template or the id1 template from the original Quake game.
+
+### Main Window
+
+After opening or creating a project you will be met with the screen below. The main window is composed of a file explorer on the sidebar along with topbar tabs for each of the tools that Quake Prism offers. Each of these tools will have it's own dedicated section in this manual.
+
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/main.png" alt="Start Screen"/>
+</p>
 
 ## Using the Editor
 
@@ -80,7 +80,7 @@ The Help menu has two options for quick info about the editor. The **About** opt
     <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/editor.png" alt="Start Screen"/>
 </p>
 
-The QuakeC editor is a simple text editor that will open .qc/.src/.cfg/.rc files from your project for editing. It's primarily focused on support for the QuakeC language however. There is a menu bar with most standard file editing utilities along with the ability to change the theme of the editor between dark, light, and retro modes. The editor also comes fully featured with syntax highlighting for QuakeC as well as embedded warning and error checking using fteqcc in the background. This process will automatically compile and analyze your code after the program detects the user is no longer presently typing in the file. Due to the limitations of fteqcc and the way that QuakeC compiles this process will need to save your files before each compile. You will still have acess to undo of course if you want to reverse changes.
+The QuakeC editor is a simple text editor that will open .qc/.src/.cfg/.rc files from your project for editing. It's primarily focused on support for the QuakeC language however. There is a menu bar with most standard file editing utilities along with the ability to change the theme of the editor between dark, light, and retro modes. The editor also comes fully featured with syntax highlighting for QuakeC as well as embedded warning and error checking using fteqcc in the background. This error/warning linting will only happen when you save a file due to some of the limitations of QuakeC being a single pass compiled language with a single compile unit (the .dat file).
 
 ### Model Viewer
 
@@ -90,11 +90,11 @@ The QuakeC editor is a simple text editor that will open .qc/.src/.cfg/.rc files
 
 The model viewer is split into two panes. The top pane is the Model View pane which displays the model and accepts input for manipulation the model's position, rotation, and scale. Use the left mouse button to rotate the model, the right mouse button to move the model, and the scroll wheel to scale the model.
 
-The Model Tools pane contains a suite of options to further manipulate the model view. In the left column (top-to-bottom) there is an animation slider that displays the progress of the animation. There is also a pause/play toggle along with buttons to manually move forward and backward through the animation when it is paused. The render scale option allows you to set the render scale of the model between 1/8, 1/4, 1/2, and 1. Texture mode allows you to choose between Textured, Untextured, or Wireframe to get different views of your model. In the right column (top-to-bottom) there is a skin selection slider to change the active skin for the current model. The next two options are toggles for animation interpolation and texture filtering view settings. The Export Texture button exports the current skin as a tga file to the progs directory. The Import Texture button will open a file prompt and then upon selecting a tga file it will be imported to the currently selected skin.
+The Model Tools pane contains a suite of options to further manipulate the model view. In the left column (top-to-bottom) there is an animation slider that displays the progress of the animation. There is also a pause/play toggle along with buttons to manually move forward and backward through the animation when it is paused. The render scale option allows you to set the render scale of the model between 1/8, 1/4, 1/2, and 1. Texture mode allows you to choose between Textured, Untextured, or Wireframe to get different views of your model. In the right column (top-to-bottom) there is a skin selection slider to change the active skin for the current model. The next two options are toggles for animation interpolation and texture filtering view settings. The Export Texture button exports the current skin as a .png file to the progs directory. The Import Texture button will open a file prompt and then upon selecting a .png/.jpg/.tga file it will be imported to the currently selected skin.
 
 ### Texture Viewer
 
-The texture viewer is a simple pane that just renders any of the tga files that you may select in the file tree.
+The texture viewer is a simple pane that can render any image or lump files as well as convert between image and lump with the button toolbar at the top.
 
 ### Palette Editor
 
@@ -103,6 +103,20 @@ The texture viewer is a simple pane that just renders any of the tga files that 
 </p>
 
 The palette editor is composed of an array of colors that loads in the palette.lmp file from your projects gfx directory on startup. To edit the palette click on one of the colors and a popup will apear that allows you to change the color. To save your palette to your project's palette.lmp file press the export button at the top of the pane.
+
+### Sprite Tools
+
+"insert sprite panel image here"
+
+The sprite tools take on a similar design to the model viewer. It also contains a slider for animating sprites as well as utility buttons for saving, loading, and adding/removing frames from a sprite. There is also a handy checkbox that visualizes the bounding radius for the sprite. The right column allows you to modify the other sprite properties that are relevant to how it is used in the Quake engine.
+
+### WAD Tools
+
+"insert wad panel here"
+
+The WAD tools are a very streamlined and minimalistic approach to creating and editing WAD files. It supports both WADs for mapping (miptex WADs) as well as WADs for UI (lump WADs) like the gfx.wad file that ships with the game. The tooling for both of these texture types is exactly the same since all of the mipmapping for the map WADs is done for you by the program. 
+
+Using the button toolbar at the top you can create, export, and add new textures to your WAD. To remove or export and individual texture click on a texture and a popup will show up to allow you to do those operations.
 
 ## Templates
 
@@ -116,7 +130,7 @@ The QuakeC is designed to be very minimal, the only functionality in the code is
 
 ### Import PAK
 
-This project template is the ideal template for those seeking to mod the original Quake game or expand upon other already existing mods. As mentioned in the Getting Started section you need to select any number of pak files and a QuakeC codebase to create this project. Thus this templates acts more as a do-it-yourself sort of option that should get you set up for making a mod with nothing more than a copy of Quake in no time.
+This project template is the ideal template for those seeking to mod the original Quake game or expand upon other already existing mods. As mentioned in the Getting Started section you need to select any number of pak files and a QuakeC codebase to create this project. Thus this templates acts more as a do-it-yourself sort of option that should get you set up for making a mod with nothing more than a copy of Quake.
 
 ### LibreQuake
 
