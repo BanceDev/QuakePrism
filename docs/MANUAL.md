@@ -94,6 +94,10 @@ The Model Tools pane contains a suite of options to further manipulate the model
 
 ### Texture Viewer
 
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/texview.png" alt="Start Screen"/>
+</p>
+
 The texture viewer is a simple pane that can render any image or lump files as well as convert between image and lump with the button toolbar at the top.
 
 ### Palette Editor
@@ -106,13 +110,17 @@ The palette editor is composed of an array of colors that loads in the palette.l
 
 ### Sprite Tools
 
-"insert sprite panel image here"
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/sprview.png" alt="Start Screen"/>
+</p>
 
 The sprite tools take on a similar design to the model viewer. It also contains a slider for animating sprites as well as utility buttons for saving, loading, and adding/removing frames from a sprite. There is also a handy checkbox that visualizes the bounding radius for the sprite. The right column allows you to modify the other sprite properties that are relevant to how it is used in the Quake engine.
 
 ### WAD Tools
 
-"insert wad panel here"
+<p align="center">
+    <img src="https://github.com/BanceDev/QuakePrism/blob/main/docs/wadview.png" alt="Start Screen"/>
+</p>
 
 The WAD tools are a very streamlined and minimalistic approach to creating and editing WAD files. It supports both WADs for mapping (miptex WADs) as well as WADs for UI (lump WADs) like the gfx.wad file that ships with the game. The tooling for both of these texture types is exactly the same since all of the mipmapping for the map WADs is done for you by the program. 
 
