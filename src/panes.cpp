@@ -1552,7 +1552,7 @@ void DrawNewProjectPopup() {
 			}
 		}
 
-		static ImGui::FileBrowser pakImportBrowser;
+		static ImGui::FileBrowser pakImportBrowser(ImGuiFileBrowserFlags_MultipleSelection);
 		pakImportBrowser.SetTitle("Import PAK");
 		pakImportBrowser.SetTypeFilters({".pak", ".PAK"});
 		if (projectType == 2) { // Import PAK Type
@@ -1567,7 +1567,7 @@ void DrawNewProjectPopup() {
 
 			pakImportBrowser.Display();
 			if (pakImportBrowser.HasSelected()) {
-				paks.push_back(pakImportBrowser.GetSelected());
+				paks = pakImportBrowser.GetMultiSelected();
 				pakImportBrowser.ClearSelected();
 			}
 			ImGui::Dummy(ImVec2(1, 20));
