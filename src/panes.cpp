@@ -347,15 +347,11 @@ void DrawModelViewer(GLuint &texture_id, GLuint &RBO, GLuint &FBO) {
 void DrawTextureViewer() {
 	ImGui::Begin("Texture Tools", nullptr, ImGuiWindowFlags_NoMove);
 	if (!currentTextureName.empty()) {
-		ImGui::GetWindowDrawList()->AddRectFilled(
-			ImGui::GetCursorScreenPos(),
-			ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth(),
-				   ImGui::GetCursorScreenPos().y + 28.0f),
-			ImColor(255, 225, 135, 30));	
-		
 		static std::string localTextureName = "";
 		static GLuint currentTexViewID = 0;
 		static int width, height;
+		static int xOff, yOff = 0;
+		static float scale = 0.9f;
 		if (localTextureName != currentTextureName.string()) {
 			localTextureName = currentTextureName.string();
 			glDeleteTextures(1, &currentTexViewID);
@@ -365,18 +361,25 @@ void DrawTextureViewer() {
 									&currentTexViewID, &width, &height);
 			} else {
 				LMP::Lmp2Tex(currentTextureName.string().c_str(),
-							 &currentTexViewID, &width, &height);
+							&currentTexViewID, &width, &height);
 			}
 		}
-		if (currentTextureName.extension() != ".lmp") {
-			if (ImGui::Button("Convert Image to Lump")) {
-				LMP::Img2Lmp(currentTextureName);
+		// texture view controls
+		if (ImGui::IsWindowHovered()) {
+			ImGuiIO &io = ImGui::GetIO();
+			if (ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+				xOff += io.MouseDelta.x;
+				yOff += io.MouseDelta.y;
 			}
-		} else {
-			if (ImGui::Button("Convert Lump to Image")) {
-				LMP::Lmp2Img(currentTextureName);
+			scale += io.MouseWheel * 0.02f;
+			if (scale <= 0) {
+				scale = 0.1f;
+			} else if (scale >= 0.9f) {
+				scale = 0.9f;
 			}
 		}
+
+		// Now calculate and draw the image centered below the header bar
 		float displayWidth =
 			width >= height
 				? ImGui::GetContentRegionAvail().x
@@ -386,10 +389,50 @@ void DrawTextureViewer() {
 				? ImGui::GetContentRegionAvail().y
 				: height * (ImGui::GetContentRegionAvail().x / (float)width);
 
+		displayWidth *= scale;
+		displayHeight *= scale;
+
+		// Get the current window size
+		ImVec2 windowSize = ImGui::GetWindowSize();
+
+		// Calculate the centered position for the image
+		float posX = (windowSize.x - displayWidth) * 0.5f + xOff;
+		float posY = (windowSize.y - displayHeight) * 0.5f + yOff;
+
+		// Ensure the image stays within window bounds
+		posX = posX > 0 ? posX : 0;
+		posY = posY > 28.0f ? posY : 28.0f;  // Ensure it starts below the header bar
+
+		// Apply padding if necessary
+		ImGui::SetCursorPos(ImVec2(posX, posY));
+
+		// Draw the image
 		ImGui::Image((ImTextureID)(intptr_t)currentTexViewID,
-					 ImVec2(displayWidth, displayHeight));
+					ImVec2(displayWidth, displayHeight));
+
+		// Draw the header bar second so its under the image
+		ImGui::SetCursorPos(ImVec2(0, 28));
+		ImGui::GetWindowDrawList()->AddRectFilled(
+			ImGui::GetCursorScreenPos(),
+			ImVec2(ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth(),
+				ImGui::GetCursorScreenPos().y + 28.0f),
+			ImColor(255, 225, 135, 30));
+
+		// After drawing the header, draw the button
+		ImGui::SetCursorPos(ImVec2(5, 28));
+		if (currentTextureName.extension() != ".lmp") {
+			if (ImGui::Button("Convert Image to Lump")) {
+				LMP::Img2Lmp(currentTextureName);
+			}
+		} else {
+			if (ImGui::Button("Convert Lump to Image")) {
+				LMP::Lmp2Img(currentTextureName);
+			}
+		}
+		
 	}
 	ImGui::End();
+
 }
 
 void DrawSpriteTool() {
