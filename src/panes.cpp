@@ -35,6 +35,7 @@ along with this program.
 #include <chrono>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -1461,6 +1462,9 @@ void DrawNewProjectPopup() {
 
 			static ImGui::FileBrowser projectLocationBrowser(
 				ImGuiFileBrowserFlags_SelectDirectory);
+#ifndef _WIN32
+			projectLocationBrowser.SetPwd(std::filesystem::path(std::getenv("HOME")));
+#endif
 			static std::filesystem::path selectedProjectDirecory;
 			if (ImGui::Button("Make Project") && strcmp(projectName, "") != 0 &&
 				projectType > 0) {
