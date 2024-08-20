@@ -377,7 +377,8 @@ void NewWadFromImages(std::vector<std::filesystem::path> files, const bool isMip
 	for (auto &file : files) {
 		InsertImage(file.string().c_str(), isMip);
 	}
-	currentWadPath = files[0].replace_extension(".wad");
+	currentWadPath = baseDirectory / files[0].filename();
+	currentWadPath = currentWadPath.replace_extension(".wad");
 }
 
 void CleanupWad() {
