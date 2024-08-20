@@ -1462,14 +1462,15 @@ void DrawNewProjectPopup() {
 
 			static ImGui::FileBrowser projectLocationBrowser(
 				ImGuiFileBrowserFlags_SelectDirectory);
-#ifndef _WIN32
-			projectLocationBrowser.SetPwd(std::filesystem::path(std::getenv("HOME")));
-#endif
 			static std::filesystem::path selectedProjectDirecory;
 			if (ImGui::Button("Make Project") && strcmp(projectName, "") != 0 &&
 				projectType > 0) {
 				projectLocationBrowser.SetTitle("Choose Project Location");
 				projectLocationBrowser.Open();
+#ifndef _WIN32
+				projectLocationBrowser.SetPwd(std::filesystem::path(std::getenv("HOME")));
+#endif
+				
 			}
 			if (projectLocationBrowser.HasSelected()) {
 				selectedProjectDirecory =
@@ -1610,6 +1611,9 @@ void DrawNewProjectPopup() {
 
 			if (ImGui::Button("Add PAK File")) {
 				pakImportBrowser.Open();
+#ifndef _WIN32
+				pakImportBrowser.SetPwd(std::filesystem::path(std::getenv("HOME")));
+#endif
 			}
 
 			pakImportBrowser.Display();
