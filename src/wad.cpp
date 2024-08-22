@@ -265,7 +265,7 @@ bool WriteWad(const char *filename) {
                 delete[] mipIndices;
             }
 
-            entry.size = dataOffset;
+            FinalizeLump(entry, dataOffset);
 
         } else {
             // Handle qpic lump
@@ -282,7 +282,7 @@ bool WriteWad(const char *filename) {
             WriteLumpData(outFile, indices, pixelCount);
             delete[] indices;
 
-            entry.size = sizeof(qpic_t) + AlignLen(pixelCount);
+			FinalizeLump(entry, sizeof(qpic_t) + AlignLen(pixelCount));
         }
 
         entry.dirsize = entry.size;
