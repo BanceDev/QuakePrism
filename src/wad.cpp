@@ -159,164 +159,154 @@ bool OpenWad(const char *filename) {
 	return true;
 }
 
-static unsigned char* DownscaleMip(unsigned char* srcPixels, int srcWidth, int srcHeight, int destWidth, int destHeight) {
-    unsigned char* destPixels = new unsigned char[destWidth * destHeight * 4]; // RGBA
-    for (int y = 0; y < destHeight; ++y) {
-        for (int x = 0; x < destWidth; ++x) {
-            int srcX = x * 2;
-            int srcY = y * 2;
-            int srcIndex = (srcY * srcWidth + srcX) * 4;
-            int destIndex = (y * destWidth + x) * 4;
-
-            // Average the color of 2x2 block
-            for (int i = 0; i < 4; ++i) {
-                destPixels[destIndex + i] = (
-                    srcPixels[srcIndex + i] +
-                    srcPixels[srcIndex + 4 + i] +
-                    srcPixels[srcIndex + srcWidth * 4 + i] +
-                    srcPixels[srcIndex + srcWidth * 4 + 4 + i]
-                ) / 4;
-            }
-        }
-    }
-    return destPixels;
+// Helper to align length to 4-byte boundary
+static int AlignLen(int len) {
+    return (len + 3) & ~3;
 }
 
+// Write lump data and apply padding if necessary
+static void WriteLumpData(std::ofstream &outFile, unsigned char* data, int length) {
+    outFile.write(reinterpret_cast<char*>(data), length);
+
+    int padding = AlignLen(length) - length;
+    if (padding > 0) {
+        static const unsigned char zeros[4] = {0};
+        outFile.write(reinterpret_cast<const char*>(zeros), padding);
+    }
+}
+
+// Finalize lump data
+static void FinalizeLump(wadentry_t &entry, int dataLength) {
+    entry.size = AlignLen(dataLength);  // Include padding in the size
+    entry.dirsize = entry.size;
+}
+
+static unsigned char* generateQpicIndices(int idx, int width, int height) {
+	unsigned char *rgbaPixels = GetTexturePixels(currentWadTexs[idx], width, height, GL_RGBA, GL_UNSIGNED_BYTE);
+
+	// Allocate memory for indexed color data
+	unsigned char *indices = new unsigned char[width * height];
+
+	// Convert RGBA to indexed color
+	convertRGBAToIndices(rgbaPixels, indices, width * height);
+
+	free(rgbaPixels);
+	return indices;
+}
+
+static unsigned char* generateMipIndices(int idx, int width, int height, int mipLevel) {
+    int mipWidth = width >> mipLevel;
+    int mipHeight = height >> mipLevel;
+
+    if (mipWidth <= 0) mipWidth = 1;
+    if (mipHeight <= 0) mipHeight = 1;
+
+
+	unsigned char* originalData = generateQpicIndices(idx, width, height);
+
+    unsigned char* mipData = new unsigned char[mipWidth * mipHeight];
+
+    for (int y = 0; y < mipHeight; ++y) {
+        for (int x = 0; x < mipWidth; ++x) {
+            // Simple nearest neighbor downsampling
+            int srcX = x << mipLevel;
+            int srcY = y << mipLevel;
+
+            mipData[y * mipWidth + x] = originalData[srcY * width + srcX];
+        }
+    }
+	delete[] originalData;
+    return mipData;
+}
+
+
+// Main function to write the WAD file
 bool WriteWad(const char *filename) {
     std::ofstream outFile(filename, std::ios::binary);
     if (!outFile.is_open()) {
-        return false; // Failed to open the file
+        return false;
     }
 
-    // Initialize WAD header
-    currentWad.id = WADID;
-    currentWad.numEntries = static_cast<int>(currentWadData.size());
-    currentWad.offset = sizeof(wad_t) + sizeof(wadentry_t) * currentWad.numEntries;
+    // Write a dummy WAD header
+    wad_t dummyHeader = {};
+    outFile.write(reinterpret_cast<char*>(&dummyHeader), sizeof(wad_t));
 
-    outFile.write(reinterpret_cast<char*>(&currentWad), sizeof(wad_t));
-
-    // Placeholder for the directory
     std::vector<wadentry_t> directoryEntries(currentWadData.size());
 
-    // Write texture data and build the directory
     for (size_t i = 0; i < currentWadData.size(); ++i) {
         waddata_t &data = currentWadData[i];
         wadentry_t entry = {};
 
-        entry.offset = static_cast<int>(outFile.tellp()); // Capture the current position in the file
-        entry.type = data.isMip ? 'D' : 'B'; // Assuming 'D' for miptex, 'B' for qpic
-        entry.compression = 0; // No compression
-        strncpy(entry.name, data.name.c_str(), 16); // Set the name of the texture
-
-        int pixelCount = data.width * data.height;
+        entry.offset = static_cast<int>(outFile.tellp()); // Record the current offset
 
         if (data.isMip) {
-            // Handle miptex
-
-            // Retrieve RGBA data from the OpenGL texture
-            unsigned char *rgbaPixels = GetTexturePixels(currentWadTexs[i], data.width, data.height, GL_RGBA, GL_UNSIGNED_BYTE);
-
-            // Allocate memory for indexed color data
-            unsigned char *indices = new unsigned char[pixelCount];
-
-            // Convert RGBA to indexed color
-            convertRGBAToIndices(rgbaPixels, indices, pixelCount);
-
-            // Create miptex structure
-            miptex_t miptex;
-            memset(&miptex, 0, sizeof(miptex_t));
+            // Handle miptex lump
+            miptex_t miptex = {};
             strncpy(miptex.name, data.name.c_str(), 16);
             miptex.width = data.width;
             miptex.height = data.height;
 
-            int mipSizes[4] = {pixelCount,
-                               (data.width / 2) * (data.height / 2),
-                               (data.width / 4) * (data.height / 4),
-                               (data.width / 8) * (data.height / 8)};
-
+            int pixelCount = data.width * data.height;
+            int mipSizes[4] = {pixelCount, (data.width / 2) * (data.height / 2), (data.width / 4) * (data.height / 4), (data.width / 8) * (data.height / 8)};
             int dataOffset = sizeof(miptex_t);
+
             for (int mip = 0; mip < 4; ++mip) {
                 miptex.offsets[mip] = dataOffset;
-                dataOffset += mipSizes[mip];
+                dataOffset += AlignLen(mipSizes[mip]);
             }
 
             // Write miptex header
             outFile.write(reinterpret_cast<char*>(&miptex), sizeof(miptex_t));
 
-            // Write the indexed color data for each mip level
-            unsigned char* currentPixels = rgbaPixels;
-            int currentWidth = data.width;
-            int currentHeight = data.height;
-
+            // Write mip levels with padding
             for (int mip = 0; mip < 4; ++mip) {
-                unsigned char* mipIndices = new unsigned char[mipSizes[mip]];
-                convertRGBAToIndices(currentPixels, mipIndices, mipSizes[mip]);
-
-                outFile.write(reinterpret_cast<char*>(mipIndices), mipSizes[mip]);
-
+                unsigned char* mipIndices = generateMipIndices(i, data.width, data.height, mip);
+                WriteLumpData(outFile, mipIndices, mipSizes[mip]);
                 delete[] mipIndices;
-
-                if (mip < 3) { // Downscale for next mip level
-                    unsigned char* nextPixels = DownscaleMip(currentPixels, currentWidth, currentHeight, currentWidth / 2, currentHeight / 2);
-                    if (mip > 0) {
-                        delete[] currentPixels;
-                    }
-                    currentPixels = nextPixels;
-                    currentWidth /= 2;
-                    currentHeight /= 2;
-                }
-            }
-
-            if (currentPixels != rgbaPixels) {
-                delete[] currentPixels;
             }
 
             entry.size = dataOffset;
 
-            // Clean up
-            delete[] indices;
-            free(rgbaPixels);
-
         } else {
-            // Handle qpic
-
-            // Retrieve RGBA data from the OpenGL texture
-            unsigned char *rgbaPixels = GetTexturePixels(currentWadTexs[i], data.width, data.height, GL_RGBA, GL_UNSIGNED_BYTE);
-
-            // Allocate memory for indexed color data
-            unsigned char *indices = new unsigned char[pixelCount];
-
-            // Convert RGBA to indexed color
-            convertRGBAToIndices(rgbaPixels, indices, pixelCount);
-
-            // Create qpic structure
-            qpic_t qpic;
+            // Handle qpic lump
+            qpic_t qpic = {};
             qpic.width = data.width;
             qpic.height = data.height;
+
+            int pixelCount = data.width * data.height;
 
             // Write qpic header
             outFile.write(reinterpret_cast<char*>(&qpic), sizeof(qpic_t));
 
-            // Write the indexed color data
-            outFile.write(reinterpret_cast<char*>(indices), pixelCount);
-
-            entry.size = sizeof(qpic_t) + pixelCount;
-
-            // Clean up
+            unsigned char* indices = generateQpicIndices(i, data.width, data.height);
+            WriteLumpData(outFile, indices, pixelCount);
             delete[] indices;
-            free(rgbaPixels);
+
+            entry.size = sizeof(qpic_t) + AlignLen(pixelCount);
         }
 
         entry.dirsize = entry.size;
+        entry.type = data.isMip ? 'D' : 'B';
+        entry.compression = 0;
+        entry.dummy = 0;
+        strncpy(entry.name, data.name.c_str(), 16);
 
-        // Add the directory entry to the list
         directoryEntries[i] = entry;
     }
 
-    // Write the directory at the end of the file
-    outFile.seekp(currentWad.offset, std::ios::beg);
+    // Write directory at the end of the file
+    int directoryOffset = static_cast<int>(outFile.tellp());
     outFile.write(reinterpret_cast<char*>(directoryEntries.data()), sizeof(wadentry_t) * directoryEntries.size());
 
+    // Correct WAD header
+    currentWad.offset = directoryOffset;
+    currentWad.numEntries = directoryEntries.size();
+
+    // Rewind and write the correct header
+    outFile.seekp(0, std::ios::beg);
+    outFile.write(reinterpret_cast<char*>(&currentWad), sizeof(wad_t));
+
+    // Close the file
     outFile.close();
     return true;
 }
