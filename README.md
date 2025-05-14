@@ -60,5 +60,5 @@ All windows builds for this project are currently cross compiled from Linux. The
 ### Credits
 - [Dear ImGui](https://github.com/ocornut/imgui)
 - [YamagiQ2 PakExtract](https://github.com/yquake2/pakextract)
-- [Libre Quake](https://github.com/MissLavender-LQ/LibreQuake)
+- [LibreQuake](https://github.com/lavenderdotpet/LibreQuake)
 - [Kebby-Quake](https://github.com/Kebby-Quake)
